@@ -1,0 +1,45 @@
+entity.rma_workflow.add_form:
+  route_name: entity.rma_workflow.add_form
+  title: 'Add RMAWorkflow'
+  appears_on:
+    - entity.rma_workflow.collection
+entity.rma_type.add_form:
+  route_name: entity.rma_type.add_form
+  title: 'Add RMAType'
+  appears_on:
+    - entity.rma_type.collection
+entity.rma_reason.add_form:
+  route_name: entity.rma_reason.add_form
+  title: 'Add RMAReason'
+  appears_on:
+    - entity.rma_reason.collection
+entity.rma_item_workflow.add_form:
+  route_name: entity.rma_item_workflow.add_form
+  title: 'Add RMA item workflow'
+  appears_on:
+    - entity.rma_item_workflow.collection
+entity.rma_item_type.add_form:
+  route_name: entity.rma_item_type.add_form
+  title: 'Add RMA item type'
+  appears_on:
+    - entity.rma_item_type.collection
+entity.rma_item.add_form:
+  route_name: entity.rma_item.add_page
+  title: 'Add RMA item'
+  appears_on:
+    - entity.rma_item.collection
+entity.rma_item_type.add_form:
+  route_name: entity.rma_item_type.add_form
+  title: 'Add RMA item type'
+  appears_on:
+    - entity.rma_item_type.collection
+entity.rma.add_form:
+  route_name: entity.rma.add_page
+  title: 'Add RMA'
+  appears_on:
+    - entity.rma.collection
+entity.rma_type.add_form:
+  route_name: entity.rma_type.add_form
+  title: 'Add RMA type'
+  appears_on:
+    - entity.rma_type.collection

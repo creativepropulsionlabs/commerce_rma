@@ -1,0 +1,60 @@
+add rma item entities:
+  title: 'Create new RMA item entities'
+
+administer rma item entities:
+  title: 'Administer RMA item entities'
+  description: 'Allow to access the administration form to configure RMA item entities.'
+  restrict access: true
+
+delete rma item entities:
+  title: 'Delete RMA item entities'
+
+edit rma item entities:
+  title: 'Edit RMA item entities'
+
+view published rma item entities:
+  title: 'View published RMA item entities'
+
+view unpublished rma item entities:
+  title: 'View unpublished RMA item entities'
+
+view all rma item revisions:
+  title: 'View all RMA item revisions'
+
+revert all rma item revisions:
+  title: 'Revert all RMA item revisions'
+  description: 'Role requires permission <em>view RMA item revisions</em> and <em>edit rights</em> for rma item entities in question or <em>administer rma item entities</em>.'
+
+delete all rma item revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view RMA item revisions</em> and <em>delete rights</em> for rma item entities in question or <em>administer rma item entities</em>.'
+add rma entities:
+  title: 'Create new RMA entities'
+
+administer rma entities:
+  title: 'Administer RMA entities'
+  description: 'Allow to access the administration form to configure RMA entities.'
+  restrict access: true
+
+delete rma entities:
+  title: 'Delete RMA entities'
+
+edit rma entities:
+  title: 'Edit RMA entities'
+
+view published rma entities:
+  title: 'View published RMA entities'
+
+view unpublished rma entities:
+  title: 'View unpublished RMA entities'
+
+view all rma revisions:
+  title: 'View all RMA revisions'
+
+revert all rma revisions:
+  title: 'Revert all RMA revisions'
+  description: 'Role requires permission <em>view RMA revisions</em> and <em>edit rights</em> for rma entities in question or <em>administer rma entities</em>.'
+
+delete all rma revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view RMA revisions</em> and <em>delete rights</em> for rma entities in question or <em>administer rma entities</em>.'

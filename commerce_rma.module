@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * @file
+ * Contains commerce_rma.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function commerce_rma_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the commerce_rma module.
+    case 'help.page.commerce_rma':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Commerce RMA Drupal 8.x architecture') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_rma_theme() {
+  $theme = [];
+
+  $themes['commerce_rma'] = [
+    'render element' => 'children',
+  ];
+
+  $theme['rma_item'] = [
+    'render element' => 'elements',
+    'file' => 'rma_item.page.inc',
+    'template' => 'rma_item',
+  ];
+
+  $theme['rma_item_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'rma_item.page.inc',
+  ];
+
+  $theme['rma'] = [
+    'render element' => 'elements',
+    'file' => 'rma.page.inc',
+    'template' => 'rma',
+  ];
+
+    $theme['rma_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'rma.page.inc',
+  ];
+
+
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function commerce_rma_theme_suggestions_rma_item(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#rma_item'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'rma_item__' . $sanitized_view_mode;
+  $suggestions[] = 'rma_item__' . $entity->bundle();
+  $suggestions[] = 'rma_item__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'rma_item__' . $entity->id();
+  $suggestions[] = 'rma_item__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function commerce_rma_theme_suggestions_rma(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#rma'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'rma__' . $sanitized_view_mode;
+  $suggestions[] = 'rma__' . $entity->bundle();
+  $suggestions[] = 'rma__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'rma__' . $entity->id();
+  $suggestions[] = 'rma__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}

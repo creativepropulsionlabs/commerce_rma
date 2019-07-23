@@ -1,0 +1,7 @@
+commerce_rma:
+  label: Order RMA
+  entity_type: rma
+
+commerce_rma_item:
+  label: Order RMA item
+  entity_type: rma_item

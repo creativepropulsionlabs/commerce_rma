@@ -1,0 +1,10 @@
+name: 'Commerce RMA'
+type: module
+description: 'Commerce RMA Drupal 8.x architecture'
+core: 8.x
+package: 'Custom'
+dependencies:
+  - commerce
+  - commerce_order
+  - commerce_price
+  - state_machine

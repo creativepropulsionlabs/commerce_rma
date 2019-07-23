@@ -1,0 +1,12 @@
+commerce_rma.rma_item_type.*:
+  type: config_entity
+  label: 'RMA item type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

@@ -1,0 +1,41 @@
+commerce_order_rma_default:
+  id: commerce_order_rma_default
+  group: commerce_rma
+  label: 'Default'
+  states:
+    draft:
+      label: Draft
+    completed:
+      label: Completed
+    canceled:
+      label: Canceled
+  transitions:
+    place:
+      label: 'Place RMA'
+      from: [draft]
+      to: completed
+    cancel:
+      label: 'Cancel RMA'
+      from: [draft]
+      to:   canceled
+
+commerce_order_rma_item_default:
+  id: commerce_order_rma_item_default
+  group: commerce_rma_item
+  label: 'Default'
+  states:
+    draft:
+      label: Draft
+    completed:
+      label: Completed
+    canceled:
+      label: Canceled
+  transitions:
+    place:
+      label: 'Place RMA item'
+      from: [draft]
+      to: completed
+    cancel:
+      label: 'Cancel RMA Item'
+      from: [draft]
+      to:   canceled
