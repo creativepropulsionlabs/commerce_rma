@@ -22,7 +22,7 @@ class RMAItemTypeDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.rma_item_type.collection');
+    return new Url('entity.commerce_rma_item_type.collection');
   }
 
   /**

@@ -1,0 +1,42 @@
+commerce_rma.commerce_rma_type.*:
+  type: config_entity
+  label: 'RMA type config'
+  mapping:
+    workflow:
+      type: string
+      label: 'Workflow'
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+
+commerce_rma.commerce_rma_item_type.*:
+  type: config_entity
+  label: 'RMA item type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+
+commerce_rma.commerce_rma_reason.*:
+  type: config_entity
+  label: 'RMAReason config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+

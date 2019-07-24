@@ -1,6 +1,6 @@
 {#
 /**
- * @file rma.html.twig
+ * @file commerce_rma_entity.html.twig
  * Default theme implementation to present RMA data.
  *
  * This template is used when viewing RMA pages.
@@ -10,12 +10,12 @@
  * - content: A list of content items. Use 'content' to print all content, or
  * - attributes: HTML attributes for the container element.
  *
- * @see template_preprocess_rma()
+ * @see template_preprocess_commerce_rma_entity()
  *
  * @ingroup themeable
  */
 #}
-<div{{ attributes.addClass('rma') }}>
+<div{{ attributes.addClass('commerce_rma_entity') }}>
   {% if content %}
     {{- content -}}
   {% endif %}

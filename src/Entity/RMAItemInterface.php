@@ -14,7 +14,7 @@ use Drupal\commerce_price\Price;
  *
  * @ingroup commerce_rma
  */
-interface RMAItemInterface extends ContentEntityInterface, RevisionLogInterface, EntityChangedInterface, EntityPublishedInterface, EntityOwnerInterface {
+interface RMAItemInterface extends ContentEntityInterface, EntityChangedInterface {
 
   /**
    * Gets the RMA item name.
@@ -53,44 +53,6 @@ interface RMAItemInterface extends ContentEntityInterface, RevisionLogInterface,
    *   The called RMA item entity.
    */
   public function setCreatedTime($timestamp);
-
-  /**
-   * Gets the RMA item revision creation timestamp.
-   *
-   * @return int
-   *   The UNIX timestamp of when this revision was created.
-   */
-  public function getRevisionCreationTime();
-
-  /**
-   * Sets the RMA item revision creation timestamp.
-   *
-   * @param int $timestamp
-   *   The UNIX timestamp of when this revision was created.
-   *
-   * @return \Drupal\commerce_rma\Entity\RMAItemInterface
-   *   The called RMA item entity.
-   */
-  public function setRevisionCreationTime($timestamp);
-
-  /**
-   * Gets the RMA item revision author.
-   *
-   * @return \Drupal\user\UserInterface
-   *   The user entity for the revision author.
-   */
-  public function getRevisionUser();
-
-  /**
-   * Sets the RMA item revision author.
-   *
-   * @param int $uid
-   *   The user ID of the revision author.
-   *
-   * @return \Drupal\commerce_rma\Entity\RMAItemInterface
-   *   The called RMA item entity.
-   */
-  public function setRevisionUserId($uid);
 
   /**
    * Gets the RMA item  amount.

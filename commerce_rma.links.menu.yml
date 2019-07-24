@@ -1,74 +1,96 @@
-
-# RMAWorkflow menu items definition
-entity.rma_workflow.collection:
-  title: 'RMAWorkflow'
-  route_name: entity.rma_workflow.collection
-  description: 'List RMAWorkflow (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
-# RMAType menu items definition
-entity.rma_type.collection:
-  title: 'RMAType'
-  route_name: entity.rma_type.collection
-  description: 'List RMAType (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
-# RMAReason menu items definition
-entity.rma_reason.collection:
-  title: 'RMAReason'
-  route_name: entity.rma_reason.collection
-  description: 'List RMAReason (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
-# RMA item workflow menu items definition
-entity.rma_item_workflow.collection:
-  title: 'RMA item workflow'
-  route_name: entity.rma_item_workflow.collection
-  description: 'List RMA item workflow (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
-# RMA item type menu items definition
-entity.rma_item_type.collection:
-  title: 'RMA item type'
-  route_name: entity.rma_item_type.collection
-  description: 'List RMA item type (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
-# RMA item menu items definition
-entity.rma_item.collection:
-  title: 'RMA item list'
-  route_name: entity.rma_item.collection
-  description: 'List RMA item entities'
-  parent: system.admin_structure
-  weight: 100
-
-
-# RMA item type menu items definition
-entity.rma_item_type.collection:
-  title: 'RMA item type'
-  route_name: entity.rma_item_type.collection
-  description: 'List RMA item type (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
 # RMA menu items definition
-entity.rma.collection:
+entity.commerce_rma_entity.collection:
   title: 'RMA list'
-  route_name: entity.rma.collection
+  route_name: entity.commerce_rma_entity.collection
   description: 'List RMA entities'
   parent: system.admin_structure
   weight: 100
 
-
-# RMA type menu items definition
-entity.rma_type.collection:
-  title: 'RMA type'
-  route_name: entity.rma_type.collection
-  description: 'List RMA type (bundles)'
+# RMAType menu items definition
+entity.commerce_rma_type.collection:
+  title: 'RMAType'
+  route_name: entity.commerce_rma_type.collection
+  description: 'List RMAType (bundles)'
   parent: system.admin_structure
   weight: 99
+
+# RMA item menu items definition
+entity.commerce_rma_item.collection:
+  title: 'RMA item list'
+  route_name: entity.commerce_rma_item.collection
+  description: 'List RMA item entities'
+  parent: system.admin_structure
+  weight: 100
+
+# RMA item type menu items definition
+entity.commerce_rma_item_type.collection:
+  title: 'RMA item type'
+  route_name: entity.commerce_rma_item_type.collection
+  description: 'List RMA item type (bundles)'
+  parent: system.admin_structure
+  weight: 99
+
+# RMAReason menu items definition
+entity.commerce_rma_reason.collection:
+  title: 'RMAReason'
+  route_name: entity.commerce_rma_reason.collection
+  description: 'List RMAReason (bundles)'
+  parent: system.admin_structure
+  weight: 99
+
+## RMA item type menu items definition
+##entity.rma_item_type.collection:
+##  title: 'RMA item type'
+##  route_name: entity.rma_item_type.collection
+##  description: 'List RMA item type (bundles)'
+##  parent: system.admin_structure
+##  weight: 99
+#
+## RMA type menu items definition
+##entity.commerce_rma_type.collection:
+##  title: 'RMA type'
+##  route_name: entity.commerce_rma_type.collection
+##  description: 'List RMA type (bundles)'
+##  parent: system.admin_structure
+##  weight: 99
+#
+## RMA menu items definition
+##entity.commerce_rma.collection:
+##  title: 'RMA list'
+##  route_name: entity.commerce_rma.collection
+##  description: 'List RMA entities'
+##  parent: system.admin_structure
+##  weight: 100
+#
+## Testtest menu items definition
+#entity.t_e_s_t_t_e_s_t.collection:
+#  title: 'Testtest list'
+#  route_name: entity.t_e_s_t_t_e_s_t.collection
+#  description: 'List Testtest entities'
+#  parent: system.admin_structure
+#  weight: 100
+#
+#
+## Testtest type menu items definition
+#entity.t_e_s_t_t_e_s_t_type.collection:
+#  title: 'Testtest type'
+#  route_name: entity.t_e_s_t_t_e_s_t_type.collection
+#  description: 'List Testtest type (bundles)'
+#  parent: system.admin_structure
+#  weight: 99
+#
+## Test conf menu items definition
+#entity.test_conf.collection:
+#  title: 'Test conf'
+#  route_name: entity.test_conf.collection
+#  description: 'List Test conf (bundles)'
+#  parent: system.admin_structure
+#  weight: 99
+#
+## RMA type menu items definition
+##entity.commerce_rma_entity_type.collection:
+##  title: 'RMA type'
+##  route_name: entity.commerce_rma_entity_type.collection
+##  description: 'List RMA type (bundles)'
+##  parent: system.admin_structure
+##  weight: 99

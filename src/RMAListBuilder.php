@@ -30,8 +30,8 @@ class RMAListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.rma.edit_form',
-      ['rma' => $entity->id()]
+      'entity.commerce_rma_entity.edit_form',
+      ['commerce_rma_entity' => $entity->id()]
     );
     return $row + parent::buildRow($entity);
   }

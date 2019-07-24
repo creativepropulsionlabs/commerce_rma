@@ -2,13 +2,57 @@
 
 namespace Drupal\commerce_rma\Form;
 
+use Drupal\commerce\EntityHelper;
+use Drupal\commerce\EntityTraitManagerInterface;
+use Drupal\commerce\Form\CommerceBundleEntityFormBase;
+use Drupal\commerce_rma\Entity\RMAType;
+use Drupal\commerce_rma\Entity\RMATypeInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\entity\Form\EntityDuplicateFormTrait;
+use Drupal\state_machine\WorkflowManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class RMATypeForm.
  */
-class RMATypeForm extends EntityForm {
+//class RMATypeForm extends EntityForm {
+
+class RMATypeForm extends CommerceBundleEntityFormBase {
+
+  use EntityDuplicateFormTrait;
+
+  /**
+   * The workflow manager.
+   *
+   * @var \Drupal\state_machine\WorkflowManagerInterface
+   */
+  protected $workflowManager;
+
+  /**
+   * Constructs a new RMATypeForm object.
+   *
+   * @param \Drupal\commerce\EntityTraitManagerInterface $trait_manager
+   *   The entity trait manager.
+   * @param \Drupal\state_machine\WorkflowManagerInterface $workflow_manager
+   *   The workflow manager.
+   */
+  public function __construct(EntityTraitManagerInterface $trait_manager, WorkflowManagerInterface $workflow_manager) {
+//  public function __construct(WorkflowManagerInterface $workflow_manager) {
+    parent::__construct($trait_manager);
+
+    $this->workflowManager = $workflow_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.commerce_entity_trait'),
+      $container->get('plugin.manager.workflow')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -16,50 +60,96 @@ class RMATypeForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    $rma_type = $this->entity;
+    $commerce_rma_type = $this->entity;
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
-      '#default_value' => $rma_type->label(),
+      '#default_value' => $commerce_rma_type->label(),
       '#description' => $this->t("Label for the RMA type."),
       '#required' => TRUE,
     ];
 
     $form['id'] = [
       '#type' => 'machine_name',
-      '#default_value' => $rma_type->id(),
+      '#default_value' => $commerce_rma_type->id(),
       '#machine_name' => [
         'exists' => '\Drupal\commerce_rma\Entity\RMAType::load',
       ],
-      '#disabled' => !$rma_type->isNew(),
+      '#disabled' => !$commerce_rma_type->isNew(),
     ];
 
-    /* You will need additional form elements for your custom properties. */
+//    $storage = \Drupal::entityTypeManager()->getStorage('commerce_checkout_flow');
+    $storage = \Drupal::entityTypeManager()->getStorage('commerce_checkout_flow');
+    $checkout_flows = $storage->loadMultiple();
+
+    /** @var \Drupal\commerce_rma\Entity\RMAType $order_type */
+    $order_type = $this->entity;
+    $workflows = $this->workflowManager->getGroupedLabels('commerce_rma_entity');
+
+    $form['workflow'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Workflow'),
+      '#options' => $workflows,
+      '#default_value' => $order_type->getWorkflowId(),
+      '#description' => $this->t('Used by all orders of this type.'),
+    ];
+    $form = $this->buildTraitForm($form, $form_state);
+
+//
+//    $form['commerce_checkout'] = [
+//      '#type' => 'details',
+//      '#title' => t('Checkout settings'),
+//      '#weight' => 5,
+//      '#open' => TRUE,
+//    ];
+//    $form['commerce_checkout']['checkout_flow'] = [
+//      '#type' => 'select',
+//      '#title' => t('Checkout flow'),
+//      '#options' => EntityHelper::extractLabels($checkout_flows),
+////      '#default_value' => $order_type->getThirdPartySetting('commerce_checkout', 'checkout_flow', 'default'),
+//      '#required' => TRUE,
+//    ];
 
     return $form;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $workflow */
+    $workflow = $this->workflowManager->createInstance($form_state->getValue('workflow'));
+    // Verify "Place" transition.
+    if (!$workflow->getTransition('place')) {
+      $form_state->setError($form['workflow'], $this->t('The @workflow workflow does not have a "Place" transition.', [
+        '@workflow' => $workflow->getLabel(),
+      ]));
+    }
+    // Verify "draft" state.
+    if (!$workflow->getState('draft')) {
+      $form_state->setError($form['workflow'], $this->t('The @workflow workflow does not have a "Draft" state.', [
+        '@workflow' => $workflow->getLabel(),
+      ]));
+    }
+    $this->validateTraitForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $rma_type = $this->entity;
-    $status = $rma_type->save();
-
-    switch ($status) {
-      case SAVED_NEW:
-        $this->messenger()->addMessage($this->t('Created the %label RMA type.', [
-          '%label' => $rma_type->label(),
-        ]));
-        break;
-
-      default:
-        $this->messenger()->addMessage($this->t('Saved the %label RMA type.', [
-          '%label' => $rma_type->label(),
-        ]));
+    $this->entity->save();
+    $this->postSave($this->entity, $this->operation);
+//    $this->submitTraitForm($form, $form_state);
+    if ($this->operation == 'add') {
+      commerce_rma_add_order_items_field($this->entity);
     }
-    $form_state->setRedirectUrl($rma_type->toUrl('collection'));
+
+    $this->messenger()->addMessage($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
+    $form_state->setRedirect('entity.commerce_rma_type.collection');
   }
+
 
 }

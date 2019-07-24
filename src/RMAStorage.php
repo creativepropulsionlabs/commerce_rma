@@ -6,6 +6,7 @@ use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\commerce_rma\Entity\RMAInterface;
+use Drupal\commerce\CommerceContentEntityStorage;
 
 /**
  * Defines the storage handler class for RMA entities.
@@ -15,7 +16,7 @@ use Drupal\commerce_rma\Entity\RMAInterface;
  *
  * @ingroup commerce_rma
  */
-class RMAStorage extends SqlContentEntityStorage implements RMAStorageInterface {
+class RMAStorage extends CommerceContentEntityStorage implements RMAStorageInterface {
 
   /**
    * {@inheritdoc}

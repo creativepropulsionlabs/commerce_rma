@@ -2,13 +2,13 @@
 
 namespace Drupal\commerce_rma\Entity;
 
-use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
+use Drupal\commerce\Entity\CommerceBundleEntityBase;
 
 /**
  * Defines the RMA item type entity.
  *
  * @ConfigEntityType(
- *   id = "rma_item_type",
+ *   id = "commerce_rma_item_type",
  *   label = @Translation("RMA item type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
@@ -22,24 +22,24 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *       "html" = "Drupal\commerce_rma\RMAItemTypeHtmlRouteProvider",
  *     },
  *   },
- *   config_prefix = "rma_item_type",
- *   admin_permission = "administer site configuration",
- *   bundle_of = "rma_item",
+ *   config_prefix = "commerce_rma_item_type",
+ *   admin_permission = "administer commerce_rma_item_type",
+ *   bundle_of = "commerce_rma_item",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/rma_item_type/{rma_item_type}",
- *     "add-form" = "/admin/structure/rma_item_type/add",
- *     "edit-form" = "/admin/structure/rma_item_type/{rma_item_type}/edit",
- *     "delete-form" = "/admin/structure/rma_item_type/{rma_item_type}/delete",
- *     "collection" = "/admin/structure/rma_item_type"
+ *     "canonical" = "/admin/commerce/rma_item_type/{commerce_rma_item_type}",
+ *     "add-form" = "/admin/commerce/rma_item_type/add",
+ *     "edit-form" = "/admin/commerce/rma_item_type/{commerce_rma_item_type}/edit",
+ *     "delete-form" = "/admin/commerce/rma_item_type/{commerce_rma_item_type}/delete",
+ *     "collection" = "/admin/commerce/rma_item_type"
  *   }
  * )
  */
-class RMAItemType extends ConfigEntityBundleBase implements RMAItemTypeInterface {
+class RMAItemType extends CommerceBundleEntityBase implements RMAItemTypeInterface {
 
   /**
    * The RMA item type ID.
@@ -56,19 +56,27 @@ class RMAItemType extends ConfigEntityBundleBase implements RMAItemTypeInterface
   protected $label;
 
   /**
-   * The RMA workflow.
+   * The workflow manager.
    *
-   * @var \Drupal\commerce_rma\Entity\RMAWorkflow
+   * @var \Drupal\state_machine\WorkflowManagerInterface
    */
-  protected $workflow;
+  protected $workflowManager;
 
-  /**
-   * {@inheritdoc}
-   *
-   * @return \Drupal\commerce_rma\Entity\RMAWorkflow
-   */
-  public function getWorkflow() {
-    return $this->workflow;
-  }
+
+//  /**
+//   * The RMA workflow.
+//   *
+//   * @var \Drupal\commerce_rma\Entity\RMAWorkflow
+//   */
+//  protected $workflow;
+
+//  /**
+//   * {@inheritdoc}
+//   *
+//   * @return \Drupal\commerce_rma\Entity\RMAWorkflow
+//   */
+//  public function getWorkflow() {
+//    return $this->workflow;
+//  }
 
 }

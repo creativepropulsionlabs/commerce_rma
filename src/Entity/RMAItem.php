@@ -2,12 +2,11 @@
 
 namespace Drupal\commerce_rma\Entity;
 
+use Drupal\commerce\Entity\CommerceContentEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\RevisionableContentEntityBase;
-use Drupal\Core\Entity\RevisionableInterface;
+//use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
-use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\UserInterface;
 use Drupal\commerce_price\Price;
@@ -18,7 +17,7 @@ use Drupal\commerce_price\Price;
  * @ingroup commerce_rma
  *
  * @ContentEntityType(
- *   id = "rma_item",
+ *   id = "commerce_rma_item",
  *   label = @Translation("RMA item"),
  *   bundle_label = @Translation("RMA item type"),
  *   handlers = {
@@ -39,12 +38,12 @@ use Drupal\commerce_price\Price;
  *     },
  *     "access" = "Drupal\commerce_rma\RMAItemAccessControlHandler",
  *   },
- *   base_table = "rma_item",
- *   data_table = "rma_item_field_data",
- *   revision_table = "rma_item_revision",
- *   revision_data_table = "rma_item_field_revision",
+ *   base_table = "commerce_rma_item",
+ *   data_table = "commerce_rma_item_field_data",
+ *   revision_table = "commerce_rma_item_revision",
+ *   revision_data_table = "commerce_rma_item_field_revision",
  *   translatable = TRUE,
- *   admin_permission = "administer rma item entities",
+ *   admin_permission = "administer commerce_rma_item",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "vid",
@@ -56,26 +55,25 @@ use Drupal\commerce_price\Price;
  *     "published" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/rma_item/{rma_item}",
- *     "add-page" = "/admin/structure/rma_item/add",
- *     "add-form" = "/admin/structure/rma_item/add/{rma_item_type}",
- *     "edit-form" = "/admin/structure/rma_item/{rma_item}/edit",
- *     "delete-form" = "/admin/structure/rma_item/{rma_item}/delete",
- *     "version-history" = "/admin/structure/rma_item/{rma_item}/revisions",
- *     "revision" = "/admin/structure/rma_item/{rma_item}/revisions/{rma_item_revision}/view",
- *     "revision_revert" = "/admin/structure/rma_item/{rma_item}/revisions/{rma_item_revision}/revert",
- *     "revision_delete" = "/admin/structure/rma_item/{rma_item}/revisions/{rma_item_revision}/delete",
- *     "translation_revert" = "/admin/structure/rma_item/{rma_item}/revisions/{rma_item_revision}/revert/{langcode}",
- *     "collection" = "/admin/structure/rma_item",
+ *     "canonical" = "/admin/commerce/rma_item/{commerce_rma_item}",
+ *     "add-page" = "/admin/commerce/rma_item/add",
+ *     "add-form" = "/admin/commerce/rma_item/add/{rma_item_type}",
+ *     "edit-form" = "/admin/commerce/rma_item/{rma_item}/edit",
+ *     "delete-form" = "/admin/commerce/rma_item/{commerce_rma_item}/delete",
+ *     "version-history" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions",
+ *     "revision" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/view",
+ *     "revision_revert" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/revert",
+ *     "revision_delete" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/delete",
+ *     "translation_revert" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/revert/{langcode}",
+ *     "collection" = "/admin/commerce/rma_item",
  *   },
- *   bundle_entity_type = "rma_item_type",
- *   field_ui_base_route = "entity.rma_item_type.edit_form"
+ *   bundle_entity_type = "commerce_rma_item_type",
+ *   field_ui_base_route = "entity.commerce_rma_item_type.edit_form"
  * )
  */
-class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface {
+class RMAItem extends CommerceContentEntityBase implements RMAItemInterface {
 
   use EntityChangedTrait;
-  use EntityPublishedTrait;
 
   /**
    * {@inheritdoc}
@@ -93,13 +91,6 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
   protected function urlRouteParameters($rel) {
     $uri_route_parameters = parent::urlRouteParameters($rel);
 
-    if ($rel === 'revision_revert' && $this instanceof RevisionableInterface) {
-      $uri_route_parameters[$this->getEntityTypeId() . '_revision'] = $this->getRevisionId();
-    }
-    elseif ($rel === 'revision_delete' && $this instanceof RevisionableInterface) {
-      $uri_route_parameters[$this->getEntityTypeId() . '_revision'] = $this->getRevisionId();
-    }
-
     return $uri_route_parameters;
   }
 
@@ -116,12 +107,6 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
       if (!$translation->getOwner()) {
         $translation->setOwnerId(0);
       }
-    }
-
-    // If no revision author has been set explicitly,
-    // make the rma_item owner the revision author.
-    if (!$this->getRevisionUser()) {
-      $this->setRevisionUserId($this->getOwnerId());
     }
   }
 
@@ -232,13 +217,9 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
-    // Add the published field.
-    $fields += static::publishedBaseFieldDefinitions($entity_type);
-
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Authored by'))
       ->setDescription(t('The user ID of author of the RMA item entity.'))
-      ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
       ->setTranslatable(TRUE)
@@ -263,7 +244,6 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the RMA item entity.'))
-      ->setRevisionable(TRUE)
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
@@ -282,12 +262,6 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired(TRUE);
 
-    $fields['status']->setDescription(t('A boolean indicating whether the RMA item is published.'))
-      ->setDisplayOptions('form', [
-        'type' => 'boolean_checkbox',
-        'weight' => -3,
-      ]);
-
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the entity was created.'));
@@ -300,7 +274,6 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
       ->setLabel(t('Revision translation affected'))
       ->setDescription(t('Indicates if the last edit of a translation belongs to current revision.'))
       ->setReadOnly(TRUE)
-      ->setRevisionable(TRUE)
       ->setTranslatable(TRUE);
 
     $fields['amount'] = BaseFieldDefinition::create('commerce_price')
@@ -314,7 +287,7 @@ class RMAItem extends RevisionableContentEntityBase implements RMAItemInterface 
       ->setLabel(t('State'))
       ->setDescription(t('The returning state.'))
       ->setRequired(TRUE)
-      ->setSetting('rma_workflow', 'rma_default')
+//      ->setSetting('rma_workflow1', 'rma_default')
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'state_transition_form',

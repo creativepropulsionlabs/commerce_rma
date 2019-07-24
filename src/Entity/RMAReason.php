@@ -8,7 +8,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  * Defines the RMA reason entity.
  *
  * @ConfigEntityType(
- *   id = "rma_reason",
+ *   id = "commerce_rma_reason",
  *   label = @Translation("RMA reason"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
@@ -22,23 +22,23 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *       "html" = "Drupal\commerce_rma\RMAReasonHtmlRouteProvider",
  *     },
  *   },
- *   config_prefix = "rma_reason",
- *   admin_permission = "administer site configuration",
+ *   config_prefix = "commerce_rma_reason",
+ *   admin_permission = "administer rma reason",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/rma_reason/{rma_reason}",
- *     "add-form" = "/admin/structure/rma_reason/add",
- *     "edit-form" = "/admin/structure/rma_reason/{rma_reason}/edit",
- *     "delete-form" = "/admin/structure/rma_reason/{rma_reason}/delete",
- *     "collection" = "/admin/structure/rma_reason"
+ *     "canonical" = "/admin/commerce/rma_reason/{commerce_rma_reason}",
+ *     "add-form" = "/admin/commerce/rma_reason/add",
+ *     "edit-form" = "/admin/commerce/rma_reason/{commerce_rma_reason}/edit",
+ *     "delete-form" = "/admin/commerce/rma_reason/{commerce_rma_reason}/delete",
+ *     "collection" = "/admin/commerce/rma_reason"
  *   }
  * )
  */
-class RMAReason extends ConfigEntityBase implements RMAReasonInterface {
+class RMAReason extends ConfigEntityBase  implements RMAReasonInterface {
 
   /**
    * The RMA reason ID.

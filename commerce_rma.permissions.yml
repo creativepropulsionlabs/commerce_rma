@@ -1,7 +1,8 @@
 add rma item entities:
   title: 'Create new RMA item entities'
 
-administer rma item entities:
+#administer rma item entities:
+administer commerce_rma_item:
   title: 'Administer RMA item entities'
   description: 'Allow to access the administration form to configure RMA item entities.'
   restrict access: true
@@ -28,10 +29,12 @@ revert all rma item revisions:
 delete all rma item revisions:
   title: 'Delete all revisions'
   description: 'Role requires permission to <em>view RMA item revisions</em> and <em>delete rights</em> for rma item entities in question or <em>administer rma item entities</em>.'
+
 add rma entities:
   title: 'Create new RMA entities'
 
-administer rma entities:
+#administer rma entities:
+administer commerce_rma:
   title: 'Administer RMA entities'
   description: 'Allow to access the administration form to configure RMA entities.'
   restrict access: true
@@ -58,3 +61,33 @@ revert all rma revisions:
 delete all rma revisions:
   title: 'Delete all revisions'
   description: 'Role requires permission to <em>view RMA revisions</em> and <em>delete rights</em> for rma entities in question or <em>administer rma entities</em>.'
+add testtest entities:
+  title: 'Create new Testtest entities'
+
+administer testtest entities:
+  title: 'Administer Testtest entities'
+  description: 'Allow to access the administration form to configure Testtest entities.'
+  restrict access: true
+
+delete testtest entities:
+  title: 'Delete Testtest entities'
+
+edit testtest entities:
+  title: 'Edit Testtest entities'
+
+view published testtest entities:
+  title: 'View published Testtest entities'
+
+view unpublished testtest entities:
+  title: 'View unpublished Testtest entities'
+
+
+administer rma entities:
+  title: 'Administer RMA entities'
+  description: 'Allow to access the administration form to configure RMA entities.'
+  restrict access: true
+
+administer rma reason:
+  title: 'Administer RMA reason'
+  description: 'Allow to access the administration form to configure RMA reasons.'
+  restrict access: true

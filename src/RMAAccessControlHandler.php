@@ -21,9 +21,9 @@ class RMAAccessControlHandler extends EntityAccessControlHandler {
     /** @var \Drupal\commerce_rma\Entity\RMAInterface $entity */
     switch ($operation) {
       case 'view':
-        if (!$entity->isPublished()) {
-          return AccessResult::allowedIfHasPermission($account, 'view unpublished rma entities');
-        }
+//        if (!$entity->isPublished()) {
+//          return AccessResult::allowedIfHasPermission($account, 'view unpublished rma entities');
+//        }
         return AccessResult::allowedIfHasPermission($account, 'view published rma entities');
 
       case 'update':

@@ -22,7 +22,7 @@ class RMAReasonDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.rma_reason.collection');
+    return new Url('entity.commerce_rma_reason.collection');
   }
 
   /**

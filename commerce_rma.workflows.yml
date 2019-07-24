@@ -1,6 +1,6 @@
 commerce_order_rma_default:
   id: commerce_order_rma_default
-  group: commerce_rma
+  group: commerce_rma_entity
   label: 'Default'
   states:
     draft:

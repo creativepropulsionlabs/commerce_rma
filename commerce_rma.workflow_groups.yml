@@ -1,7 +1,7 @@
-commerce_rma:
+commerce_rma_entity:
   label: Order RMA
-  entity_type: rma
+  entity_type: commerce_rma_entity
 
 commerce_rma_item:
   label: Order RMA item
-  entity_type: rma_item
+  entity_type: commerce_rma_item
