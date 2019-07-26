@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_rma\Entity;
 
+use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
@@ -15,6 +16,24 @@ use Drupal\commerce_price\Price;
  * @ingroup commerce_rma
  */
 interface RMAItemInterface extends ContentEntityInterface, EntityChangedInterface {
+
+  /**
+   * Gets the order item.
+   *
+   * @return \Drupal\commerce_order\Entity\OrderItem
+   */
+  public function getOrderItem();
+
+  /**
+   * Sets the order item.
+   *
+   * @param \Drupal\commerce_order\Entity\OrderItem $order_item
+   *   The RMA item name.
+   *
+   * @return $this
+   *
+   */
+  public function setOrderItem($order_item);
 
   /**
    * Gets the RMA item name.

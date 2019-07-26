@@ -75,6 +75,11 @@ class RMAForm extends ContentEntityForm {
 
     $status = parent::save($form, $form_state);
 
+//    $values = $form_state->getValues();
+//    $state = $values['state'];
+//    $entity->set('state', $state);
+//    $entity->save();
+
     switch ($status) {
       case SAVED_NEW:
         $this->messenger()->addMessage($this->t('Created the %label RMA.', [
@@ -87,7 +92,7 @@ class RMAForm extends ContentEntityForm {
           '%label' => $entity->label(),
         ]));
     }
-    $form_state->setRedirect('entity.commerce_rma_entity.canonical', ['commerce_rma_entity' => $entity->id()]);
+    $form_state->setRedirect('entity.commerce_rma_entity.collection', ['commerce_rma_entity' => $entity->id()]);
   }
 
 }

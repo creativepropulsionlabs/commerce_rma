@@ -106,7 +106,7 @@ class RMAItemForm extends ContentEntityForm {
           '%label' => $entity->label(),
         ]));
     }
-    $form_state->setRedirect('entity.rma_item.canonical', ['rma_item' => $entity->id()]);
+    $form_state->setRedirect('entity.commerce_rma_item.collection', ['commerce_rma_item' => $entity->id()]);
   }
 
 }

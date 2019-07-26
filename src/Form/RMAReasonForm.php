@@ -4,6 +4,8 @@ namespace Drupal\commerce_rma\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\commerce_rma\Entity\RMAReasonInterface;
+use Drupal\commerce_rma\Entity\RMAReason;
 
 /**
  * Class RMAReasonForm.
@@ -16,6 +18,7 @@ class RMAReasonForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
+    /** @var \Drupal\commerce_rma\Entity\RMAReasonInterface $rma_reason */
     $rma_reason = $this->entity;
     $form['label'] = [
       '#type' => 'textfield',
@@ -23,6 +26,24 @@ class RMAReasonForm extends EntityForm {
       '#maxlength' => 255,
       '#default_value' => $rma_reason->label(),
       '#description' => $this->t("Label for the RMAReason."),
+      '#required' => TRUE,
+    ];
+
+    $form['weight'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Weight'),
+      '#maxlength' => 255,
+      '#default_value' => $rma_reason->getWeight(),
+      '#description' => $this->t("Description for the RMAReason."),
+      '#required' => TRUE,
+    ];
+
+    $form['description'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Description'),
+      '#maxlength' => 255,
+      '#default_value' => $rma_reason->getDescription(),
+      '#description' => $this->t("Description for the RMAReason."),
       '#required' => TRUE,
     ];
 
@@ -44,7 +65,15 @@ class RMAReasonForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    /** @var RMAReason $rma_reason */
     $rma_reason = $this->entity;
+//    $values = $form_state->getValues();
+//    $weight = $values['weight'];
+//    $description = $values['description'];
+//    $this->entity->setWeight($weight);
+//    $this->entity->setWeight($description);
+//    $this->entity->save();
+
     $status = $rma_reason->save();
 
     switch ($status) {

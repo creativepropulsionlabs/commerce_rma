@@ -3,6 +3,11 @@ entity.commerce_rma_entity.add_form:
   title: 'Add RMA'
   appears_on:
     - entity.commerce_rma_entity.collection
+#entity.commerce_rma_entity.return_form:
+#  route_name: entity.commerce_rma_entity.add_page
+#  title: 'Return order'
+#  appears_on:
+#    - entity.commerce_rma_entity.collection
 entity.commerce_rma_type.add_form:
   route_name: entity.commerce_rma_type.add_form
   title: 'Add RMAType'

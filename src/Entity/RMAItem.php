@@ -3,6 +3,7 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceContentEntityBase;
+use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 //use Drupal\Core\Entity\RevisionableInterface;
@@ -57,14 +58,9 @@ use Drupal\commerce_price\Price;
  *   links = {
  *     "canonical" = "/admin/commerce/rma_item/{commerce_rma_item}",
  *     "add-page" = "/admin/commerce/rma_item/add",
- *     "add-form" = "/admin/commerce/rma_item/add/{rma_item_type}",
- *     "edit-form" = "/admin/commerce/rma_item/{rma_item}/edit",
+ *     "add-form" = "/admin/commerce/rma_item/add/{commerce_rma_item_type}",
+ *     "edit-form" = "/admin/commerce/rma_item/{commerce_rma_item}/edit",
  *     "delete-form" = "/admin/commerce/rma_item/{commerce_rma_item}/delete",
- *     "version-history" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions",
- *     "revision" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/view",
- *     "revision_revert" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/revert",
- *     "revision_delete" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/delete",
- *     "translation_revert" = "/admin/commerce/rma_item/{commerce_rma_item}/revisions/{commerce_rma_item_revision}/revert/{langcode}",
  *     "collection" = "/admin/commerce/rma_item",
  *   },
  *   bundle_entity_type = "commerce_rma_item_type",
@@ -74,6 +70,28 @@ use Drupal\commerce_price\Price;
 class RMAItem extends CommerceContentEntityBase implements RMAItemInterface {
 
   use EntityChangedTrait;
+
+  /**
+   * The purchasable entity type ID.
+   *
+   * @var \Drupal\commerce_order\Entity\OrderItem
+   */
+  protected $order_item;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOrderItem() {
+    return $this->order_item;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOrderItem($order_item) {
+    $this->set('order_item', $order_item);
+    return $this;
+  }
 
   /**
    * {@inheritdoc}
@@ -270,12 +288,6 @@ class RMAItem extends CommerceContentEntityBase implements RMAItemInterface {
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
-    $fields['revision_translation_affected'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Revision translation affected'))
-      ->setDescription(t('Indicates if the last edit of a translation belongs to current revision.'))
-      ->setReadOnly(TRUE)
-      ->setTranslatable(TRUE);
-
     $fields['amount'] = BaseFieldDefinition::create('commerce_price')
       ->setLabel(t('Amount'))
       ->setDescription(t('The amount for return.'))
@@ -283,18 +295,33 @@ class RMAItem extends CommerceContentEntityBase implements RMAItemInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Quantity'))
+      ->setDescription(t('The quantity for return.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['state'] = BaseFieldDefinition::create('state')
       ->setLabel(t('State'))
-      ->setDescription(t('The returning state.'))
+      ->setDescription(t('The RMA state.'))
       ->setRequired(TRUE)
-//      ->setSetting('rma_workflow1', 'rma_default')
+      ->setSetting('max_length', 255)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'state_transition_form',
         'weight' => 10,
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+      ->setDisplayConfigurable('view', TRUE)
+      ->setSetting('workflow_callback', ['\Drupal\commerce_rma\Entity\RMAItem', 'getWorkflowId']);
+
+
+//    $fields['order_id'] = BaseFieldDefinition::create('entity_reference')
+//      ->setLabel(t('Order'))
+//      ->setDescription(t('The parent order.'))
+//      ->setSetting('target_type', 'commerce_order')
+//      ->setReadOnly(TRUE);
 
 //    $fields['item'] = BaseFieldDefinition::create('commerce_order_item')
 //      ->setLabel(t('Order item'))
@@ -303,6 +330,20 @@ class RMAItem extends CommerceContentEntityBase implements RMAItemInterface {
 //      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
+  }
+
+  /**
+   * Gets the workflow ID for the state field.
+   *
+   * @param \Drupal\commerce_rma\Entity\RMAItemInterface $rma_item
+   *   The RMA Item
+   *
+   * @return string
+   *   The workflow ID.
+   */
+  public static function getWorkflowId(RMAItemInterface $rma_item) {
+    $workflow = RMAItemType::load($rma_item->bundle())->getWorkflowId();
+    return $workflow;
   }
 
 }

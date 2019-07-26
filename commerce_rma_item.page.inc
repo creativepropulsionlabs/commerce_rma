@@ -21,7 +21,7 @@ use Drupal\Core\Render\Element;
  */
 function template_preprocess_rma_item(array &$variables) {
   // Fetch RMAItem Entity Object.
-  $rma_item = $variables['elements']['#rma_item'];
+  $rma_item = $variables['elements']['#commerce_rma_item'];
 
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {

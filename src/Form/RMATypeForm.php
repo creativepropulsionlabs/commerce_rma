@@ -144,12 +144,11 @@ class RMATypeForm extends CommerceBundleEntityFormBase {
     $this->postSave($this->entity, $this->operation);
 //    $this->submitTraitForm($form, $form_state);
     if ($this->operation == 'add') {
-      commerce_rma_add_order_items_field($this->entity);
+      commerce_rma_add_rma_items_field($this->entity);
     }
 
     $this->messenger()->addMessage($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
     $form_state->setRedirect('entity.commerce_rma_type.collection');
   }
-
 
 }

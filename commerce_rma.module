@@ -5,8 +5,11 @@
  * Contains commerce_rma.module.
  */
 
-use Drupal\commerce_order\Entity\OrderTypeInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Drupal\entity\BundleFieldDefinition;
 use Drupal\commerce_rma\Entity\RMAType;
 
@@ -47,16 +50,16 @@ function commerce_rma_theme() {
     'file' => 'commerce_rma_entity.page.inc',
   ];
 
-  $theme['rma_item'] = [
+  $theme['commerce_rma_item'] = [
     'render element' => 'elements',
-    'file' => 'rma_item.page.inc',
-    'template' => 'rma_item',
+    'file' => 'commerce_rma_item.page.inc',
+    'template' => 'commerce_rma_item',
   ];
 
-  $theme['rma_item_content_add_list'] = [
+  $theme['commerce_rma_item_content_add_list'] = [
     'render element' => 'content',
     'variables' => ['content' => NULL],
-    'file' => 'rma_item.page.inc',
+    'file' => 'commerce_rma_item.page.inc',
   ];
 
   return $theme;
@@ -65,16 +68,16 @@ function commerce_rma_theme() {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function commerce_rma_theme_suggestions_rma_item(array $variables) {
+function commerce_rma_theme_suggestions_commerce_rma_item(array $variables) {
   $suggestions = [];
-  $entity = $variables['elements']['#rma_item'];
+  $entity = $variables['elements']['#commerce_rma_item'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
-  $suggestions[] = 'rma_item__' . $sanitized_view_mode;
-  $suggestions[] = 'rma_item__' . $entity->bundle();
-  $suggestions[] = 'rma_item__' . $entity->bundle() . '__' . $sanitized_view_mode;
-  $suggestions[] = 'rma_item__' . $entity->id();
-  $suggestions[] = 'rma_item__' . $entity->id() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_rma_item__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_rma_item__' . $entity->bundle();
+  $suggestions[] = 'commerce_rma_item__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_rma_item__' . $entity->id();
+  $suggestions[] = 'commerce_rma_item__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
 
@@ -103,7 +106,7 @@ function commerce_rma_theme_suggestions_commerce_rma_entity(array $variables) {
  * @param \Drupal\commerce_rma\Entity\RMAType $rma_type
  *   The RMA type.
  */
-function commerce_rma_add_order_items_field(RMAType $rma_type) {
+function commerce_rma_add_rma_items_field(RMAType $rma_type) {
   $field_definition = BundleFieldDefinition::create('entity_reference')
     ->setTargetEntityTypeId('commerce_rma_entity')
     ->setTargetBundle($rma_type->id())
@@ -129,4 +132,158 @@ function commerce_rma_add_order_items_field(RMAType $rma_type) {
 
   $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
   $configurable_field_manager->createField($field_definition);
+}
+
+/**
+ * Implements hook_entity_operation().
+ * Add order return to orders list.
+ */
+function commerce_rma_entity_operation(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() === 'commerce_order') {
+    if (\Drupal::currentUser()->hasPermission('administer commerce_rma')) {
+      $operations = [];
+
+      $operations['order_return'] = [
+        'title' => t('Order return'),
+        'weight' => 20,
+        'url' => Url::fromRoute('view.commerce_rma_order.page_1', [
+          'arg_0' => $entity->id(),
+        ])
+//        'url' => $entity->toUrl('return-order-form'),
+      ];
+
+      return $operations;
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function commerce_rma_views_data_alter(array &$data) {
+  $data['commerce_order_item']['edit_rma_quantity']['field'] = [
+    'title' => t('Quantity'),
+    'help' => t('Adds a text field for editing the RMA quantity.'),
+    'id' => 'commerce_rma_order_item_edit_quantity',
+  ];
+  $data['commerce_order_item']['edit_rma_reason']['field'] = [
+    'title' => t('Reason'),
+    'help' => t('Adds a text field for editing the RMA reason.'),
+    'id' => 'commerce_rma_order_item_edit_reason',
+  ];
+  $data['commerce_order_item']['edit_rma_note']['field'] = [
+    'title' => t('Note'),
+    'help' => t('Adds a text field for editing the RMA note.'),
+    'id' => 'commerce_rma_order_item_edit_note',
+  ];
+
+  $data['views']['rma_refund_link'] = [
+    'title' => t('Refund order'),
+    'help' => t('Displays a link to a refund order.'),
+    'area' => [
+      'id' => 'rma_refund_link',
+    ],
+  ];
+}
+
+//@todo remove ?
+///**
+// * Adds the default rma_items field to an order type.
+// *
+// * RMA items can't be a base field because the Views integration is broken.
+// * Instead, it is created as a configurable field for each order type.
+// *
+// * @param \Drupal\commerce_rma\Entity\RMAType $rma_type
+// *   The RMA type.
+// */
+//function commerce_rma_item_add_order_item_field(RMAType $rma_type) {
+//  $field_definition = BundleFieldDefinition::create('entity_reference')
+//    ->setTargetEntityTypeId('commerce_rma_entity')
+//    ->setTargetBundle($rma_type->id())
+//    ->setName('order_item')
+//    ->setLabel('Order item')
+//    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
+//    ->setRequired(TRUE)
+//    ->setSetting('target_type', 'commerce_rma_type_item')
+//    ->setSetting('handler', 'default')
+//    ->setDisplayOptions('form', [
+//      'type' => 'inline_entity_form_complex',
+//      'weight' => 0,
+//      'settings' => [
+//        'override_labels' => TRUE,
+//        'label_singular' => 'rma item',
+//        'label_plural' => 'rma items',
+//      ],
+//    ])
+//    ->setDisplayOptions('view', [
+//      'type' => 'commerce_order_item_table',
+//      'weight' => 0,
+//    ]);
+//
+//  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
+//  $configurable_field_manager->createField($field_definition);
+//}
+
+///**
+// * Adds the default order_item field to an order type.
+// *
+// * Order item can't be a base field because the Views integration is broken.
+// * Instead, it is created as a configurable field for each order type.
+// *
+// * @param \Drupal\commerce_order\Entity\OrderTypeInterface $order_type
+// *   The order type.
+// */
+//function commerce_order_add_order_items_field(OrderTypeInterface $order_type) {
+//  $field_definition = BundleFieldDefinition::create('entity_reference')
+//    ->setTargetEntityTypeId('commerce_order')
+//    ->setTargetBundle($order_type->id())
+//    ->setName('order_items')
+//    ->setLabel('Order items')
+//    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
+//    ->setRequired(TRUE)
+//    ->setSetting('target_type', 'commerce_rma_item_type')
+//    ->setSetting('handler', 'default')
+//    ->setDisplayOptions('form', [
+//      'type' => 'inline_entity_form_complex',
+//      'weight' => 0,
+//      'settings' => [
+//        'override_labels' => TRUE,
+//        'label_singular' => 'order item',
+//        'label_plural' => 'order items',
+//      ],
+//    ])
+//    ->setDisplayOptions('view', [
+//      'type' => 'commerce_order_item_table',
+//      'weight' => 0,
+//    ]);
+//
+//  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
+//  $configurable_field_manager->createField($field_definition);
+//}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function commerce_rma_entity_extra_field_info() {
+  $extra = [];
+
+  $extra['commerce_order']['default']['display']['rma_refund'] = [
+    'label' => t('Order refund'),
+    'description' => t('Order refund with RMA module'),
+    'weight' => 100,
+    'visible' => TRUE,
+  ];
+
+  return $extra;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function commerce_rma_commerce_order_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($display->getComponent('rma_refund')) {
+    $url = Url::fromRoute('view.commerce_rma_order.page_1', ['arg_0' => $entity->id()]);
+    $link = Link::fromTextAndUrl(t('Refund order'), $url);
+    $build['rma_refund'] = $link->toRenderable();
+  }
 }

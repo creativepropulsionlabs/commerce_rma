@@ -66,9 +66,9 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
    *   An array suitable for drupal_render().
    */
   public function revisionShow($rma_item_revision) {
-    $rma_item = $this->entityTypeManager()->getStorage('rma_item')
+    $rma_item = $this->entityTypeManager()->getStorage('commerce_rma_item')
       ->loadRevision($rma_item_revision);
-    $view_builder = $this->entityTypeManager()->getViewBuilder('rma_item');
+    $view_builder = $this->entityTypeManager()->getViewBuilder('commerce_rma_item');
 
     return $view_builder->view($rma_item);
   }
@@ -83,7 +83,7 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
    *   The page title.
    */
   public function revisionPageTitle($rma_item_revision) {
-    $rma_item = $this->entityTypeManager()->getStorage('rma_item')
+    $rma_item = $this->entityTypeManager()->getStorage('commerce_rma_item')
       ->loadRevision($rma_item_revision);
     return $this->t('Revision of %title from %date', [
       '%title' => $rma_item->label(),
@@ -102,7 +102,7 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
    */
   public function revisionOverview(RMAItemInterface $rma_item) {
     $account = $this->currentUser();
-    $rma_item_storage = $this->entityTypeManager()->getStorage('rma_item');
+    $rma_item_storage = $this->entityTypeManager()->getStorage('commerce_rma_item');
 
     $langcode = $rma_item->language()->getId();
     $langname = $rma_item->language()->getName();
@@ -135,7 +135,7 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
         $date = $this->dateFormatter->format($revision->getRevisionCreationTime(), 'short');
         if ($vid != $rma_item->getRevisionId()) {
           $link = $this->l($date, new Url('entity.rma_item.revision', [
-            'rma_item' => $rma_item->id(),
+            'commerce_rma_item' => $rma_item->id(),
             'rma_item_revision' => $vid,
           ]));
         }
@@ -180,12 +180,12 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
               'title' => $this->t('Revert'),
               'url' => $has_translations ?
               Url::fromRoute('entity.rma_item.translation_revert', [
-                'rma_item' => $rma_item->id(),
+                'commerce_rma_item' => $rma_item->id(),
                 'rma_item_revision' => $vid,
                 'langcode' => $langcode,
               ]) :
               Url::fromRoute('entity.rma_item.revision_revert', [
-                'rma_item' => $rma_item->id(),
+                'commerce_rma_item' => $rma_item->id(),
                 'rma_item_revision' => $vid,
               ]),
             ];
@@ -195,7 +195,7 @@ class RMAItemController extends ControllerBase implements ContainerInjectionInte
             $links['delete'] = [
               'title' => $this->t('Delete'),
               'url' => Url::fromRoute('entity.rma_item.revision_delete', [
-                'rma_item' => $rma_item->id(),
+                'commerce_rma_item' => $rma_item->id(),
                 'rma_item_revision' => $vid,
               ]),
             ];

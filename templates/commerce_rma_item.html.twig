@@ -10,12 +10,12 @@
  * - content: A list of content items. Use 'content' to print all content, or
  * - attributes: HTML attributes for the container element.
  *
- * @see template_preprocess_rma_item()
+ * @see template_preprocess_commerce_rma_item()
  *
  * @ingroup themeable
  */
 #}
-<div{{ attributes.addClass('rma_item') }}>
+<div{{ attributes.addClass('commerce_rma_item') }}>
   {% if content %}
     {{- content -}}
   {% endif %}

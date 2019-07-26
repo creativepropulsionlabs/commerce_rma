@@ -56,11 +56,27 @@ class RMAItemType extends CommerceBundleEntityBase implements RMAItemTypeInterfa
   protected $label;
 
   /**
-   * The workflow manager.
+   * The workflow ID.
    *
-   * @var \Drupal\state_machine\WorkflowManagerInterface
+   * @var string
    */
-  protected $workflowManager;
+  protected $workflow;
+
+  /**
+   * {@inheritdoc}
+   *
+   */
+  public function getWorkflowId() {
+    return $this->workflow;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWorkflowId($workflow_id) {
+    $this->workflow = $workflow_id;
+    return $this;
+  }
 
 
 //  /**

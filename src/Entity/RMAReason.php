@@ -79,8 +79,24 @@ class RMAReason extends ConfigEntityBase  implements RMAReasonInterface {
   /**
    * {@inheritdoc}
    */
+  public function setDescription($description) {
+    $this->description = $description;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getWeight() {
     return $this->weight;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWeight($weight) {
+    $this->weight = $weight;
+    return $this;
   }
 
 }

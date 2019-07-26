@@ -9,10 +9,21 @@ use Drupal\commerce\Entity\CommerceBundleEntityInterface;
  */
 interface RMAItemTypeInterface extends CommerceBundleEntityInterface {
 
-//  /**
-//   * Gets the RMA workflow.
-//   *
-//   * @return \Drupal\commerce_rma\Entity\RMAWorkflow
-//   */
-//  public function getWorkflow();
+  /**
+   * Gets the order type's workflow ID.
+   *
+   * @return string
+   *   The order type workflow ID.
+   */
+  public function getWorkflowId();
+
+  /**
+   * Sets the workflow ID of the order type.
+   *
+   * @param string $workflow_id
+   *   The workflow ID.
+   *
+   * @return $this
+   */
+  public function setWorkflowId($workflow_id);
 }
