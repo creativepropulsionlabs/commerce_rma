@@ -1,7 +1,7 @@
 #entity.commerce_rma.return_order_form:
-#  path: '/admin/commerce/commerce_rma_entity/{commerce_order}/return-order'
+#  path: '/admin/commerce/commerce_return/{commerce_order}/return-order'
 #  defaults:
-#    _form: '\Drupal\commerce_rma\Form\RMAOrderReturnForm'
+#    _form: '\Drupal\commerce_rma\Form\CommerceReturnOrderReturnForm'
 #    _title: 'Return order'
 #  options:
 #    parameters:

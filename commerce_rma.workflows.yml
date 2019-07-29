@@ -1,6 +1,6 @@
-commerce_order_rma_default:
-  id: commerce_order_rma_default
-  group: commerce_rma_entity
+commerce_order_return_default:
+  id: commerce_order_return_default
+  group: commerce_return
   label: 'Default'
   states:
     draft:
@@ -19,9 +19,9 @@ commerce_order_rma_default:
       from: [draft]
       to:   canceled
 
-commerce_order_rma_item_default:
-  id: commerce_order_rma_item_default
-  group: commerce_rma_item
+commerce_order_return_item_default:
+  id: commerce_order_return_item_default
+  group: commerce_return_item
   label: 'Default'
   states:
     draft:

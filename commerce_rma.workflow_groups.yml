@@ -1,7 +1,7 @@
-commerce_rma_entity:
-  label: Order RMA
-  entity_type: commerce_rma_entity
+commerce_return:
+  label: Commerce Rerurn
+  entity_type: commerce_return
 
-commerce_rma_item:
-  label: Order RMA item
-  entity_type: commerce_rma_item
+commerce_return_item:
+  label: Commerce Rerurn item
+  entity_type: commerce_return_item

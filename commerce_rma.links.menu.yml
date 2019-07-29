@@ -1,40 +1,40 @@
-# RMA menu items definition
-entity.commerce_rma_entity.collection:
-  title: 'RMA list'
-  route_name: entity.commerce_rma_entity.collection
-  description: 'List RMA entities'
+# commerce return menu items definition
+entity.commerce_return.collection:
+  title: 'commerce return list'
+  route_name: entity.commerce_return.collection
+  description: 'List commerce return entities'
   parent: commerce_order.configuration
   weight: 100
 
-# RMAType menu items definition
-entity.commerce_rma_type.collection:
-  title: 'RMAType'
-  route_name: entity.commerce_rma_type.collection
-  description: 'List RMAType (bundles)'
+# CommerceReturnType menu items definition
+entity.commerce_return_type.collection:
+  title: 'Commerce Return Type'
+  route_name: entity.commerce_return_type.collection
+  description: 'List Commerce Return Type (bundles)'
   parent: commerce_order.configuration
   weight: 101
 
-# RMA item menu items definition
-entity.commerce_rma_item.collection:
-  title: 'RMA item list'
-  route_name: entity.commerce_rma_item.collection
-  description: 'List RMA item entities'
+# commerce return item menu items definition
+entity.commerce_return_item.collection:
+  title: 'commerce return item list'
+  route_name: entity.commerce_return_item.collection
+  description: 'List commerce return item entities'
   parent: commerce_order.configuration
   weight: 102
 
-# RMA item type menu items definition
-entity.commerce_rma_item_type.collection:
-  title: 'RMA item type'
-  route_name: entity.commerce_rma_item_type.collection
-  description: 'List RMA item type (bundles)'
+# commerce return item type menu items definition
+entity.commerce_return_item_type.collection:
+  title: 'commerce return item type'
+  route_name: entity.commerce_return_item_type.collection
+  description: 'List commerce return item type (bundles)'
   parent: commerce_order.configuration
   weight: 103
 
-# RMAReason menu items definition
-entity.commerce_rma_reason.collection:
-  title: 'RMAReason'
-  route_name: entity.commerce_rma_reason.collection
-  description: 'List RMAReason (bundles)'
+# CommerceReturnReason menu items definition
+entity.commerce_return_reason.collection:
+  title: 'Commerce Return Reason'
+  route_name: entity.commerce_return_reason.collection
+  description: 'List Commerce Return Reason (bundles)'
   parent: commerce_order.configuration
   weight: 104
 

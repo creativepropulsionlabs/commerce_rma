@@ -1,35 +1,35 @@
-# RMA item routing definition
+# commerce return item routing definition
 
-entity.commerce_rma_item.canonical:
-  route_name: entity.commerce_rma_item.canonical
-  base_route: entity.commerce_rma_item.canonical
+entity.commerce_return_item.canonical:
+  route_name: entity.commerce_return_item.canonical
+  base_route: entity.commerce_return_item.canonical
   title: 'View'
 
-entity.commerce_rma_item.edit_form:
-  route_name: entity.commerce_rma_item.edit_form
-  base_route: entity.commerce_rma_item.canonical
+entity.commerce_return_item.edit_form:
+  route_name: entity.commerce_return_item.edit_form
+  base_route: entity.commerce_return_item.canonical
   title: 'Edit'
 
-entity.commerce_rma_item.delete_form:
-  route_name: entity.commerce_rma_item.delete_form
-  base_route: entity.commerce_rma_item.canonical
+entity.commerce_return_item.delete_form:
+  route_name: entity.commerce_return_item.delete_form
+  base_route: entity.commerce_return_item.canonical
   title: Delete
   weight: 10
 
-# RMA routing definition
+# commerce return routing definition
 
-entity.commerce_rma_entity.canonical:
-  route_name: entity.commerce_rma_entity.canonical
-  base_route: entity.commerce_rma_entity.canonical
+entity.commerce_return.canonical:
+  route_name: entity.commerce_return.canonical
+  base_route: entity.commerce_return.canonical
   title: 'View'
 
-entity.commerce_rma_entity.edit_form:
-  route_name: entity.commerce_rma_entity.edit_form
-  base_route: entity.commerce_rma_entity.canonical
+entity.commerce_return.edit_form:
+  route_name: entity.commerce_return.edit_form
+  base_route: entity.commerce_return.canonical
   title: 'Edit'
 
-entity.commerce_rma_entity.delete_form:
-  route_name:  entity.commerce_rma_entity.delete_form
-  base_route:  entity.commerce_rma_entity.canonical
+entity.commerce_return.delete_form:
+  route_name:  entity.commerce_return.delete_form
+  base_route:  entity.commerce_return.canonical
   title: Delete
   weight: 10

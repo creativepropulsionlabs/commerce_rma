@@ -8,10 +8,11 @@
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\entity\BundleFieldDefinition;
-use Drupal\commerce_rma\Entity\RMAType;
+use Drupal\commerce_rma\Entity\CommerceReturnType;
 
 /**
  * Implements hook_help().
@@ -22,7 +23,7 @@ function commerce_rma_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.commerce_rma':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Commerce RMA Drupal 8.x architecture') . '</p>';
+      $output .= '<p>' . t('Commerce return') . '</p>';
       return $output;
 
     default:
@@ -35,31 +36,25 @@ function commerce_rma_help($route_name, RouteMatchInterface $route_match) {
 function commerce_rma_theme() {
   $theme = [];
 
-  $themes['commerce_rma'] = [
+  $themes['commerce_return'] = [
     'render element' => 'children',
   ];
 
-  $theme['commerce_rma_entity'] = [
+  $theme['commerce_return'] = [
     'render element' => 'elements',
-    'file' => 'commerce_rma_entity.page.inc',
-    'template' => 'commerce_rma_entity',
   ];
-  $theme['commerce_rma_entity_content_add_list'] = [
+  $theme['commerce_return_content_add_list'] = [
     'render element' => 'content',
     'variables' => ['content' => NULL],
-    'file' => 'commerce_rma_entity.page.inc',
   ];
 
-  $theme['commerce_rma_item'] = [
+  $theme['commerce_return_item'] = [
     'render element' => 'elements',
-    'file' => 'commerce_rma_item.page.inc',
-    'template' => 'commerce_rma_item',
   ];
 
-  $theme['commerce_rma_item_content_add_list'] = [
+  $theme['commerce_return_item_content_add_list'] = [
     'render element' => 'content',
     'variables' => ['content' => NULL],
-    'file' => 'commerce_rma_item.page.inc',
   ];
 
   return $theme;
@@ -68,32 +63,32 @@ function commerce_rma_theme() {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function commerce_rma_theme_suggestions_commerce_rma_item(array $variables) {
+function commerce_rma_theme_suggestions_commerce_return_item(array $variables) {
   $suggestions = [];
-  $entity = $variables['elements']['#commerce_rma_item'];
+  $entity = $variables['elements']['#commerce_return_item'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
-  $suggestions[] = 'commerce_rma_item__' . $sanitized_view_mode;
-  $suggestions[] = 'commerce_rma_item__' . $entity->bundle();
-  $suggestions[] = 'commerce_rma_item__' . $entity->bundle() . '__' . $sanitized_view_mode;
-  $suggestions[] = 'commerce_rma_item__' . $entity->id();
-  $suggestions[] = 'commerce_rma_item__' . $entity->id() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return_item__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return_item__' . $entity->bundle();
+  $suggestions[] = 'commerce_return_item__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return_item__' . $entity->id();
+  $suggestions[] = 'commerce_return_item__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
 
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function commerce_rma_theme_suggestions_commerce_rma_entity(array $variables) {
+function commerce_rma_theme_suggestions_commerce_return(array $variables) {
   $suggestions = [];
-  $entity = $variables['elements']['#commerce_rma_entity'];
+  $entity = $variables['elements']['#commerce_return'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
-  $suggestions[] = 'commerce_rma_entity__' . $sanitized_view_mode;
-  $suggestions[] = 'commerce_rma_entity__' . $entity->bundle();
-  $suggestions[] = 'commerce_rma_entity__' . $entity->bundle() . '__' . $sanitized_view_mode;
-  $suggestions[] = 'commerce_rma_entity__' . $entity->id();
-  $suggestions[] = 'commerce_rma_entity__' . $entity->id() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return__' . $entity->bundle();
+  $suggestions[] = 'commerce_return__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'commerce_return__' . $entity->id();
+  $suggestions[] = 'commerce_return__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
 
@@ -103,26 +98,26 @@ function commerce_rma_theme_suggestions_commerce_rma_entity(array $variables) {
  * RMA items can't be a base field because the Views integration is broken.
  * Instead, it is created as a configurable field for each order type.
  *
- * @param \Drupal\commerce_rma\Entity\RMAType $rma_type
+ * @param \Drupal\commerce_rma\Entity\CommerceReturnType $bundle
  *   The RMA type.
  */
-function commerce_rma_add_rma_items_field(RMAType $rma_type) {
+function commerce_rma_add_rma_items_field(CommerceReturnType $bundle) {
   $field_definition = BundleFieldDefinition::create('entity_reference')
-    ->setTargetEntityTypeId('commerce_rma_entity')
-    ->setTargetBundle($rma_type->id())
-    ->setName('rma_items')
-    ->setLabel('RMA items')
+    ->setTargetEntityTypeId('commerce_return')
+    ->setTargetBundle($bundle->id())
+    ->setName('items')
+    ->setLabel('Items')
     ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
     ->setRequired(TRUE)
-    ->setSetting('target_type', 'commerce_rma_item')
+    ->setSetting('target_type', 'commerce_return_item')
     ->setSetting('handler', 'default')
     ->setDisplayOptions('form', [
       'type' => 'inline_entity_form_complex',
       'weight' => 0,
       'settings' => [
         'override_labels' => TRUE,
-        'label_singular' => 'rma item',
-        'label_plural' => 'rma items',
+        'label_singular' => 'Return item',
+        'label_plural' => 'Return items',
       ],
     ])
     ->setDisplayOptions('view', [
@@ -138,9 +133,9 @@ function commerce_rma_add_rma_items_field(RMAType $rma_type) {
  * Implements hook_entity_operation().
  * Add order return to orders list.
  */
-function commerce_rma_entity_operation(EntityInterface $entity) {
+function commerce_return_operation(EntityInterface $entity) {
   if ($entity->getEntityTypeId() === 'commerce_order') {
-    if (\Drupal::currentUser()->hasPermission('administer commerce_rma')) {
+    if (\Drupal::currentUser()->hasPermission('administer commerce return')) {
       $operations = [];
 
       $operations['order_return'] = [
@@ -193,18 +188,18 @@ function commerce_rma_views_data_alter(array &$data) {
 // * RMA items can't be a base field because the Views integration is broken.
 // * Instead, it is created as a configurable field for each order type.
 // *
-// * @param \Drupal\commerce_rma\Entity\RMAType $rma_type
+// * @param \Drupal\commerce_rma\Entity\CommerceReturnType $rma_type
 // *   The RMA type.
 // */
-//function commerce_rma_item_add_order_item_field(RMAType $rma_type) {
+//function commerce_return_item_add_order_item_field(CommerceReturnType $rma_type) {
 //  $field_definition = BundleFieldDefinition::create('entity_reference')
-//    ->setTargetEntityTypeId('commerce_rma_entity')
+//    ->setTargetEntityTypeId('commerce_return')
 //    ->setTargetBundle($rma_type->id())
 //    ->setName('order_item')
 //    ->setLabel('Order item')
 //    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
 //    ->setRequired(TRUE)
-//    ->setSetting('target_type', 'commerce_rma_type_item')
+//    ->setSetting('target_type', 'commerce_return_type_item')
 //    ->setSetting('handler', 'default')
 //    ->setDisplayOptions('form', [
 //      'type' => 'inline_entity_form_complex',
@@ -241,7 +236,7 @@ function commerce_rma_views_data_alter(array &$data) {
 //    ->setLabel('Order items')
 //    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
 //    ->setRequired(TRUE)
-//    ->setSetting('target_type', 'commerce_rma_item_type')
+//    ->setSetting('target_type', 'commerce_return_item_type')
 //    ->setSetting('handler', 'default')
 //    ->setDisplayOptions('form', [
 //      'type' => 'inline_entity_form_complex',
@@ -264,7 +259,7 @@ function commerce_rma_views_data_alter(array &$data) {
 /**
  * Implements hook_entity_extra_field_info().
  */
-function commerce_rma_entity_extra_field_info() {
+function commerce_return_extra_field_info() {
   $extra = [];
 
   $extra['commerce_order']['default']['display']['rma_refund'] = [
@@ -285,5 +280,45 @@ function commerce_rma_commerce_order_view(array &$build, EntityInterface $entity
     $url = Url::fromRoute('view.commerce_rma_order.page_1', ['arg_0' => $entity->id()]);
     $link = Link::fromTextAndUrl(t('Refund order'), $url);
     $build['rma_refund'] = $link->toRenderable();
+  }
+}
+
+/**
+ * Prepares variables for RMA templates.
+ *
+ * Default template: commerce-return.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the user information and any
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_commerce_return(array &$variables) {
+  // Fetch RMA Entity Object.
+  $rma = $variables['elements']['#rma'];
+
+  // Helpful $content variable for templates.
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Prepares variables for RMA item templates.
+ *
+ * Default template: commerce-return-item.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the user information and any
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_commerce_return_item(array &$variables) {
+  // Fetch RMAItem Entity Object.
+  $commerce_return_item = $variables['elements']['#rma_item'];
+
+  // Helpful $content variable for templates.
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
   }
 }

@@ -1,93 +1,75 @@
-add rma item entities:
-  title: 'Create new RMA item entities'
+add commerce return item entities:
+  title: 'Create new commerce return item entities'
 
-#administer rma item entities:
-administer commerce_rma_item:
-  title: 'Administer RMA item entities'
-  description: 'Allow to access the administration form to configure RMA item entities.'
+#administer commerce return item entities:
+administer commerce return item:
+  title: 'Administer commerce return item entities'
+  description: 'Allow to access the administration form to configure commerce return item entities.'
   restrict access: true
 
-delete rma item entities:
-  title: 'Delete RMA item entities'
+delete commerce return item entities:
+  title: 'Delete commerce return item entities'
 
-edit rma item entities:
-  title: 'Edit RMA item entities'
+edit commerce return item entities:
+  title: 'Edit commerce return item entities'
 
-view published rma item entities:
-  title: 'View published RMA item entities'
+view published commerce return item entities:
+  title: 'View published commerce return item entities'
 
-view unpublished rma item entities:
-  title: 'View unpublished RMA item entities'
+view unpublished commerce return item entities:
+  title: 'View unpublished commerce return item entities'
 
-view all rma item revisions:
-  title: 'View all RMA item revisions'
+view all commerce return item revisions:
+  title: 'View all commerce return item revisions'
 
-revert all rma item revisions:
-  title: 'Revert all RMA item revisions'
-  description: 'Role requires permission <em>view RMA item revisions</em> and <em>edit rights</em> for rma item entities in question or <em>administer rma item entities</em>.'
+revert all commerce return item revisions:
+  title: 'Revert all commerce return item revisions'
+  description: 'Role requires permission <em>view commerce return item revisions</em> and <em>edit rights</em> for commerce return item entities in question or <em>administer commerce return item entities</em>.'
 
-delete all rma item revisions:
+delete all commerce return item revisions:
   title: 'Delete all revisions'
-  description: 'Role requires permission to <em>view RMA item revisions</em> and <em>delete rights</em> for rma item entities in question or <em>administer rma item entities</em>.'
+  description: 'Role requires permission to <em>view commerce return item revisions</em> and <em>delete rights</em> for commerce return item entities in question or <em>administer commerce return item entities</em>.'
 
-add rma entities:
-  title: 'Create new RMA entities'
+add commerce return entities:
+  title: 'Create new commerce return entities'
 
-#administer rma entities:
-administer commerce_rma:
-  title: 'Administer RMA entities'
-  description: 'Allow to access the administration form to configure RMA entities.'
+#administer commerce return entities:
+administer commerce return:
+  title: 'Administer commerce return entities'
+  description: 'Allow to access the administration form to configure commerce return entities.'
   restrict access: true
 
-delete rma entities:
-  title: 'Delete RMA entities'
+delete commerce return entities:
+  title: 'Delete commerce return entities'
 
-edit rma entities:
-  title: 'Edit RMA entities'
+edit commerce return entities:
+  title: 'Edit commerce return entities'
 
-view published rma entities:
-  title: 'View published RMA entities'
+view published commerce return entities:
+  title: 'View published commerce return entities'
 
-view unpublished rma entities:
-  title: 'View unpublished RMA entities'
+view unpublished commerce return entities:
+  title: 'View unpublished commerce return entities'
 
-view all rma revisions:
-  title: 'View all RMA revisions'
+view all commerce return revisions:
+  title: 'View all commerce return revisions'
 
-revert all rma revisions:
-  title: 'Revert all RMA revisions'
-  description: 'Role requires permission <em>view RMA revisions</em> and <em>edit rights</em> for rma entities in question or <em>administer rma entities</em>.'
+revert all commerce return revisions:
+  title: 'Revert all commerce return revisions'
+  description: 'Role requires permission <em>view commerce return revisions</em> and <em>edit rights</em> for commerce return entities in question or <em>administer commerce return entities</em>.'
 
-delete all rma revisions:
+delete all commerce return revisions:
   title: 'Delete all revisions'
-  description: 'Role requires permission to <em>view RMA revisions</em> and <em>delete rights</em> for rma entities in question or <em>administer rma entities</em>.'
+  description: 'Role requires permission to <em>view commerce return revisions</em> and <em>delete rights</em> for commerce return entities in question or <em>administer commerce return entities</em>.'
 add testtest entities:
   title: 'Create new Testtest entities'
 
-administer testtest entities:
-  title: 'Administer Testtest entities'
-  description: 'Allow to access the administration form to configure Testtest entities.'
+administer commerce return entities:
+  title: 'Administer Commerce return entities'
+  description: 'Allow to access the administration form to configure commerce return entities.'
   restrict access: true
 
-delete testtest entities:
-  title: 'Delete Testtest entities'
-
-edit testtest entities:
-  title: 'Edit Testtest entities'
-
-view published testtest entities:
-  title: 'View published Testtest entities'
-
-view unpublished testtest entities:
-  title: 'View unpublished Testtest entities'
-
-
-administer rma entities:
-  title: 'Administer RMA entities'
-  description: 'Allow to access the administration form to configure RMA entities.'
-  restrict access: true
-
-administer rma reason:
-  title: 'Administer RMA reason'
-  description: 'Allow to access the administration form to configure RMA reasons.'
+administer commerce return reason:
+  title: 'Administer Commerce return reason'
+  description: 'Allow to access the administration form to configure commerce return reasons.'
   restrict access: true

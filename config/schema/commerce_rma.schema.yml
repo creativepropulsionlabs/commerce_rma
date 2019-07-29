@@ -1,4 +1,4 @@
-commerce_rma.commerce_rma_type.*:
+commerce_rma.commerce_return_type.*:
   type: config_entity
   label: 'RMA type config'
   mapping:
@@ -14,7 +14,7 @@ commerce_rma.commerce_rma_type.*:
     uuid:
       type: string
 
-commerce_rma.commerce_rma_item_type.*:
+commerce_rma.commerce_return_item_type.*:
   type: config_entity
   label: 'RMA item type config'
   mapping:
@@ -30,9 +30,9 @@ commerce_rma.commerce_rma_item_type.*:
     uuid:
       type: string
 
-commerce_rma.commerce_rma_reason.*:
+commerce_rma.commerce_return_reason.*:
   type: config_entity
-  label: 'RMAReason config'
+  label: 'CommerceReturnReason config'
   mapping:
     id:
       type: string

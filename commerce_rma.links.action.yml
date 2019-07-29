@@ -1,30 +1,30 @@
-entity.commerce_rma_entity.add_form:
-  route_name: entity.commerce_rma_entity.add_page
+entity.commerce_return.add_form:
+  route_name: entity.commerce_return.add_page
   title: 'Add RMA'
   appears_on:
-    - entity.commerce_rma_entity.collection
-#entity.commerce_rma_entity.return_form:
-#  route_name: entity.commerce_rma_entity.add_page
+    - entity.commerce_return.collection
+#entity.commerce_return.return_form:
+#  route_name: entity.commerce_return.add_page
 #  title: 'Return order'
 #  appears_on:
-#    - entity.commerce_rma_entity.collection
-entity.commerce_rma_type.add_form:
-  route_name: entity.commerce_rma_type.add_form
-  title: 'Add RMAType'
+#    - entity.commerce_return.collection
+entity.commerce_return_type.add_form:
+  route_name: entity.commerce_return_type.add_form
+  title: 'Add CommerceReturnType'
   appears_on:
-    - entity.commerce_rma_type.collection
-entity.commerce_rma_reason.add_form:
-  route_name: entity.commerce_rma_reason.add_form
-  title: 'Add RMAReason'
+    - entity.commerce_return_type.collection
+entity.commerce_return_reason.add_form:
+  route_name: entity.commerce_return_reason.add_form
+  title: 'Add CommerceReturnReason'
   appears_on:
-    - entity.commerce_rma_reason.collection
-entity.commerce_rma_item.add_form:
-  route_name: entity.commerce_rma_item.add_page
+    - entity.commerce_return_reason.collection
+entity.commerce_return_item.add_form:
+  route_name: entity.commerce_return_item.add_page
   title: 'Add RMA item'
   appears_on:
-    - entity.commerce_rma_item.collection
-entity.commerce_rma_item_type.add_form:
-  route_name: entity.commerce_rma_item_type.add_form
+    - entity.commerce_return_item.collection
+entity.commerce_return_item_type.add_form:
+  route_name: entity.commerce_return_item_type.add_form
   title: 'Add RMA item type'
   appears_on:
-    - entity.commerce_rma_item_type.collection
+    - entity.commerce_return_item_type.collection
