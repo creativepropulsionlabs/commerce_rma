@@ -17,7 +17,7 @@ class CommerceReturnListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['id'] = $this->t('RMA ID');
+    $header['id'] = $this->t('Return ID');
     $header['name'] = $this->t('Name');
     return $header + parent::buildHeader();
   }

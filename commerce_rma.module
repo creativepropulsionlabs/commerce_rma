@@ -12,7 +12,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\entity\BundleFieldDefinition;
-use Drupal\commerce_rma\Entity\CommerceReturnType;
+use Drupal\commerce_rma\Entity\CommerceReturnTypeInterface;
 
 /**
  * Implements hook_help().
@@ -93,62 +93,21 @@ function commerce_rma_theme_suggestions_commerce_return(array $variables) {
 }
 
 /**
- * Adds the default rma_items field to an order type.
- *
- * RMA items can't be a base field because the Views integration is broken.
- * Instead, it is created as a configurable field for each order type.
- *
- * @param \Drupal\commerce_rma\Entity\CommerceReturnType $bundle
- *   The RMA type.
- */
-function commerce_rma_add_rma_items_field(CommerceReturnType $bundle) {
-  $field_definition = BundleFieldDefinition::create('entity_reference')
-    ->setTargetEntityTypeId('commerce_return')
-    ->setTargetBundle($bundle->id())
-    ->setName('items')
-    ->setLabel('Items')
-    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
-    ->setRequired(TRUE)
-    ->setSetting('target_type', 'commerce_return_item')
-    ->setSetting('handler', 'default')
-    ->setDisplayOptions('form', [
-      'type' => 'inline_entity_form_complex',
-      'weight' => 0,
-      'settings' => [
-        'override_labels' => TRUE,
-        'label_singular' => 'Return item',
-        'label_plural' => 'Return items',
-      ],
-    ])
-    ->setDisplayOptions('view', [
-      'type' => 'commerce_order_item_table',
-      'weight' => 0,
-    ]);
-
-  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
-  $configurable_field_manager->createField($field_definition);
-}
-
-/**
  * Implements hook_entity_operation().
- * Add order return to orders list.
  */
-function commerce_return_operation(EntityInterface $entity) {
-  if ($entity->getEntityTypeId() === 'commerce_order') {
-    if (\Drupal::currentUser()->hasPermission('administer commerce return')) {
-      $operations = [];
+function commerce_rma_entity_operation(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() === 'commerce_order' && \Drupal::currentUser()->isAuthenticated()) {
+    $operations = [];
 
-      $operations['order_return'] = [
-        'title' => t('Order return'),
-        'weight' => 20,
-        'url' => Url::fromRoute('view.commerce_rma_order.page_1', [
-          'arg_0' => $entity->id(),
-        ])
-//        'url' => $entity->toUrl('return-order-form'),
-      ];
+    $operations['order_return'] = [
+      'title' => t('Order return'),
+      'weight' => 20,
+      'url' => Url::fromRoute('view.commerce_order_return.page', [
+        'arg_0' => $entity->id(),
+      ])
+    ];
 
-      return $operations;
-    }
+    return $operations;
   }
 }
 
@@ -219,42 +178,42 @@ function commerce_rma_views_data_alter(array &$data) {
 //  $configurable_field_manager->createField($field_definition);
 //}
 
-///**
-// * Adds the default order_item field to an order type.
-// *
-// * Order item can't be a base field because the Views integration is broken.
-// * Instead, it is created as a configurable field for each order type.
-// *
-// * @param \Drupal\commerce_order\Entity\OrderTypeInterface $order_type
-// *   The order type.
-// */
-//function commerce_order_add_order_items_field(OrderTypeInterface $order_type) {
-//  $field_definition = BundleFieldDefinition::create('entity_reference')
-//    ->setTargetEntityTypeId('commerce_order')
-//    ->setTargetBundle($order_type->id())
-//    ->setName('order_items')
-//    ->setLabel('Order items')
-//    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
-//    ->setRequired(TRUE)
-//    ->setSetting('target_type', 'commerce_return_item_type')
-//    ->setSetting('handler', 'default')
-//    ->setDisplayOptions('form', [
-//      'type' => 'inline_entity_form_complex',
-//      'weight' => 0,
-//      'settings' => [
-//        'override_labels' => TRUE,
-//        'label_singular' => 'order item',
-//        'label_plural' => 'order items',
-//      ],
-//    ])
-//    ->setDisplayOptions('view', [
-//      'type' => 'commerce_order_item_table',
-//      'weight' => 0,
-//    ]);
-//
-//  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
-//  $configurable_field_manager->createField($field_definition);
-//}
+/**
+ * Adds the default order_item field to an order type.
+ *
+ * Order item can't be a base field because the Views integration is broken.
+ * Instead, it is created as a configurable field for each order type.
+ *
+ * @param \Drupal\commerce_rma\Entity\CommerceReturnTypeInterface $order_type
+ *   The order type.
+ */
+function commerce_order_add_return_items_field(CommerceReturnTypeInterface $return_type) {
+  $field_definition = BundleFieldDefinition::create('entity_reference')
+    ->setTargetEntityTypeId('commerce_return')
+    ->setTargetBundle($return_type->id())
+    ->setName('return_items')
+    ->setLabel('Return items')
+    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
+    ->setRequired(TRUE)
+    ->setSetting('target_type', 'commerce_return_item')
+    ->setSetting('handler', 'default')
+    ->setDisplayOptions('form', [
+      'type' => 'inline_entity_form_complex',
+      'weight' => 0,
+      'settings' => [
+        'override_labels' => TRUE,
+        'label_singular' => 'return item',
+        'label_plural' => 'return items',
+      ],
+    ])
+    ->setDisplayOptions('view', [
+      'type' => 'commerce_order_item_table',
+      'weight' => 0,
+    ]);
+
+  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
+  $configurable_field_manager->createField($field_definition);
+}
 
 /**
  * Implements hook_entity_extra_field_info().

@@ -316,18 +316,56 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('view', TRUE)
       ->setSetting('workflow_callback', ['\Drupal\commerce_rma\Entity\CommerceReturnItem', 'getWorkflowId']);
 
+    $fields['order_item'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Order item'))
+      ->setDescription(t('The order item.'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
-//    $fields['order_id'] = BaseFieldDefinition::create('entity_reference')
-//      ->setLabel(t('Order'))
-//      ->setDescription(t('The parent order.'))
-//      ->setSetting('target_type', 'commerce_order')
-//      ->setReadOnly(TRUE);
+    $fields['note'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Note'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'string_textarea',
+        'weight' => 0,
+        'settings' => [
+          'rows' => 12,
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'type' => 'string',
+        'weight' => 0,
+        'label' => 'above',
+      ])
+      ->setDisplayConfigurable('view', TRUE);
 
-//    $fields['item'] = BaseFieldDefinition::create('commerce_order_item')
-//      ->setLabel(t('Order item'))
-//      ->setRequired(TRUE)
-//      ->setDisplayConfigurable('form', TRUE)
-//      ->setDisplayConfigurable('view', TRUE);
+    $fields['reason'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Reason'))
+      ->setDescription(t('The reason of item return.'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
 
     return $fields;
   }

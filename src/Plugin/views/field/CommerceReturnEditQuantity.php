@@ -238,13 +238,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     $save_cart = FALSE;
-    $name = t('RMAForOrder').$order->label();
 
-    // Create list of new RMA item objects.
+    // Create list of new return item objects.
     $commerce_return_items = [];
 
+    $return_item_storage = $this->entityTypeManager->getStorage('commerce_return_item');
+
     foreach ($quantities as $row_index => $quantity) {
-      if (!is_numeric($quantity) || $quantity < 0) {
+      if (!is_numeric($quantity) || $quantity <= 0) {
         // The input might be invalid if the #required or #min attributes
         // were removed by an alter hook.
         continue;
@@ -252,81 +253,48 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
       $order_item = $this->getEntity($this->view->result[$row_index]);
       if ($order_item->getQuantity() < $quantity) {
-//         The quantity hasn't changed.
+        // The quantity hasn't changed.
         continue;
       }
 
-      /** @var \Drupal\commerce_rma\Entity\CommerceReturnItemInterface $commerce_return_item */
-      $commerce_return_item = CommerceReturnItem::create([
-        // TODO Check IT! For test! 'type' must be different!!
+      $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
         'amount' => $order_item->getUnitPrice(),
-//        'quantity' => $order_item->getQuantity(),
-        // IMPORTANT! Take quantity from form - NOT from order.
-        'quantity' => $form_state->getValue('edit_rma_quantity')[$row_index],
-        // TODO CHECK THIS field!! Must be normal field! from code
-        'field_order_item' => $order_item,
-        // IMPORTANT! Take reason from form - NOT from order.
-        // TODO CHECK THIS field!! Must be normal field! from code
-        'field_reason' => isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL,
-        'field_note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
+        'quantity' => $form_state->getValue($this->options['id'])[$row_index],
+        'order_item' => $order_item,
+        'reason' => isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL,
+        'note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
       ]);
-//        $commerce_return_item->save();
-      $commerce_return_items[] = $commerce_return_item;
-
-//      if ($quantity > 0) {
-//        $order_item->setQuantity($quantity);
-//        $this->cartManager->updateOrderItem($cart, $order_item, FALSE);
-//      }
-//      else {
-//         Treat quantity "0" as a request for deletion.
-//        $this->cartManager->removeOrderItem($cart, $order_item, FALSE);
-//      }
+      $commerce_return_item->save();
+      $commerce_return_items[$commerce_return_item->id()] = $commerce_return_item;
       $save_cart = TRUE;
     }
 
     if ($save_cart) {
+      /** @var \Drupal\profile\Entity\ProfileInterface $return_billing_profile */
+      $return_billing_profile = $order->getBillingProfile()->createDuplicate();
+      $return_billing_profile->enforceIsNew(TRUE);
+      $address = $form_state->getValue('billing_information');
+      $return_billing_profile->set('address', $address);
+      $return_billing_profile->save();
 
-      /** @var ProfileInterface $new_billing_profile */
-//      $new_billing_profile = $order->getBillingProfile()->createDuplicate();
-      $new_address = $form_state->getValue('billing_information');
-//      $address = [
-//        'given_name' => $new_address['given_name'],
-//          'family_name' => $new_address['family_name'],
-//          'organization' => $new_address['organization'],
-//          'address_line1' => $new_address['address_line1'],
-//          'address_line2' => $new_address['address_line2'],
-//          'postal_code' => $new_address['postal_code'],
-//          'locality' => $new_address['locality'],
-//          'administrative_area' => $new_address['administrative_area'],
-//          'country_code' => $new_address['country_code'],
-//          'langcode' => $new_address['langcode'],
-//        ];
-//        $new_billing_profile->set('address', $address);
-
-//      $profile_storage = $this->entityTypeManager->getStorage('profile');
-      // Create billing profile for RMA object.
-      /** @var ProfileInterface $profile */
-//      $profile = Profile::create([
-//        'type' => 'customer',
-//        'uid' => $order->getCustomerId(),
-//      ]);
-//      $profile->save();
-
-      // Create new RMA object.
+      $commerce_return_storage = $this->entityTypeManager->getStorage('commerce_return');
+      // Create new Return object.
       /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
-      $commerce_return = CommerceReturn::create([
-        'name' => $name,
-        // TODO CHECK IT For test! - type must be different!!
+      $commerce_return = $commerce_return_storage->create([
+        'name' => t('Return for order !order', ['!order' => $order->getOrderNumber()]),
         'type' => 'default',
-        'commerce_return_items' => $commerce_return_items,
-//        'field_billing_information' => $new_billing_profile,
-        'field_billing_information' => $new_address,
+//        'return_items' => $commerce_return_items,
+        'billing_profile' => $return_billing_profile,
       ]);
+      foreach ($commerce_return_items as $item) {
+        $commerce_return->return_items->appendItem($item->id());
+      }
+//      $commerce_return->return_items->setva('return_items')
+
       $commerce_return->save();
 
-//      $cart->save();
       if (!empty($triggering_element['#show_update_message'])) {
         $this->messenger()->addMessage($this->t('Order @label is returning.', [
           '@label' => $order->label(),
@@ -334,85 +302,6 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
     }
 
-
-//    if ($form_state->getTriggeringElement()['#id'] == 'edit-submit') {
-
-//      // Create new RMA object.
-//      $name = t('RMAForOrder').$order->label();
-//
-//      // Create list of new RMA item objects.
-//      $commerce_return_items = [];
-//      $order_items = $order->get('order_items')->getValue();
-//
-//      foreach ($order_items as $order_item_id_mas) {
-//        $order_item_id = $order_item_id_mas['target_id'];
-//        /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
-//        $order_item = OrderItem::load($order_item_id);
-//        /** @var \Drupal\commerce_rma\Entity\CommerceReturnItemInterface $commerce_return_item */
-//        $commerce_return_item = RMAItem::create([
-//          // TODO Check IT! For test! 'type' must be different!!
-//          'type' => 'default',
-//          'name' => $order_item->getTitle(),
-//          'amount' => $order_item->get('unit_price'),
-//          'quantity' => $order_item->get('quantity'),
-//          // TODO CHECK THIS field!! Must be normal field!
-//          'field_order_item' => $order_item,
-//        ]);
-////        $commerce_return_item->save();
-//        $commerce_return_items[] = $commerce_return_item;
-//      }
-//
-//      /** @var \Drupal\commerce_rma\Entity\RMAInterface $commerce_return */
-//      $commerce_return = RMA::create([
-//        'name' => $name,
-//        // TODO CHECK IT For test! - type must be different!!
-//        'type' => 'default',
-//        'commerce_return_items' => $commerce_return_items,
-//      ]);
-//      $commerce_return->save();
-//
-//      $this->messenger()->addMessage($this->t('Order @label is returning.', [
-//        '@label' => $order->label(),
-//      ]));
-//    }
-//  }
-
-
-//    $order_storage = $this->entityTypeManager->getStorage('commerce_order');
-//    /** @var \Drupal\commerce_order\Entity\OrderInterface $cart */
-//    $cart = $order_storage->load($this->view->argument['order_id']->getValue());
-//    $quantities = $form_state->getValue($this->options['id'], []);
-//    $save_cart = FALSE;
-//    foreach ($quantities as $row_index => $quantity) {
-//      if (!is_numeric($quantity) || $quantity < 0) {
-//        // The input might be invalid if the #required or #min attributes
-//        // were removed by an alter hook.
-//        continue;
-//      }
-//      /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
-//      $order_item = $this->getEntity($this->view->result[$row_index]);
-//      if ($order_item->getQuantity() == $quantity) {
-//        // The quantity hasn't changed.
-//        continue;
-//      }
-//
-//      if ($quantity > 0) {
-//        $order_item->setQuantity($quantity);
-//        $this->cartManager->updateOrderItem($cart, $order_item, FALSE);
-//      }
-//      else {
-//        // Treat quantity "0" as a request for deletion.
-//        $this->cartManager->removeOrderItem($cart, $order_item, FALSE);
-//      }
-//      $save_cart = TRUE;
-//    }
-//
-//    if ($save_cart) {
-//      $cart->save();
-//      if (!empty($triggering_element['#show_update_message'])) {
-//        $this->messenger->addMessage($this->t('Your shopping cart has been updated.'));
-//      }
-//    }
   }
 
   /**

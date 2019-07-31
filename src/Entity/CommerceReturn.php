@@ -150,6 +150,27 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDisplayConfigurable('view', TRUE)
       ->setSetting('workflow_callback', ['\Drupal\commerce_rma\Entity\CommerceReturn', 'getWorkflowId']);
 
+    $fields['billing_profile'] = BaseFieldDefinition::create('entity_reference_revisions')
+      ->setLabel(t('Billing information'))
+      ->setDescription(t('Billing profile'))
+      ->setSetting('target_type', 'profile')
+      ->setSetting('handler', 'default')
+      ->setSetting('handler_settings', ['target_bundles' => ['customer']])
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_billing_profile',
+        'weight' => 0,
+        'settings' => [],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['refund_gateway'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Refund gateway'))
+      ->setDescription(t('The refund gateway.'))
+      ->setSetting('target_type', 'commerce_refund_gateway')
+      ->setReadOnly(TRUE);
+
     return $fields;
   }
 

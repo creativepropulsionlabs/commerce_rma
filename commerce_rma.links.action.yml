@@ -1,6 +1,6 @@
 entity.commerce_return.add_form:
   route_name: entity.commerce_return.add_page
-  title: 'Add RMA'
+  title: 'Add Return'
   appears_on:
     - entity.commerce_return.collection
 #entity.commerce_return.return_form:
@@ -10,21 +10,21 @@ entity.commerce_return.add_form:
 #    - entity.commerce_return.collection
 entity.commerce_return_type.add_form:
   route_name: entity.commerce_return_type.add_form
-  title: 'Add CommerceReturnType'
+  title: 'Add Return Type'
   appears_on:
     - entity.commerce_return_type.collection
 entity.commerce_return_reason.add_form:
   route_name: entity.commerce_return_reason.add_form
-  title: 'Add CommerceReturnReason'
+  title: 'Add Return Reason'
   appears_on:
     - entity.commerce_return_reason.collection
 entity.commerce_return_item.add_form:
   route_name: entity.commerce_return_item.add_page
-  title: 'Add RMA item'
+  title: 'Add Return item'
   appears_on:
     - entity.commerce_return_item.collection
 entity.commerce_return_item_type.add_form:
   route_name: entity.commerce_return_item_type.add_form
-  title: 'Add RMA item type'
+  title: 'Add Return Item type'
   appears_on:
     - entity.commerce_return_item_type.collection

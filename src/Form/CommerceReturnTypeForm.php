@@ -74,7 +74,7 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
       '#type' => 'machine_name',
       '#default_value' => $commerce_return_type->id(),
       '#machine_name' => [
-        'exists' => '\Drupal\commerce_rma\Entity\RMAType::load',
+        'exists' => '\Drupal\commerce_rma\Entity\CommerceReturnType::load',
       ],
       '#disabled' => !$commerce_return_type->isNew(),
     ];
@@ -142,9 +142,9 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
   public function save(array $form, FormStateInterface $form_state) {
     $this->entity->save();
     $this->postSave($this->entity, $this->operation);
-//    $this->submitTraitForm($form, $form_state);
+    $this->submitTraitForm($form, $form_state);
     if ($this->operation == 'add') {
-      commerce_rma_add_rma_items_field($this->entity);
+      commerce_order_add_return_items_field($this->entity);
     }
 
     $this->messenger()->addMessage($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
