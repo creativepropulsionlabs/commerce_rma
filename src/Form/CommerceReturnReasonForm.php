@@ -4,8 +4,6 @@ namespace Drupal\commerce_rma\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface;
-use Drupal\commerce_rma\Entity\CommerceReturnReason;
 
 /**
  * Class CommerceReturnReasonForm.
@@ -78,13 +76,13 @@ class CommerceReturnReasonForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        $this->messenger()->addMessage($this->t('Created the %label CommerceReturnReason.', [
+        $this->messenger()->addStatus($this->t('Created the %label CommerceReturnReason.', [
           '%label' => $rma_reason->label(),
         ]));
         break;
 
       default:
-        $this->messenger()->addMessage($this->t('Saved the %label CommerceReturnReason.', [
+        $this->messenger()->addStatus($this->t('Saved the %label CommerceReturnReason.', [
           '%label' => $rma_reason->label(),
         ]));
     }

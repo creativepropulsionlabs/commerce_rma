@@ -2,8 +2,8 @@
 
 namespace Drupal\commerce_rma\Annotation;
 
-use Drupal\commerce_payment\CreditCard;
 use Drupal\Component\Annotation\Plugin;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Defines the payment gateway plugin annotation object.
@@ -26,18 +26,18 @@ class CommerceReturnGateway extends Plugin {
   /**
    * The payment gateway label.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $label;
 
   /**
    * The payment gateway display label.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $display_label;
 
@@ -56,8 +56,10 @@ class CommerceReturnGateway extends Plugin {
    * An array of form classes keyed by operation.
    * For example:
    * <code>
-   *   'add-payment-method' => "Drupal\commerce_payment\PluginForm\PaymentMethodAddForm",
-   *   'capture-payment' => "Drupal\commerce_payment\PluginForm\PaymentCaptureForm",
+   *   'add-payment-method' =>
+   * "Drupal\commerce_payment\PluginForm\PaymentMethodAddForm",
+   *   'capture-payment' =>
+   * "Drupal\commerce_payment\PluginForm\PaymentCaptureForm",
    * </code>
    *
    * @var array
@@ -87,8 +89,8 @@ class CommerceReturnGateway extends Plugin {
   public function __construct(array $values) {
     if (empty($values['modes'])) {
       $values['modes'] = [
-        'test' => t('Test'),
-        'live' => t('Live'),
+        'test' => new TranslatableMarkup('Test'),
+        'live' => new TranslatableMarkup('Live'),
       ];
     }
     parent::__construct($values);

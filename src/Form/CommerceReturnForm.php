@@ -65,8 +65,6 @@ class CommerceReturnForm extends ContentEntityForm {
     return $form;
   }
 
-
-
   /**
    * {@inheritdoc}
    */
@@ -82,13 +80,13 @@ class CommerceReturnForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        $this->messenger()->addMessage($this->t('Created the %label RMA.', [
+        $this->messenger()->addStatus($this->t('Created the %label RMA.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        $this->messenger()->addMessage($this->t('Saved the %label RMA.', [
+        $this->messenger()->addStatus($this->t('Saved the %label RMA.', [
           '%label' => $entity->label(),
         ]));
     }

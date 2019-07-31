@@ -2,12 +2,8 @@
 
 namespace Drupal\commerce_rma\Form;
 
-use Drupal\commerce\EntityHelper;
 use Drupal\commerce\EntityTraitManagerInterface;
 use Drupal\commerce\Form\CommerceBundleEntityFormBase;
-use Drupal\commerce_rma\Entity\CommerceReturnType;
-use Drupal\commerce_rma\Entity\CommerceReturnTypeInterface;
-use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity\Form\EntityDuplicateFormTrait;
 use Drupal\state_machine\WorkflowManagerInterface;
@@ -16,8 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class CommerceReturnTypeForm.
  */
-//class CommerceReturnTypeForm extends EntityForm {
-
 class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
 
   use EntityDuplicateFormTrait;
@@ -114,7 +108,6 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
     return $form;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -147,7 +140,7 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
       commerce_order_add_return_items_field($this->entity);
     }
 
-    $this->messenger()->addMessage($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
+    $this->messenger()->addStatus($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
     $form_state->setRedirect('entity.commerce_return_type.collection');
   }
 

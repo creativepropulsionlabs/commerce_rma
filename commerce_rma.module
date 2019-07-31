@@ -96,6 +96,7 @@ function commerce_rma_theme_suggestions_commerce_return(array $variables) {
  * Implements hook_entity_operation().
  */
 function commerce_rma_entity_operation(EntityInterface $entity) {
+  // @todo Add proper access checking.
   if ($entity->getEntityTypeId() === 'commerce_order' && \Drupal::currentUser()->isAuthenticated()) {
     $operations = [];
 

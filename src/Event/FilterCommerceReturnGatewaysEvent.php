@@ -15,7 +15,7 @@ class FilterCommerceReturnGatewaysEvent extends Event {
   /**
    * The payment gateways.
    *
-   * @var \Drupal\commerce_payment\Entity\RMAGatewayInterface[]
+   * @var \Drupal\commerce_rma\Entity\RefundGatewayInterface[]
    */
   protected $refundGateways;
 
@@ -29,20 +29,20 @@ class FilterCommerceReturnGatewaysEvent extends Event {
   /**
    * Constructs a new FilterPaymentGatewaysEvent object.
    *
-   * @param \Drupal\commerce_rma\Entity\RefundGatewayInterface[] $refund_gateways
+   * @param \Drupal\commerce_rma\Entity\RefundGatewayInterface[] $gateways
    *   The payment gateways.
    * @param \Drupal\commerce_order\Entity\OrderInterface $order
    *   The order.
    */
-  public function __construct(array $refund_gateways, OrderInterface $order) {
-    $this->refundGateways = $refund_gateways;
+  public function __construct(array $gateways, OrderInterface $order) {
+    $this->refundGateways = $gateways;
     $this->order = $order;
   }
 
   /**
    * Gets the payment gateways.
    *
-   * @return \Drupal\commerce_payment\Entity\PaymentGatewayInterface[]
+   * @return \Drupal\commerce_rma\Entity\RefundGatewayInterface[]
    *   The payment gateways.
    */
   public function getRefundGateways() {
@@ -52,13 +52,13 @@ class FilterCommerceReturnGatewaysEvent extends Event {
   /**
    * Sets the payment gateways.
    *
-   * @param \Drupal\commerce_payment\Entity\PaymentGatewayInterface[] $payment_gateways
+   * @param \Drupal\commerce_rma\Entity\RefundGatewayInterface[] $gateways
    *   The payment gateways.
    *
    * @return $this
    */
-  public function setRefundGateways(array $refund_gateways) {
-    $this->refundGateways = $refund_gateways;
+  public function setRefundGateways(array $gateways) {
+    $this->refundGateways = $gateways;
     return $this;
   }
 

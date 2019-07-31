@@ -3,11 +3,6 @@
 namespace Drupal\commerce_rma\Plugin\views\field;
 
 use Drupal\commerce_cart\CartManagerInterface;
-use Drupal\commerce_order\Entity\OrderItem;
-use Drupal\commerce_rma\Entity\CommerceReturn;
-use Drupal\commerce_rma\Entity\CommerceReturnItem;
-use Drupal\commerce_rma\Entity\CommerceReturnReason;
-use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -140,8 +135,9 @@ class CommerceReturnEditReason extends FieldPluginBase {
 
     // Make options for reason field in view.
     $options = [];
-    /** @var CommerceReturnReasonInterface[] $reasons */
-    $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')->loadMultiple();
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnReasonInterface[] $reasons */
+    $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')
+      ->loadMultiple();
     foreach ($reasons as $reason) {
       $options[$reason->id()] = $reason->label();
     }

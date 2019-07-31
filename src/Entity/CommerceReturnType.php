@@ -64,7 +64,6 @@ class CommerceReturnType extends CommerceBundleEntityBase  implements CommerceRe
 
   /**
    * {@inheritdoc}
-   *
    */
   public function getWorkflowId() {
     return $this->workflow;
@@ -91,6 +90,5 @@ class CommerceReturnType extends CommerceBundleEntityBase  implements CommerceRe
 
     return $this;
   }
-
 
 }

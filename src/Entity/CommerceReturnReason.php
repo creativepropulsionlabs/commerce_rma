@@ -38,7 +38,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   }
  * )
  */
-class CommerceReturnReason extends ConfigEntityBase  implements CommerceReturnReasonInterface {
+class CommerceReturnReason extends ConfigEntityBase implements CommerceReturnReasonInterface {
 
   /**
    * The RMA reason ID.
@@ -67,7 +67,6 @@ class CommerceReturnReason extends ConfigEntityBase  implements CommerceReturnRe
    * @var int
    */
   protected $weight;
-
 
   /**
    * {@inheritdoc}

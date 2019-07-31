@@ -3,14 +3,12 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceContentEntityBase;
-use Drupal\commerce_order\Entity\OrderItem;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
-//use Drupal\Core\Entity\RevisionableInterface;
-use Drupal\Core\Entity\EntityChangedTrait;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\user\UserInterface;
 use Drupal\commerce_price\Price;
+use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the RMA item entity.
@@ -76,20 +74,20 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
    *
    * @var \Drupal\commerce_order\Entity\OrderItem
    */
-  protected $order_item;
+  protected $orderItem;
 
   /**
    * {@inheritdoc}
    */
   public function getOrderItem() {
-    return $this->order_item;
+    return $this->orderItem;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setOrderItem($order_item) {
-    $this->set('order_item', $order_item);
+  public function setOrderItem($orderItem) {
+    $this->set('order_item', $orderItem);
     return $this;
   }
 

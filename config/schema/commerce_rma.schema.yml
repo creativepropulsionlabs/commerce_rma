@@ -42,4 +42,3 @@ commerce_rma.commerce_return_reason.*:
       label: 'Label'
     uuid:
       type: string
-

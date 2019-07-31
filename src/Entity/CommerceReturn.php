@@ -3,11 +3,9 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceContentEntityBase;
-use Drupal\commerce_order\Entity\OrderInterface;
-use Drupal\commerce_order\Entity\OrderType;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * Defines the RMA entity.
@@ -100,7 +98,6 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
     return $this->get('state')->first();
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -148,7 +145,10 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
-      ->setSetting('workflow_callback', ['\Drupal\commerce_rma\Entity\CommerceReturn', 'getWorkflowId']);
+      ->setSetting('workflow_callback', [
+        CommerceReturn::class,
+        'getWorkflowId',
+      ]);
 
     $fields['billing_profile'] = BaseFieldDefinition::create('entity_reference_revisions')
       ->setLabel(t('Billing information'))

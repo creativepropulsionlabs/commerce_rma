@@ -3,12 +3,10 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce_order\Entity\OrderItem;
-use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\RevisionLogInterface;
-use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityPublishedInterface;
-use Drupal\user\EntityOwnerInterface;
+use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\commerce_price\Price;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityChangedInterface;
 
 /**
  * Provides an interface for defining RMA item entities.
@@ -21,19 +19,19 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
    * Gets the order item.
    *
    * @return \Drupal\commerce_order\Entity\OrderItem
+   *   The order item.
    */
   public function getOrderItem();
 
   /**
    * Sets the order item.
    *
-   * @param \Drupal\commerce_order\Entity\OrderItem $order_item
+   * @param \Drupal\commerce_order\Entity\OrderItem $orderItem
    *   The RMA item name.
    *
    * @return $this
-   *
    */
-  public function setOrderItem($order_item);
+  public function setOrderItem(OrderItem $orderItem);
 
   /**
    * Gets the RMA item name.
@@ -49,8 +47,7 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
    * @param string $name
    *   The RMA item name.
    *
-   * @return \Drupal\commerce_rma\Entity\CommerceReturnItemInterface
-   *   The called RMA item entity.
+   * @return $this
    */
   public function setName($name);
 
@@ -68,8 +65,7 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
    * @param int $timestamp
    *   The RMA item creation timestamp.
    *
-   * @return \Drupal\commerce_rma\Entity\CommerceReturnItemInterface
-   *   The called RMA item entity.
+   * @return $this
    */
   public function setCreatedTime($timestamp);
 
@@ -115,6 +111,6 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
    *
    * @return $this
    */
-  public function setItem($item);
+  public function setItem(OrderItemInterface $item);
 
 }

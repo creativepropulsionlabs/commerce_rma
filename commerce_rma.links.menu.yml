@@ -37,4 +37,3 @@ entity.commerce_return_reason.collection:
   description: 'Manage your Return reasons.'
   parent: commerce.admin_commerce
   weight: 104
-

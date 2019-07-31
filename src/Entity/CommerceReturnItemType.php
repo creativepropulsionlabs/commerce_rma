@@ -64,7 +64,6 @@ class CommerceReturnItemType extends CommerceBundleEntityBase implements Commerc
 
   /**
    * {@inheritdoc}
-   *
    */
   public function getWorkflowId() {
     return $this->workflow;

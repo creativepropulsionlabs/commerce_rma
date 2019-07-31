@@ -3,15 +3,9 @@
 namespace Drupal\commerce_rma\Plugin\views\field;
 
 use Drupal\commerce_cart\CartManagerInterface;
-use Drupal\commerce_order\Entity\OrderInterface;
-use Drupal\commerce_order\Entity\OrderItem;
-use Drupal\commerce_rma\Entity\CommerceReturn;
-use Drupal\commerce_rma\Entity\CommerceReturnItem;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\profile\Entity\Profile;
-use Drupal\profile\Entity\ProfileInterface;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
@@ -138,12 +132,13 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       unset($form['actions']);
       return;
     }
-    /** @var OrderInterface $order */
-    $order = $this->entityTypeManager->getStorage('commerce_order')->load($this->view->argument['order_id']->getValue());
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+    $order = $this->entityTypeManager->getStorage('commerce_order')
+      ->load($this->view->argument['order_id']->getValue());
 
-//    $form['#attached'] = [
-//      'library' => ['commerce_cart/cart_form'],
-//    ];
+    //    $form['#attached'] = [
+    //      'library' => ['commerce_cart/cart_form'],
+    //    ];
     $form[$this->options['id']]['#tree'] = TRUE;
     foreach ($this->view->result as $row_index => $row) {
       /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
@@ -152,6 +147,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         $form_display = commerce_get_entity_display('commerce_order_item', $order_item->bundle(), 'form');
         $quantity_component = $form_display->getComponent('quantity');
         $step = $quantity_component['settings']['step'];
+        // @todo Fix logic and document.
         $precision = $step >= '1' ? 0 : strlen($step) - 2;
       }
       else {
@@ -166,13 +162,13 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         '#default_value' => round($order_item->getQuantity(), $precision),
         '#size' => 4,
         '#min' => 0,
-        '#max' => 9999,
+        '#max' => $order_item->getQuantity(),
         '#step' => $step,
         '#required' => TRUE,
       ];
     }
 
-    /** @var ProfileInterface $billing_profile */
+    /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
     $billing_profile = $order->getBillingProfile();
     $address = $billing_profile->get('address')->getValue();
     $address = array_shift($address);
@@ -217,11 +213,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     $order_storage = $this->entityTypeManager->getStorage('commerce_order');
+    $return_item_storage = $this->entityTypeManager->getStorage('commerce_return_item');
+    $commerce_return_storage = $this->entityTypeManager->getStorage('commerce_return');
+
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $order_storage->load($this->view->argument['order_id']->getValue());
     $quantities = $form_state->getValue($this->options['id'], []);
 
-    // Find - if we connect handler for RMA reason field
+    // Find - if we connect handler for RMA reason field.
     $handlers = $this->view->getHandlers('field');
 
     foreach ($handlers as $handler) {
@@ -237,13 +236,8 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
     }
 
-    $save_cart = FALSE;
-
     // Create list of new return item objects.
-    $commerce_return_items = [];
-
-    $return_item_storage = $this->entityTypeManager->getStorage('commerce_return_item');
-
+    $items_to_return = [];
     foreach ($quantities as $row_index => $quantity) {
       if (!is_numeric($quantity) || $quantity <= 0) {
         // The input might be invalid if the #required or #min attributes
@@ -267,41 +261,34 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
       ]);
       $commerce_return_item->save();
-      $commerce_return_items[$commerce_return_item->id()] = $commerce_return_item;
-      $save_cart = TRUE;
+      $items_to_return[] = $commerce_return_item->id();
     }
 
-    if ($save_cart) {
-      /** @var \Drupal\profile\Entity\ProfileInterface $return_billing_profile */
-      $return_billing_profile = $order->getBillingProfile()->createDuplicate();
-      $return_billing_profile->enforceIsNew(TRUE);
+    if ($items_to_return) {
       $address = $form_state->getValue('billing_information');
-      $return_billing_profile->set('address', $address);
-      $return_billing_profile->save();
+      /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
+      $billing_profile = $order->getBillingProfile()->createDuplicate();
+      $billing_profile
+        ->enforceIsNew(TRUE)
+        ->set('address', $address)
+        ->save();
 
-      $commerce_return_storage = $this->entityTypeManager->getStorage('commerce_return');
       // Create new Return object.
       /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
       $commerce_return = $commerce_return_storage->create([
         'name' => t('Return for order !order', ['!order' => $order->getOrderNumber()]),
         'type' => 'default',
-//        'return_items' => $commerce_return_items,
-        'billing_profile' => $return_billing_profile,
+        'return_items' => $items_to_return,
+        'billing_profile' => $billing_profile,
       ]);
-      foreach ($commerce_return_items as $item) {
-        $commerce_return->return_items->appendItem($item->id());
-      }
-//      $commerce_return->return_items->setva('return_items')
-
       $commerce_return->save();
 
       if (!empty($triggering_element['#show_update_message'])) {
-        $this->messenger()->addMessage($this->t('Order @label is returning.', [
+        $this->messenger->addStatus($this->t('Order @label is returning.', [
           '@label' => $order->label(),
         ]));
       }
     }
-
   }
 
   /**

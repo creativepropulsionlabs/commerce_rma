@@ -3,13 +3,11 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceBundleEntityInterface;
-use Drupal\commerce_order\Entity\OrderTypeInterface;
 
 /**
  * Provides an interface for defining RMA type entities.
  */
 interface CommerceReturnTypeInterface extends CommerceBundleEntityInterface {
-
 
   /**
    * Gets the order type's workflow ID.

@@ -4,27 +4,19 @@ namespace Drupal\commerce_rma\Form;
 
 use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\commerce_order\Form\CustomerFormTrait;
-use Drupal\commerce_order\Mail\OrderReceiptMailInterface;
-use Drupal\commerce_order\OrderAssignmentInterface;
 use Drupal\commerce_rma\Entity\CommerceReturn;
 use Drupal\commerce_rma\Entity\CommerceReturnItem;
-use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Entity\ContentEntityConfirmFormBase;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 /**
  * Provides a confirmation form for returning order.
  */
 class CommerceReturnOrderReturnForm extends FormBase {
 
-    use CustomerFormTrait;
+  use CustomerFormTrait;
 
   /**
    * The current order.
@@ -39,12 +31,11 @@ class CommerceReturnOrderReturnForm extends FormBase {
    * @param \Drupal\Core\Routing\CurrentRouteMatch $current_route_match
    *   The current route match.
    */
-
   public function __construct(CurrentRouteMatch $current_route_match) {
     $this->order = $current_route_match->getParameter('commerce_order');
-//    $this->entity = $this->order;
-//    $this->orderAssignment = $order_assignment;
-//    $this->userStorage = $entity_type_manager->getStorage('user');
+    //    $this->entity = $this->order;
+    //    $this->orderAssignment = $order_assignment;
+    //    $this->userStorage = $entity_type_manager->getStorage('user');
   }
 
   /**
@@ -84,7 +75,6 @@ class CommerceReturnOrderReturnForm extends FormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-//    return $this->entity->toUrl('collection');
     return $this->order->toUrl('collection');
   }
 
@@ -105,12 +95,12 @@ class CommerceReturnOrderReturnForm extends FormBase {
       '#arguments' => [$this->order->id()],
     ];
 
-//    $form['actions']['#type'] = 'actions';
-//    $form['actions']['submit'] = [
-//      '#type' => 'submit',
-//      '#value' => $this->t('Return order'),
-//      '#button_type' => 'primary',
-//    ];
+    $form['actions']['#type'] = 'actions';
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Return order'),
+      '#button_type' => 'primary',
+    ];
     $form['actions']['cancel'] = [
       '#type' => 'submit',
       '#value' => $this->t('Cancel'),
@@ -120,7 +110,7 @@ class CommerceReturnOrderReturnForm extends FormBase {
     return $form;
   }
 
-    /**
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -130,7 +120,7 @@ class CommerceReturnOrderReturnForm extends FormBase {
     if ($form_state->getTriggeringElement()['#id'] == 'edit-submit') {
 
       // Create new RMA object.
-      $name = t('RMAForOrder').$order->label();
+      $name = t('RMAForOrder') . $order->label();
 
       // Create list of new RMA item objects.
       $rma_items = [];
@@ -154,18 +144,18 @@ class CommerceReturnOrderReturnForm extends FormBase {
         $rma_items[] = $commerce_return_item;
       }
 
-    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $new_rma */
-    $new_rma = CommerceReturn::create([
-      'name' => $name,
-      // TODO CHECK IT For test! - type must be different!!
-      'type' => 'default',
-      'rma_items' => $rma_items,
+      /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $new_rma */
+      $new_rma = CommerceReturn::create([
+        'name' => $name,
+        // TODO CHECK IT For test! - type must be different!!
+        'type' => 'default',
+        'rma_items' => $rma_items,
       ]);
-    $new_rma->save();
+      $new_rma->save();
 
-    $this->messenger()->addMessage($this->t('Order @label is returning.', [
-      '@label' => $order->label(),
-    ]));
+      $this->messenger()->addStatus($this->t('Order @label is returning.', [
+        '@label' => $order->label(),
+      ]));
     }
   }
 

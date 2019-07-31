@@ -2,12 +2,8 @@
 
 namespace Drupal\commerce_rma\Form;
 
-use Drupal\commerce\EntityHelper;
 use Drupal\commerce\EntityTraitManagerInterface;
 use Drupal\commerce\Form\CommerceBundleEntityFormBase;
-use Drupal\commerce_rma\Entity\CommerceReturnType;
-use Drupal\commerce_rma\Entity\CommerceReturnTypeInterface;
-use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity\Form\EntityDuplicateFormTrait;
 use Drupal\state_machine\WorkflowManagerInterface;
@@ -104,13 +100,13 @@ class CommerceReturnItemTypeForm extends CommerceBundleEntityFormBase {
 
     switch ($status) {
       case SAVED_NEW:
-        $this->messenger()->addMessage($this->t('Created the %label RMA item type.', [
+        $this->messenger()->addStatus($this->t('Created the %label RMA item type.', [
           '%label' => $commerce_return_item_type->label(),
         ]));
         break;
 
       default:
-        $this->messenger()->addMessage($this->t('Saved the %label RMA item type.', [
+        $this->messenger()->addStatus($this->t('Saved the %label RMA item type.', [
           '%label' => $commerce_return_item_type->label(),
         ]));
     }

@@ -11,11 +11,17 @@ interface CommerceReturnReasonInterface extends ConfigEntityInterface {
 
   /**
    * Gets RMA reason description.
+   *
+   * @return string
+   *   The description.
    */
   public function getDescription();
 
   /**
    * Gets RMA reason weight.
+   *
+   * @return int
+   *   The weight of reason.
    */
   public function getWeight();
 
