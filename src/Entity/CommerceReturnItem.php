@@ -3,6 +3,8 @@
 namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceContentEntityBase;
+use Drupal\commerce_order\Entity\OrderItem;
+use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -86,7 +88,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function setOrderItem($orderItem) {
+  public function setOrderItem(OrderItem $orderItem) {
     $this->set('order_item', $orderItem);
     return $this;
   }
@@ -220,7 +222,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function setItem($item) {
+  public function setItem(OrderItemInterface $item) {
     $this->set('item', $item);
 //    $this->recalculateTotalPrice();
     return $this;
