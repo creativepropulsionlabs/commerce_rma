@@ -3,11 +3,6 @@ entity.commerce_return.add_form:
   title: 'Add Return'
   appears_on:
     - entity.commerce_return.collection
-#entity.commerce_return.return_form:
-#  route_name: entity.commerce_return.add_page
-#  title: 'Return order'
-#  appears_on:
-#    - entity.commerce_return.collection
 entity.commerce_return_type.add_form:
   route_name: entity.commerce_return_type.add_form
   title: 'Add Return Type'
