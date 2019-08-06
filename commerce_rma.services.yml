@@ -11,30 +11,3 @@ services:
   plugin.manager.commerce_refund_method_type:
     class: Drupal\commerce_rma\RefundMethodTypeManager
     parent: default_plugin_manager
-
-  plugin.manager.commerce_payment_type:
-    class: Drupal\commerce_payment\PaymentTypeManager
-    parent: default_plugin_manager
-
-  commerce_payment.filter_conditions_subscriber:
-    class: Drupal\commerce_payment\EventSubscriber\FilterConditionsEventSubscriber
-    tags:
-      - { name: event_subscriber }
-
-  commerce_payment.order_assign_subscriber:
-    class: Drupal\commerce_payment\EventSubscriber\OrderAssignSubscriber
-    tags:
-    - { name: event_subscriber }
-
-  commerce_payment.order_paid_subscriber:
-    class: Drupal\commerce_payment\EventSubscriber\OrderPaidSubscriber
-    tags:
-    - { name: event_subscriber }
-
-  commerce_payment.options_builder:
-    class: Drupal\commerce_payment\PaymentOptionsBuilder
-    arguments: ['@entity_type.manager', '@string_translation']
-
-  commerce_payment.order_manager:
-    class: Drupal\commerce_payment\PaymentOrderManager
-    arguments: ['@entity_type.manager']
