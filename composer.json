@@ -1,0 +1,8 @@
+{
+    "name": "drupal/commerce_rma",
+    "description": "Commerce RMA Drupal 8.x architecture.",
+    "type": "drupal-module",
+    "homepage": "https://drupal.org/project/commerce_rma",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev"
+}
