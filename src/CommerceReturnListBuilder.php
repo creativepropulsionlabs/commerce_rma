@@ -28,11 +28,7 @@ class CommerceReturnListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var \Drupal\commerce_rma\Entity\CommerceReturn $entity */
     $row['id'] = $entity->id();
-    $row['name'] = Link::createFromRoute(
-      $entity->label(),
-      'entity.commerce_return.edit_form',
-      ['commerce_return' => $entity->id()]
-    );
+    $row['name'] = $entity->label();
     return $row + parent::buildRow($entity);
   }
 

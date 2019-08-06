@@ -22,14 +22,6 @@ entity.commerce_return_item.collection:
   parent: commerce_order.configuration
   weight: 102
 
-# commerce return item type menu items definition
-entity.commerce_return_item_type.collection:
-  title: 'Return item types'
-  route_name: entity.commerce_return_item_type.collection
-  description: 'Manage your Return item types.'
-  parent: commerce_order.configuration
-  weight: 103
-
 # CommerceReturnReason menu items definition
 entity.commerce_return_reason.collection:
   title: 'Return reasons'
