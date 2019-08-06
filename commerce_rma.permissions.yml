@@ -73,3 +73,7 @@ administer commerce return reason:
   title: 'Administer Commerce return reason'
   description: 'Allow to access the administration form to configure commerce return reasons.'
   restrict access: true
+
+return order:
+  title: 'Return orders'
+  description: 'Allow to Return completed order.'
