@@ -3,6 +3,11 @@
 namespace Drupal\commerce_rma\Plugin\views\field;
 
 use Drupal\commerce_cart\CartManagerInterface;
+use Drupal\commerce_order\Entity\OrderItem;
+use Drupal\commerce_rma\Entity\CommerceReturn;
+use Drupal\commerce_rma\Entity\CommerceReturnItem;
+use Drupal\commerce_rma\Entity\CommerceReturnReason11;
+use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface1;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;

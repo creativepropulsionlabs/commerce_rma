@@ -5,14 +5,18 @@
  * Contains commerce_rma.module.
  */
 
+use Drupal\commerce_order\Entity\OrderTypeInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\entity\BundleFieldDefinition;
 use Drupal\commerce_rma\Entity\CommerceReturnTypeInterface;
+use Drupal\state_machine\Plugin\Workflow\WorkflowState;
+use Drupal\workflows\WorkflowInterface;
 
 /**
  * Implements hook_help().
@@ -96,21 +100,72 @@ function commerce_rma_theme_suggestions_commerce_return(array $variables) {
  * Implements hook_entity_operation().
  */
 function commerce_rma_entity_operation(EntityInterface $entity) {
-  if ($entity->getEntityTypeId() != 'commerce_order' ||
-    !Drupal::currentUser()->hasPermission('return order') ||
-    $entity->getState()->value != 'completed') {
-    return;
-  }
-
   $operations = [];
 
-  $operations['order_return'] = [
-    'title' => t('Order return'),
-    'weight' => 20,
-    'url' => Url::fromRoute('view.commerce_order_return.page', [
-      'arg_0' => $entity->id(),
-    ])
-  ];
+  // Only show the "Shipments" operation link for commerce_order entities.
+  if ($entity->getEntityTypeId() == 'commerce_order') {
+    if (!$entity->hasField('returns')) {
+      return;
+    }
+    $show_return_states = [
+      'completed',
+      'partial_returned',
+      'returned',
+    ];
+    // Do not show for a not completed order.
+    if (!in_array($entity->getState()->value , $show_return_states)) {
+      return;
+    }
+
+    // Only show if the user has the "administer commerce_shipment" permission.
+    if (!\Drupal::currentUser()->hasPermission('administer commerce return')) {
+      return;
+    }
+
+    $operations['returns'] = [
+      'title' => t('Returns'),
+      'url' => Url::fromRoute('entity.commerce_return.collection', [
+        'commerce_order' => $entity->id(),
+      ]),
+      'weight' => 60,
+    ];
+
+    return $operations;
+  }
+
+  if ($entity->getEntityTypeId() == 'commerce_return') {
+    /** @var OrderTypeInterface $order_type */
+    $return_type = \Drupal::entityTypeManager()
+      ->getStorage('commerce_return_type')
+      ->load($entity->bundle());
+    $workflow_id = $return_type->getWorkflowId();
+    $workflow_manager = \Drupal::service('plugin.manager.workflow');
+    /** @var WorkflowInterface $workflow */
+    $workflow = $workflow_manager->createInstance($workflow_id);
+    if ($workflow) {
+      /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowTransition[] $transitions */
+      $transitions = $workflow->getAllowedTransitions($entity->getState()->value, $entity);
+      $collection_url = Url::fromRoute('entity.commerce_return.collection',[
+        'commerce_order' => $entity->getOrderId(),
+      ])->toString();
+      foreach ($transitions as $transition) {
+        $operations[$transition->getId()] = [
+          'title' => $transition->getLabel(),
+          'url' => Url::fromRoute('commerce_rma.confirm_transition', [
+            'commerce_return' => $entity->id(),
+            'workflow' => $workflow_id,
+            'workflow_transition' => $transition->getId()
+          ], [
+            'query' => ['destination' => $collection_url],
+            'absolute' => TRUE,
+          ]),
+          'weight' => -1,
+        ];
+      }
+    }
+
+    return $operations;
+  }
 
   return $operations;
 }
@@ -134,53 +189,7 @@ function commerce_rma_views_data_alter(array &$data) {
     'help' => t('Adds a text field for editing the RMA note.'),
     'id' => 'commerce_rma_order_item_edit_note',
   ];
-
-  $data['views']['rma_refund_link'] = [
-    'title' => t('Refund order'),
-    'help' => t('Displays a link to a refund order.'),
-    'area' => [
-      'id' => 'rma_refund_link',
-    ],
-  ];
 }
-
-//@todo remove ?
-///**
-// * Adds the default rma_items field to an order type.
-// *
-// * RMA items can't be a base field because the Views integration is broken.
-// * Instead, it is created as a configurable field for each order type.
-// *
-// * @param \Drupal\commerce_rma\Entity\CommerceReturnType $rma_type
-// *   The RMA type.
-// */
-//function commerce_return_item_add_order_item_field(CommerceReturnType $rma_type) {
-//  $field_definition = BundleFieldDefinition::create('entity_reference')
-//    ->setTargetEntityTypeId('commerce_return')
-//    ->setTargetBundle($rma_type->id())
-//    ->setName('order_item')
-//    ->setLabel('Order item')
-//    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
-//    ->setRequired(TRUE)
-//    ->setSetting('target_type', 'commerce_return_type_item')
-//    ->setSetting('handler', 'default')
-//    ->setDisplayOptions('form', [
-//      'type' => 'inline_entity_form_complex',
-//      'weight' => 0,
-//      'settings' => [
-//        'override_labels' => TRUE,
-//        'label_singular' => 'rma item',
-//        'label_plural' => 'rma items',
-//      ],
-//    ])
-//    ->setDisplayOptions('view', [
-//      'type' => 'commerce_order_item_table',
-//      'weight' => 0,
-//    ]);
-//
-//  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
-//  $configurable_field_manager->createField($field_definition);
-//}
 
 /**
  * Adds the default order_item field to an order type.
@@ -220,33 +229,6 @@ function commerce_order_add_return_items_field(CommerceReturnTypeInterface $retu
 }
 
 /**
- * Implements hook_entity_extra_field_info().
- */
-function commerce_return_extra_field_info() {
-  $extra = [];
-
-  $extra['commerce_order']['default']['display']['rma_refund'] = [
-    'label' => t('Order refund'),
-    'description' => t('Order refund with RMA module'),
-    'weight' => 100,
-    'visible' => TRUE,
-  ];
-
-  return $extra;
-}
-
-/**
- * Implements hook_ENTITY_TYPE_view().
- */
-function commerce_rma_commerce_order_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
-  if ($display->getComponent('rma_refund')) {
-    $url = Url::fromRoute('view.commerce_rma_order.page_1', ['arg_0' => $entity->id()]);
-    $link = Link::fromTextAndUrl(t('Refund order'), $url);
-    $build['rma_refund'] = $link->toRenderable();
-  }
-}
-
-/**
  * Prepares variables for RMA templates.
  *
  * Default template: commerce-return.html.twig.
@@ -283,5 +265,151 @@ function template_preprocess_commerce_return_item(array &$variables) {
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'commerce_order_type_form'.
+ */
+function commerce_rma_form_commerce_order_type_form_alter(array &$form, FormStateInterface $form_state) {
+  /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+  $order_type = $form_state->getFormObject()->getEntity();
+  $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+  $return_type_storage = \Drupal::entityTypeManager()->getStorage('commerce_return_type');
+  $return_types = $return_type_storage->loadMultiple();
+  $return_types = array_map(function ($return_type) {
+    return $return_type->label();
+  }, $return_types);
+  $return_type_ids = array_keys($return_types);
+
+  $form['commerce_rma'] = [
+    '#type' => 'container',
+    '#weight' => 4,
+    '#element_validate' => ['commerce_rma_order_type_form_validate'],
+  ];
+  $form['commerce_rma']['enable_return'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable Returns for this order type'),
+    '#default_value' => !empty($return_type_id),
+  ];
+  $form['commerce_rma']['return_type'] = [
+    '#type' => 'select',
+    '#title' => t('Return type'),
+    '#options' => $return_types,
+    '#default_value' => $return_type_id ?: reset($return_type_ids),
+    '#required' => TRUE,
+    '#states' => [
+      'visible' => [
+        ':input[name="commerce_rma[enable_return]"]' => ['checked' => TRUE],
+      ],
+    ],
+  ];
+  $form['actions']['submit']['#submit'][] = 'commerce_rma_order_type_form_submit';
+}
+
+/**
+ * Validation handler for commerce_rma_form_commerce_order_type_form_alter().
+ */
+function commerce_rma_order_type_form_validate(array $element, FormStateInterface $form_state) {
+  /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+  $order_type = $form_state->getFormObject()->getEntity();
+  $previous_value = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+  $settings = $form_state->getValue(['commerce_rma']);
+  /** @var \Drupal\commerce\ConfigurableFieldManagerInterface $configurable_field_manager */
+  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
+
+  // Don't allow return to be disabled if there's data in the field.
+  if ($previous_value && !$settings['enable_return']) {
+    $field_definition = commerce_rma_build_return_field_definition($order_type->id());
+    if ($configurable_field_manager->hasData($field_definition)) {
+      $form_state->setError($element['enable_return'], t('Return cannot be disabled until all orders with return data are deleted.'));
+    }
+  }
+}
+
+/**
+ * Submission handler for commerce_rma_form_commerce_order_type_form_alter().
+ */
+function commerce_rma_order_type_form_submit(array $form, FormStateInterface $form_state) {
+  /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+  $order_type = $form_state->getFormObject()->getEntity();
+  $previous_value = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+  $settings = $form_state->getValue(['commerce_rma']);
+  /** @var \Drupal\commerce\ConfigurableFieldManagerInterface $configurable_field_manager */
+  $configurable_field_manager = \Drupal::service('commerce.configurable_field_manager');
+
+  $field_definition = commerce_rma_build_return_field_definition($order_type->id());
+  if (!$previous_value && $settings['enable_return']) {
+    $configurable_field_manager->createField($field_definition);
+  }
+  elseif ($previous_value && !$settings['enable_return']) {
+    $configurable_field_manager->deleteField($field_definition);
+  }
+
+  $return_type_id = $settings['enable_return'] ? $settings['return_type'] : '';
+  $order_type->setThirdPartySetting('commerce_rma', 'return_type', $return_type_id);
+  $order_type->save();
+}
+
+/**
+ * Builds the $order->returns field definition.
+ *
+ * @param string $order_type_id
+ *   The order type ID.
+ *
+ * @return \Drupal\entity\BundleFieldDefinition
+ *   The field definition.
+ */
+function commerce_rma_build_return_field_definition($order_type_id) {
+  $field_definition = BundleFieldDefinition::create('entity_reference')
+    ->setTargetEntityTypeId('commerce_order')
+    ->setTargetBundle($order_type_id)
+    ->setName('returns')
+    ->setLabel('Returns')
+    ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
+    ->setSetting('target_type', 'commerce_return')
+    ->setSetting('handler', 'default');
+
+  return $field_definition;
+}
+
+/**
+ * Implements HOOK_workflows_alter().
+ */
+function commerce_rma_workflows_alter(&$workflows) {
+  foreach ($workflows as $workflow_id => $workflow) {
+    if ($workflow["group"] != 'commerce_order') {
+      return;
+    }
+    $workflows[$workflow_id]["states"]["returned"]["label"] = 'Returned';
+    $workflows[$workflow_id]["states"]["partial_returned"]["label"] = 'Partial returned';
+    $workflows[$workflow_id]["transitions"]["return"] = [
+      "label" => 'Return',
+      'from' => [
+        'completed'
+      ],
+      'to' => 'returned'
+    ];
+    $workflows[$workflow_id]["transitions"]["partial_return"] = [
+      "label" => 'Return',
+      'from' => [
+        'completed'
+      ],
+      'to' => 'partial_returned'
+    ];
+    $workflows[$workflow_id]["transitions"]["partial_return_returned"] = [
+      "label" => 'Return',
+      'from' => [
+        'partial_returned'
+      ],
+      'to' => 'returned'
+    ];
+    $workflows[$workflow_id]["transitions"]["partial_return_partial_return"] = [
+      "label" => 'Return',
+      'from' => [
+        'partial_returned'
+      ],
+      'to' => 'partial_returned'
+    ];
   }
 }

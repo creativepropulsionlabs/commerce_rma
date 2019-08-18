@@ -32,9 +32,7 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
    *   The workflow manager.
    */
   public function __construct(EntityTraitManagerInterface $trait_manager, WorkflowManagerInterface $workflow_manager) {
-//  public function __construct(WorkflowManagerInterface $workflow_manager) {
     parent::__construct($trait_manager);
-
     $this->workflowManager = $workflow_manager;
   }
 
@@ -73,37 +71,19 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
       '#disabled' => !$commerce_return_type->isNew(),
     ];
 
-//    $storage = \Drupal::entityTypeManager()->getStorage('commerce_checkout_flow');
-    $storage = \Drupal::entityTypeManager()->getStorage('commerce_checkout_flow');
-    $checkout_flows = $storage->loadMultiple();
-
-    /** @var \Drupal\commerce_rma\Entity\CommerceReturnType $order_type */
-    $order_type = $this->entity;
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnTypeInterface $return_type */
+    $return_type = $this->entity;
     $workflows = $this->workflowManager->getGroupedLabels('commerce_return');
 
     $form['workflow'] = [
       '#type' => 'select',
       '#title' => $this->t('Workflow'),
       '#options' => $workflows,
-      '#default_value' => $order_type->getWorkflowId(),
-      '#description' => $this->t('Used by all orders of this type.'),
+      '#default_value' => $return_type->getWorkflowId(),
+      '#description' => $this->t('Used by all return orders of this type.'),
     ];
-    $form = $this->buildTraitForm($form, $form_state);
 
-//
-//    $form['commerce_checkout'] = [
-//      '#type' => 'details',
-//      '#title' => t('Checkout settings'),
-//      '#weight' => 5,
-//      '#open' => TRUE,
-//    ];
-//    $form['commerce_checkout']['checkout_flow'] = [
-//      '#type' => 'select',
-//      '#title' => t('Checkout flow'),
-//      '#options' => EntityHelper::extractLabels($checkout_flows),
-////      '#default_value' => $order_type->getThirdPartySetting('commerce_checkout', 'checkout_flow', 'default'),
-//      '#required' => TRUE,
-//    ];
+    $form = $this->buildTraitForm($form, $form_state);
 
     return $form;
   }
@@ -140,7 +120,7 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
       commerce_order_add_return_items_field($this->entity);
     }
 
-    $this->messenger()->addStatus($this->t('Saved the %label RMA type.', ['%label' => $this->entity->label()]));
+    $this->messenger()->addStatus($this->t('Saved the %label return type.', ['%label' => $this->entity->label()]));
     $form_state->setRedirect('entity.commerce_return_type.collection');
   }
 

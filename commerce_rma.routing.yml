@@ -1,0 +1,20 @@
+commerce_rma.confirm_transition:
+  path: '/commerce_return/{commerce_return}/{workflow}/{workflow_transition}/confirm'
+  defaults:
+    _form: '\Drupal\commerce_rma\Form\ConfirmTransitionForm'
+    _title: 'Confirm Transition'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.commerce_return.user_view:
+  path: '/user/{user}/orders/{commerce_order}/returns'
+  defaults:
+    _entity_view: 'commerce_order.user'
+    _title: 'Return information'
+  requirements:
+    _entity_access: 'commerce_order.view'
+  options:
+    parameters:
+      entity:
+        user: 'entity:user'
+        commerce_order: 'entity:order'

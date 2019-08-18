@@ -295,6 +295,37 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['confirmed_amount'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Confirmed Amount'))
+      ->setDescription(t('The amount for return (confirmed).'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['confirmed_quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('ConfirmedQuantity'))
+      ->setDescription(t('The quantity for return (confirmed).'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['manager_note'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t("Manager's note"))
+      ->setDisplayOptions('form', [
+        'type' => 'string_textarea',
+        'weight' => 0,
+        'settings' => [
+          'rows' => 12,
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'type' => 'string',
+        'weight' => 0,
+        'label' => 'above',
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['quantity'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Quantity'))
       ->setDescription(t('The quantity for return.'))
@@ -320,6 +351,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setLabel(t('Order item'))
       ->setDescription(t('The order item.'))
       ->setRequired(TRUE)
+      ->setTargetEntityTypeId('commerce_order_item')
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -1,
@@ -334,7 +366,6 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 
     $fields['note'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Note'))
-      ->setRequired(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'string_textarea',
         'weight' => 0,
@@ -354,6 +385,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setLabel(t('Reason'))
       ->setDescription(t('The reason of item return.'))
       ->setRequired(TRUE)
+      ->setTargetEntityTypeId('commerce_return_reason')
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -1,
@@ -366,6 +398,19 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['total_amount'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total return amount'))
+      ->setDescription(t('The return total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['confirmed_total_amount'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total returned amount'))
+      ->setDescription(t('The returned total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }

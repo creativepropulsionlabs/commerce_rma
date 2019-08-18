@@ -11,11 +11,11 @@ commerce_order_return_default:
       label: Canceled
   transitions:
     place:
-      label: 'Place RMA'
+      label: 'Place Return'
       from: [draft]
       to: completed
     cancel:
-      label: 'Cancel RMA'
+      label: 'Cancel Return'
       from: [draft]
       to:   canceled
 

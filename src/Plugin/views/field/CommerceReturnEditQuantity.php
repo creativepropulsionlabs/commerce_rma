@@ -6,10 +6,12 @@ use Drupal\commerce_cart\CartManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Url;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Defines a form element for editing the order item quantity.
@@ -190,10 +192,10 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       '#weight' => 0,
     ];
 
-    $form['actions']['submit']['#rma_refund'] = TRUE;
+    $form['actions']['submit']['#rma_return'] = TRUE;
     $form['actions']['submit']['#show_update_message'] = TRUE;
     // Replace the form submit button label.
-    $form['actions']['submit']['#value'] = $this->t('Refund');
+    $form['actions']['submit']['#value'] = $this->t('Return');
     $form['actions']['submit']['#weight'] = 1;
   }
 
@@ -207,7 +209,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
    */
   public function viewsFormSubmit(array &$form, FormStateInterface $form_state) {
     $triggering_element = $form_state->getTriggeringElement();
-    if (empty($triggering_element['#rma_refund'])) {
+    if (empty($triggering_element['#rma_return'])) {
       // Don't run when the "Remove" or "Empty cart" buttons are pressed.
       return;
     }
@@ -251,15 +253,19 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         continue;
       }
 
+      $reason = isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL;
       $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
         'amount' => $order_item->getUnitPrice(),
         'quantity' => $form_state->getValue($this->options['id'])[$row_index],
-        'order_item' => $order_item,
-        'reason' => isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL,
+        'order_item' => $order_item->id(),
         'note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
       ]);
+      if ($reason) {
+        $commerce_return_item->reason->target_id = $reason;
+        $commerce_return_item->reason = $reason;
+      }
       $commerce_return_item->save();
       $items_to_return[] = $commerce_return_item->id();
     }
@@ -273,14 +279,21 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         ->set('address', $address)
         ->save();
 
+      $order_number = $order->getOrderNumber();
+      if (empty($order_number)) {
+        $order_number = $order->id();
+      }
+
       // Create new Return object.
       /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
       $commerce_return = $commerce_return_storage->create([
-        'name' => t('Return for order !order', ['!order' => $order->getOrderNumber()]),
+        'name' => t('Return for order !order', ['!order' => $order_number]),
         'type' => 'default',
         'return_items' => $items_to_return,
         'billing_profile' => $billing_profile,
+        'order_id' => $order->id(),
       ]);
+      $commerce_return->set('total_amount', $order->getTotalPaid());
       $commerce_return->save();
 
       if (!empty($triggering_element['#show_update_message'])) {
@@ -288,6 +301,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
           '@label' => $order->label(),
         ]));
       }
+
     }
   }
 

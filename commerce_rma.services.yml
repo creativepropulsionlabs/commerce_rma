@@ -1,8 +1,26 @@
 services:
-  access_check.commerce_rma.operation:
-    class: Drupal\commerce_payment\Access\PaymentOperationAccessCheck
+  access_check.return_collection:
+    class: Drupal\commerce_rma\Access\ReturnCollectionAccessCheck
+    arguments: ['@entity_type.manager']
     tags:
-      - { name: access_check, applies_to: _commerce_payment_operation_access }
+      - { name: access_check, applies_to: _return_collection_access }
+
+  access_check.return_add:
+    class: Drupal\commerce_rma\Access\ReturnAddAccessCheck
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: access_check, applies_to: _return_add_access }
+
+
+  commerce_rma.route_subscriber:
+    class: Drupal\commerce_rma\EventSubscriber\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+#  access_check.commerce_rma.operation:
+#    class: Drupal\commerce_payment\Access\PaymentOperationAccessCheck
+#    tags:
+#      - { name: access_check, applies_to: _commerce_payment_operation_access }
 
   plugin.manager.commerce_refund_gateway:
     class: Drupal\commerce_rma\RefundGatewayManager
@@ -11,3 +29,14 @@ services:
   plugin.manager.commerce_refund_method_type:
     class: Drupal\commerce_rma\RefundMethodTypeManager
     parent: default_plugin_manager
+
+  commerce_rma.return_guard:
+    class: Drupal\commerce_rma\Guard\CommerceReturnGuard
+    arguments: ['@current_user', '@plugin.manager.workflow']
+    tags:
+      - { name: state_machine.guard, group: commerce_return }
+  commerce_rma.order_return_subscriber:
+    class: Drupal\commerce_rma\EventSubscriber\OrderReturnSubscriber
+    arguments: ['@entity_type.manager', '@plugin.manager.workflow']
+    tags:
+      - { name: 'event_subscriber' }

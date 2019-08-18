@@ -77,3 +77,7 @@ administer commerce return reason:
 return order:
   title: 'Return orders'
   description: 'Allow to Return completed order.'
+
+permission_callbacks:
+  - Drupal\commerce_rma\PermissionController::StatePermissions
+  - Drupal\commerce_rma\PermissionController::TransitionPermissions

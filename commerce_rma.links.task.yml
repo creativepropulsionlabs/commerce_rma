@@ -16,20 +16,38 @@ entity.commerce_return_item.delete_form:
   title: Delete
   weight: 10
 
-# commerce return routing definition
+entity.commerce_return.collection:
+  route_name: entity.commerce_return.collection
+  base_route: entity.commerce_order.canonical
+  title: Returns
 
-entity.commerce_return.canonical:
-  route_name: entity.commerce_return.canonical
-  base_route: entity.commerce_return.canonical
+entity.commerce_return.user_view_default:
+  route_name: entity.commerce_order.user_view
+  base_route: entity.commerce_order.user_view
+  title: Order
+
+entity.commerce_return.user_view:
+  route_name: entity.commerce_return.user_view
+  base_route: entity.commerce_order.user_view
+  title: Returns
+# Return reason routing definition
+commerce_return_reason.settings_tab:
+  route_name: commerce_return_reason.settings
+  title: 'Settings'
+  base_route: commerce_return_reason.settings
+
+entity.commerce_return_reason.canonical:
+  route_name: entity.commerce_return_reason.canonical
+  base_route: entity.commerce_return_reason.canonical
   title: 'View'
 
-entity.commerce_return.edit_form:
-  route_name: entity.commerce_return.edit_form
-  base_route: entity.commerce_return.canonical
+entity.commerce_return_reason.edit_form:
+  route_name: entity.commerce_return_reason.edit_form
+  base_route: entity.commerce_return_reason.canonical
   title: 'Edit'
 
-entity.commerce_return.delete_form:
-  route_name:  entity.commerce_return.delete_form
-  base_route:  entity.commerce_return.canonical
+entity.commerce_return_reason.delete_form:
+  route_name:  entity.commerce_return_reason.delete_form
+  base_route:  entity.commerce_return_reason.canonical
   title: Delete
   weight: 10

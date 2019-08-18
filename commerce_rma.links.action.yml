@@ -1,8 +1,3 @@
-entity.commerce_return.add_form:
-  route_name: entity.commerce_return.add_page
-  title: 'Add Return'
-  appears_on:
-    - entity.commerce_return.collection
 entity.commerce_return_type.add_form:
   route_name: entity.commerce_return_type.add_form
   title: 'Add Return Type'
@@ -23,3 +18,15 @@ entity.commerce_return_item_type.add_form:
   title: 'Add Return Item type'
   appears_on:
     - entity.commerce_return_item_type.collection
+
+entity.commerce_return.add_page:
+  route_name: entity.commerce_return.add_page
+  title: 'Return order or position'
+  appears_on:
+    - entity.commerce_return.collection
+
+entity.commerce_return.user_view:
+  route_name: entity.commerce_return.user_view
+  title: Return order or Item
+  appears_on:
+    - entity.commerce_order.user_view

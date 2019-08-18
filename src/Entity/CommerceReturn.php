@@ -4,6 +4,8 @@ namespace Drupal\commerce_rma\Entity;
 
 use Drupal\commerce\Entity\CommerceContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityMalformedException;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
@@ -21,15 +23,14 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "list_builder" = "Drupal\commerce_rma\CommerceReturnListBuilder",
  *     "views_data" = "Drupal\commerce_rma\Entity\CommerceReturnViewsData",
  *     "translation" = "Drupal\commerce_rma\CommerceReturnTranslationHandler",
- *
  *     "form" = {
  *       "default" = "Drupal\commerce_rma\Form\CommerceReturnForm",
- *       "add" = "Drupal\commerce_rma\Form\CommerceReturnForm",
+ *       "add" = "Drupal\commerce_rma\Form\CommerceReturnFormAdd",
  *       "edit" = "Drupal\commerce_rma\Form\CommerceReturnForm",
  *       "delete" = "Drupal\commerce_rma\Form\CommerceReturnDeleteForm",
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\commerce_rma\CommerceReturnHtmlRouteProvider",
+ *       "default" = "Drupal\commerce_rma\ReturnRouteProvider",
  *     },
  *     "access" = "Drupal\commerce_rma\CommerceReturnAccessControlHandler",
  *   },
@@ -43,15 +44,14 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "label" = "name",
  *     "uuid" = "uuid",
  *     "langcode" = "langcode",
- *     "published" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/commerce/commerce_return/{commerce_return}",
- *     "add-page" = "/admin/commerce/commerce_return/add",
- *     "add-form" = "/admin/commerce/commerce_return/add/{commerce_return_type}",
- *     "edit-form" = "/admin/commerce/commerce_return/{commerce_return}/edit",
- *     "delete-form" = "/admin/commerce/commerce_return/{commerce_return}/delete",
- *     "collection" = "/admin/commerce/commerce_return",
+ *     "canonical" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}",
+ *     "add-page" = "/admin/commerce/orders/{commerce_order}/returns/add",
+ *     "collection" = "/admin/commerce/orders/{commerce_order}/returns",
+ *     "add-form" = "/admin/commerce/orders/{commerce_order}/returns/add/{commerce_return_type}",
+ *     "edit-form" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}/edit",
+ *     "delete-form" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}/delete",
  *   },
  *   bundle_entity_type = "commerce_return_type",
  *   field_ui_base_route = "entity.commerce_return_type.edit_form"
@@ -60,6 +60,15 @@ use Drupal\Core\Field\BaseFieldDefinition;
 class CommerceReturn extends CommerceContentEntityBase implements CommerceReturnInterface {
 
   use EntityChangedTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function urlRouteParameters($rel) {
+    $uri_route_parameters = parent::urlRouteParameters($rel);
+    $uri_route_parameters['commerce_order'] = $this->getOrderId();
+    return $uri_route_parameters;
+  }
 
   /**
    * {@inheritdoc}
@@ -96,6 +105,43 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
    */
   public function getState() {
     return $this->get('state')->first();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOrder() {
+    return $this->get('order_id')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOrderId() {
+    return $this->get('order_id')->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    foreach (['order_id', 'return_items'] as $field) {
+      if ($this->get($field)->isEmpty()) {
+        throw new EntityMalformedException(sprintf('Required return field "%s" is empty.', $field));
+      }
+    }
+  }
+
+  function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    if (!$update) {
+      $order = $this->getOrder();
+      $order->get('returns')->appendItem([
+        'target_id' => $this->id()
+      ]);
+      $order->save();
+    }
   }
 
   /**
@@ -170,6 +216,28 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDescription(t('The refund gateway.'))
       ->setSetting('target_type', 'commerce_refund_gateway')
       ->setReadOnly(TRUE);
+
+    // The order backreference.
+    $fields['order_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Order'))
+      ->setDescription(t('The parent order.'))
+      ->setSetting('target_type', 'commerce_order')
+      ->setRequired(TRUE)
+      ->setReadOnly(TRUE);
+
+    $fields['total_amount'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total return amount'))
+      ->setDescription(t('The return total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['confirmed_total_amount'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total returned amount (Confirmed)'))
+      ->setDescription(t('The returned total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }
