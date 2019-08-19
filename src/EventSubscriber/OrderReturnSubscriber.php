@@ -3,6 +3,7 @@
 namespace Drupal\commerce_rma\EventSubscriber;
 
 use Drupal\commerce_order\Mail\OrderReceiptMailInterface;
+use Drupal\commerce_price\Calculator;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\state_machine\Event\WorkflowTransitionEvent;
@@ -63,17 +64,21 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
     $transition_id = 'return';
-    $order_total = $order->getTotalPaid();
-    $returned_total = new Price(0, $order->getTotalPrice()->getCurrencyCode());
+    $order_total_quantity = '0';
+    foreach ($order->getItems() as $order_item) {
+      $order_total_quantity = Calculator::add($order_total_quantity, $order_item->getQuantity());
+    }
+
+    $order_total_quantity_confirmed = '0';
     $returns = $order->get('returns')->referencedEntities();
     foreach ($returns as $return) {
-      if ($return->get('confirmed_total_amount')->isEmpty()) {
+      if ($return->get('confirmed_quantity')->isEmpty()) {
         continue;
       }
-      $price = $return->get('confirmed_total_amount')->first()->toPrice();
-      $returned_total->add($price);
+      $quantity_confirmed = $return->get('confirmed_quantity')->value;
+      $order_total_quantity_confirmed = Calculator::add($order_total_quantity_confirmed, $quantity_confirmed);
     }
-    if ($returned_total->lessThan($order_total)) {
+    if (Calculator::compare($order_total_quantity, $order_total_quantity_confirmed) == 1 ) {
       $transition_id = 'partial_return';
     }
     if ($order->getState()->value == 'partial_returned' && $transition_id == 'partial_return') {

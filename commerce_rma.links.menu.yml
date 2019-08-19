@@ -6,14 +6,6 @@ entity.commerce_return_type.collection:
   parent: commerce_order.configuration
   weight: 101
 
-# commerce return item menu items definition
-entity.commerce_return_item.collection:
-  title: 'commerce return item list'
-  route_name: entity.commerce_return_item.collection
-  description: 'List commerce return item entities'
-  parent: commerce_order.configuration
-  weight: 102
-
 # CommerceReturnReason menu items definition
 entity.commerce_return_reason.collection:
   title: 'Return reasons'
@@ -21,17 +13,3 @@ entity.commerce_return_reason.collection:
   description: 'Manage your Return reasons.'
   parent: commerce.admin_commerce
   weight: 104
-
-# Return reason menu items definition
-entity.commerce_return_reason.collection:
-  title: 'Return reason list'
-  route_name: entity.commerce_return_reason.collection
-  description: 'List Return reason entities'
-  parent: system.admin_structure
-  weight: 100
-
-commerce_return_reason.admin.structure.settings:
-  title: 'Return reason settings'
-  description: 'Configure Return reason entities'
-  route_name: commerce_return_reason.settings
-  parent: system.admin_structure

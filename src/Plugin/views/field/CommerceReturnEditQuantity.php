@@ -273,7 +273,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       // Create new Return object.
       /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
       $commerce_return = $commerce_return_storage->create([
-        'name' => t('Return for order !order', ['!order' => $order_number]),
+        'name' => $this->t('Return for order !order', ['!order' => $order_number]),
         'type' => 'default',
         'return_items' => $items_to_return,
         'billing_profile' => $billing_profile,

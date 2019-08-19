@@ -309,8 +309,8 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setLabel(t('Order item'))
       ->setDescription(t('The order item.'))
       ->setRequired(TRUE)
-      ->setTargetEntityTypeId('commerce_order_item')
-      ->setSetting('target_type', 'commerce_return_reason')
+      ->setTargetEntityTypeId('commerce_return_item')
+      ->setSetting('target_type', 'commerce_order_item')
       ->setSetting('handler', 'default')
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',

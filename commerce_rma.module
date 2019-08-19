@@ -6,17 +6,13 @@
  */
 
 use Drupal\commerce_order\Entity\OrderTypeInterface;
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\entity\BundleFieldDefinition;
 use Drupal\commerce_rma\Entity\CommerceReturnTypeInterface;
-use Drupal\state_machine\Plugin\Workflow\WorkflowState;
 use Drupal\workflows\WorkflowInterface;
 
 /**
@@ -386,8 +382,10 @@ function commerce_rma_build_return_field_definition($order_type_id) {
 
 function commerce_rma_build_status_field_definition($order_type_id){
   $field_definition = BundleFieldDefinition::create('string')
+    ->setName('return_status')
     ->setLabel(t('Return status'))
-    ->setTargetEntityTypeId($order_type_id)
+    ->setTargetBundle($order_type_id)
+    ->setTargetEntityTypeId('commerce_order')
     ->setDisplayOptions('form', [
       'region' => 'hidden',
     ])
@@ -435,5 +433,45 @@ function commerce_rma_workflows_alter(&$workflows) {
       ],
       'to' => 'partial_returned'
     ];
+  }
+}
+
+/**
+ * Implements hook_inline_entity_form_table_fields_alter().
+ */
+function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) {
+  if ($context['entity_type'] == 'commerce_return_item') {
+    $fields['amount'] = [
+      'type' => 'field',
+      'label' => t('Amount'),
+      'weight' => 101,
+    ];
+    $fields['quantity'] = [
+      'type' => 'field',
+      'label' => t('Quantity'),
+      'weight' => 101,
+    ];
+    $fields['reason'] = [
+      'type' => 'field',
+      'label' => t('Reason'),
+      'weight' => 101,
+    ];
+    $fields['note'] = [
+      'type' => 'field',
+      'label' => t('Note'),
+      'weight' => 101,
+    ];
+
+    $fields['confirmed_amount'] = [
+      'type' => 'field',
+      'label' => t('Confirmed Amount'),
+      'weight' => 101,
+    ];
+    $fields['confirmed_quantity'] = [
+      'type' => 'field',
+      'label' => t('Confirmed Quantity'),
+      'weight' => 101,
+    ];
+
   }
 }
