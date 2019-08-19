@@ -2,16 +2,13 @@
 
 namespace Drupal\commerce_rma\Plugin\views\field;
 
-use Drupal\commerce_cart\CartManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Url;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Defines a form element for editing the order item quantity.
@@ -21,13 +18,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class CommerceReturnEditQuantity extends FieldPluginBase {
 
   use UncacheableFieldHandlerTrait;
-
-  /**
-   * The cart manager.
-   *
-   * @var \Drupal\commerce_cart\CartManagerInterface
-   */
-  protected $cartManager;
 
   /**
    * The entity type manager.
@@ -52,17 +42,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\commerce_cart\CartManagerInterface $cart_manager
-   *   The cart manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CartManagerInterface $cart_manager, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->cartManager = $cart_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
   }
@@ -75,7 +62,6 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('commerce_cart.cart_manager'),
       $container->get('entity_type.manager'),
       $container->get('messenger')
     );

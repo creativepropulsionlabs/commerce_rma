@@ -7,4 +7,5 @@ dependencies:
   - commerce:commerce
   - commerce:commerce_order
   - commerce:commerce_price
+  - commerce:commerce_product
   - state_machine:state_machine

@@ -4,6 +4,9 @@ dependencies:
   config:
     - commerce_rma.commerce_return_type.default
     - field.storage.commerce_return.return_items
+  enforced:
+    module:
+      - commerce_rma
 id: commerce_return.default.return_items
 field_name: return_items
 entity_type: commerce_return

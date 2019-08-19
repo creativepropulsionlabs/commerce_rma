@@ -1,6 +1,9 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  enforced:
+    module:
+      - commerce_rma
 workflow: commerce_order_return_item_default
 id: default
 label: Default

@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - commerce_rma
+id: product_was_broken
+label: 'Product was broken'
+description: 'Product was broken'
+weight: '2'

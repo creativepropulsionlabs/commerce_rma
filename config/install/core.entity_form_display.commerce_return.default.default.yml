@@ -7,6 +7,9 @@ dependencies:
   module:
     - commerce_order
     - inline_entity_form
+  enforced:
+    module:
+      - commerce_rma
 id: commerce_return.default.default
 targetEntityType: commerce_return
 bundle: default

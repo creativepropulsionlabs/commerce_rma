@@ -2,12 +2,7 @@
 
 namespace Drupal\commerce_rma\Plugin\views\field;
 
-use Drupal\commerce_cart\CartManagerInterface;
-use Drupal\commerce_order\Entity\OrderItem;
-use Drupal\commerce_rma\Entity\CommerceReturn;
-use Drupal\commerce_rma\Entity\CommerceReturnItem;
-use Drupal\commerce_rma\Entity\CommerceReturnReason11;
-use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface1;
+use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -24,13 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CommerceReturnEditReason extends FieldPluginBase {
 
   use UncacheableFieldHandlerTrait;
-
-  /**
-   * The cart manager.
-   *
-   * @var \Drupal\commerce_cart\CartManagerInterface
-   */
-  protected $cartManager;
 
   /**
    * The entity type manager.
@@ -55,17 +43,14 @@ class CommerceReturnEditReason extends FieldPluginBase {
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\commerce_cart\CartManagerInterface $cart_manager
-   *   The cart manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, CartManagerInterface $cart_manager, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->cartManager = $cart_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
   }
@@ -78,7 +63,6 @@ class CommerceReturnEditReason extends FieldPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('commerce_cart.cart_manager'),
       $container->get('entity_type.manager'),
       $container->get('messenger')
     );
@@ -140,7 +124,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
 
     // Make options for reason field in view.
     $options = [];
-    /** @var CommerceReturnReasonInterface1[] $reasons */
+    /** @var CommerceReturnReasonInterface[] $reasons */
     $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')->loadMultiple();
     foreach ($reasons as $reason) {
       $options[$reason->id()] = $reason->label();

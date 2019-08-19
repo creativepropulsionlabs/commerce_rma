@@ -7,6 +7,7 @@ use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -26,8 +27,6 @@ use Drupal\user\UserInterface;
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\commerce_rma\CommerceReturnItemListBuilder",
  *     "views_data" = "Drupal\commerce_rma\Entity\CommerceReturnItemViewsData",
- *     "translation" = "Drupal\commerce_rma\CommerceReturnItemTranslationHandler",
- *
  *     "form" = {
  *       "default" = "Drupal\commerce_rma\Form\CommerceReturnItemForm",
  *       "add" = "Drupal\commerce_rma\Form\CommerceReturnItemForm",
@@ -43,7 +42,6 @@ use Drupal\user\UserInterface;
  *   data_table = "commerce_return_item_field_data",
  *   revision_table = "commerce_return_item_revision",
  *   revision_data_table = "commerce_return_item_field_revision",
- *   translatable = TRUE,
  *   admin_permission = "administer commerce_return_item",
  *   entity_keys = {
  *     "id" = "id",
@@ -115,17 +113,15 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function preSave(EntityStorageInterface $storage) {
-    parent::preSave($storage);
+  public function getOwner() {
+    return $this->get('uid')->entity;
+  }
 
-    foreach (array_keys($this->getTranslationLanguages()) as $langcode) {
-      $translation = $this->getTranslation($langcode);
-
-      // If no owner has been set explicitly, make the anonymous user the owner.
-      if (!$translation->getOwner()) {
-        $translation->setOwnerId(0);
-      }
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function getOwnerId() {
+    return $this->get('uid')->target_id;
   }
 
   /**
@@ -156,20 +152,6 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   public function setCreatedTime($timestamp) {
     $this->set('created', $timestamp);
     return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwner() {
-    return $this->get('user_id')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwnerId() {
-    return $this->get('user_id')->target_id;
   }
 
   /**
@@ -234,30 +216,6 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
-
-    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Authored by'))
-      ->setDescription(t('The user ID of author of the RMA item entity.'))
-      ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'hidden',
-        'type' => 'author',
-        'weight' => 0,
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'autocomplete_type' => 'tags',
-          'placeholder' => '',
-        ],
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
@@ -352,6 +310,8 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDescription(t('The order item.'))
       ->setRequired(TRUE)
       ->setTargetEntityTypeId('commerce_order_item')
+      ->setSetting('target_type', 'commerce_return_reason')
+      ->setSetting('handler', 'default')
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -1,
@@ -385,7 +345,9 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setLabel(t('Reason'))
       ->setDescription(t('The reason of item return.'))
       ->setRequired(TRUE)
-      ->setTargetEntityTypeId('commerce_return_reason')
+      ->setSetting('target_type', 'commerce_return_reason')
+      ->setSetting('handler', 'default')
+      ->setCardinality(1)
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -1,

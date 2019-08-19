@@ -1,8 +1,9 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - commerce_rma
+  enforced:
+    module:
+      - commerce_rma
 id: commerce_return.return_items
 field_name: return_items
 entity_type: commerce_return

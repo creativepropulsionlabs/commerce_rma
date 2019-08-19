@@ -35,6 +35,12 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "edit-form" = "/admin/commerce/rma_reason/{commerce_return_reason}/edit",
  *     "delete-form" = "/admin/commerce/rma_reason/{commerce_return_reason}/delete",
  *     "collection" = "/admin/commerce/rma_reason"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "weight"
  *   }
  * )
  */

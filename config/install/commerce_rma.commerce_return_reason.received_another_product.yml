@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - commerce_rma
+id: received_another_product
+label: 'Received another product'
+description: 'Received another product'
+weight: '3'

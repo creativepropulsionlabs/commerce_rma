@@ -8,6 +8,7 @@
 use Drupal\commerce_order\Entity\OrderTypeInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
@@ -228,6 +229,8 @@ function commerce_order_add_return_items_field(CommerceReturnTypeInterface $retu
   $configurable_field_manager->createField($field_definition);
 }
 
+
+
 /**
  * Prepares variables for RMA templates.
  *
@@ -346,6 +349,14 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
     $configurable_field_manager->deleteField($field_definition);
   }
 
+  $state_field_definition = commerce_rma_build_status_field_definition($order_type->id());
+  if (!$previous_value && $settings['enable_return']) {
+    $configurable_field_manager->createField($state_field_definition);
+  }
+  elseif ($previous_value && !$settings['enable_return']) {
+    $configurable_field_manager->deleteField($state_field_definition);
+  }
+
   $return_type_id = $settings['enable_return'] ? $settings['return_type'] : '';
   $order_type->setThirdPartySetting('commerce_rma', 'return_type', $return_type_id);
   $order_type->save();
@@ -369,6 +380,19 @@ function commerce_rma_build_return_field_definition($order_type_id) {
     ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
     ->setSetting('target_type', 'commerce_return')
     ->setSetting('handler', 'default');
+
+  return $field_definition;
+}
+
+function commerce_rma_build_status_field_definition($order_type_id){
+  $field_definition = BundleFieldDefinition::create('string')
+    ->setLabel(t('Return status'))
+    ->setTargetEntityTypeId($order_type_id)
+    ->setDisplayOptions('form', [
+      'region' => 'hidden',
+    ])
+    ->setDisplayConfigurable('view', FALSE)
+    ->setDisplayConfigurable('form', FALSE);
 
   return $field_definition;
 }

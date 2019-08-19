@@ -4,6 +4,7 @@ dependencies:
   enforced:
     module:
       - commerce_rma
-workflow: commerce_order_return_default
-id: default
-label: Default
+id: not_satisfied
+label: 'Not satisfied'
+description: 'Not satisfied'
+weight: '1'
