@@ -2,7 +2,9 @@
 
 namespace Drupal\commerce_rma\Entity;
 
+use CommerceGuys\Intl\Calculator;
 use Drupal\commerce\Entity\CommerceContentEntityBase;
+use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -127,6 +129,8 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
 
+    $this->recalculateTotals();
+
     foreach (['order_id', 'return_items'] as $field) {
       if ($this->get($field)->isEmpty()) {
         throw new EntityMalformedException(sprintf('Required return field "%s" is empty.', $field));
@@ -232,6 +236,13 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['total_quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Total Quantity'))
+      ->setDescription(t('The quantity for return.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['confirmed_total_amount'] = BaseFieldDefinition::create('commerce_price')
       ->setLabel(t('Total returned amount (Confirmed)'))
       ->setDescription(t('The returned total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
@@ -239,7 +250,42 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['confirmed_total_quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Total Quantity (Confirmed)'))
+      ->setDescription(t('The quantity for return (confirmed).'))
+      ->setReadOnly(TRUE)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     return $fields;
+  }
+
+  public function recalculateTotals() {
+    $total_amount = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
+    $total_quantity = '0';
+    $confirmed_total_amount = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
+    $confirmed_total_quantity = '0';
+    foreach ($this->getItems() as $item) {
+      $total_amount = $total_amount->add($item->getTotalAmount());
+      if ($item->getConfirmedTotalAmount()) {
+        $confirmed_total_amount = $confirmed_total_amount->add($item->getConfirmedTotalAmount());
+      }
+      $total_quantity = Calculator::add($total_quantity, $item->getQuantity());
+      if ($item->getConfirmedTotalQuantity()) {
+        $confirmed_total_quantity = Calculator::add($confirmed_total_quantity, $item->getConfirmedTotalQuantity());
+      }
+    }
+    $this->set('total_amount', $total_amount);
+    $this->set('confirmed_total_amount', $confirmed_total_amount);
+    $this->set('total_quantity', $total_quantity);
+    $this->set('confirmed_total_quantity', $confirmed_total_quantity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItems() {
+    return $this->get('return_items')->referencedEntities();
   }
 
   /**

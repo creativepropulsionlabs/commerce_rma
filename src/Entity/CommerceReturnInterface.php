@@ -13,6 +13,20 @@ use Drupal\Core\Entity\EntityChangedInterface;
 interface CommerceReturnInterface extends ContentEntityInterface, EntityChangedInterface {
 
   /**
+   * Return items.
+   *
+   * @return \Drupal\commerce_rma\Entity\CommerceReturnItemInterface[]
+   */
+  public function getItems();
+
+  /**
+   * Order
+   *
+   * @return \Drupal\commerce_order\Entity\OrderInterface
+   */
+  public function getOrder();
+
+  /**
    * Gets the RMA name.
    *
    * @return string

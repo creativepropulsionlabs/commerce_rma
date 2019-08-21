@@ -16,6 +16,36 @@ use Drupal\Core\Entity\EntityChangedInterface;
 interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChangedInterface {
 
   /**
+   * Gets Quantity.
+   *
+   * @return string
+   */
+  public function getQuantity();
+
+  /**
+   * Gets Confirmed Total Quantity.
+   *
+   * @return string
+   */
+  public function getConfirmedTotalQuantity();
+
+  /**
+   * Gets Total Amount.
+   *
+   * @return \Drupal\commerce_price\Price
+   */
+  public function getTotalAmount();
+
+  /**
+   * Gets Confirmed Total Amount.
+   *
+   * @return \Drupal\commerce_price\Price
+   */
+  public function getConfirmedTotalAmount();
+
+
+
+  /**
    * Gets the order item.
    *
    * @return \Drupal\commerce_order\Entity\OrderItem

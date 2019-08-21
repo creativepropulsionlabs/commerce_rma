@@ -70,12 +70,13 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     }
 
     $order_total_quantity_confirmed = '0';
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface[] $returns */
     $returns = $order->get('returns')->referencedEntities();
     foreach ($returns as $return) {
-      if ($return->get('confirmed_quantity')->isEmpty()) {
+      if ($return->get('confirmed_total_quantity')->isEmpty()) {
         continue;
       }
-      $quantity_confirmed = $return->get('confirmed_quantity')->value;
+      $quantity_confirmed = $return->get('confirmed_total_quantity')->value;
       $order_total_quantity_confirmed = Calculator::add($order_total_quantity_confirmed, $quantity_confirmed);
     }
     if (Calculator::compare($order_total_quantity, $order_total_quantity_confirmed) == 1 ) {

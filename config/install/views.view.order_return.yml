@@ -1,12 +1,15 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - commerce_order
-    - commerce_price
   enforced:
     module:
       - commerce_rma
+  module:
+    - commerce_order
+    - commerce_price
+    - commerce_rma
+_core:
+  default_config_hash: r3XDW-Xw-msxCp0WJK7vDswkCW4GYWDla-VUeThAvOo
 id: order_return
 label: 'Order return'
 module: views

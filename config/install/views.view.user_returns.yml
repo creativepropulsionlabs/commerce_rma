@@ -1,12 +1,15 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - commerce_price
-    - options
   enforced:
     module:
       - commerce_rma
+  module:
+    - commerce_price
+    - commerce_rma
+    - options
+_core:
+  default_config_hash: ohC51HuMP9hgTnayZJvu8rhnGPHbseY9QgPQrNDFyUo
 id: user_returns
 label: 'User returns'
 module: views

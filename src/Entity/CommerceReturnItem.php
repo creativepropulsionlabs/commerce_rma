@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_rma\Entity;
 
+use CommerceGuys\Intl\Calculator;
 use Drupal\commerce\Entity\CommerceContentEntityBase;
 use Drupal\commerce_order\Entity\OrderItem;
 use Drupal\commerce_order\Entity\OrderItemInterface;
@@ -49,7 +50,6 @@ use Drupal\user\UserInterface;
  *     "bundle" = "type",
  *     "label" = "name",
  *     "uuid" = "uuid",
- *     "uid" = "user_id",
  *     "langcode" = "langcode",
  *     "published" = "status",
  *   },
@@ -86,19 +86,32 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function setOrderItem(OrderItem $orderItem) {
-    $this->set('order_item', $orderItem);
-    return $this;
+  public function getTotalAmount() {
+    if (!$this->get('total_amount')->isEmpty()) {
+      return $this->get('total_amount')->first()->toPrice();
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
-    parent::preCreate($storage_controller, $values);
-    $values += [
-      'user_id' => \Drupal::currentUser()->id(),
-    ];
+  public function getConfirmedTotalAmount() {
+    if (!$this->get('confirmed_total_amount')->isEmpty()) {
+      return $this->get('confirmed_total_amount')->first()->toPrice();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOrderItem(OrderItem $orderItem) {
+    $this->set('order_item', $orderItem);
+    return $this;
+  }
+
+  function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+    $this->recalculateTotals();
   }
 
   /**
@@ -151,22 +164,6 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
    */
   public function setCreatedTime($timestamp) {
     $this->set('created', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwnerId($uid) {
-    $this->set('user_id', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwner(UserInterface $account) {
-    $this->set('user_id', $account->id());
     return $this;
   }
 
@@ -375,6 +372,26 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQuantity() {
+    return (string) $this->get('quantity')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfirmedTotalQuantity() {
+    return (string) $this->get('confirmed_quantity')->value;
+  }
+
+  public function recalculateTotals() {
+    $amount = $this->getAmount();
+    $total_amount = $amount->multiply($this->getQuantity());
+    $this->set('total_amount', $total_amount);
   }
 
   /**

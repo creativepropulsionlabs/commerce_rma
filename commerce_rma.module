@@ -373,6 +373,7 @@ function commerce_rma_build_return_field_definition($order_type_id) {
     ->setTargetBundle($order_type_id)
     ->setName('returns')
     ->setLabel('Returns')
+    ->setProvider('commerce_rma')
     ->setCardinality(BundleFieldDefinition::CARDINALITY_UNLIMITED)
     ->setSetting('target_type', 'commerce_return')
     ->setSetting('handler', 'default');
@@ -386,6 +387,7 @@ function commerce_rma_build_status_field_definition($order_type_id){
     ->setLabel(t('Return status'))
     ->setTargetBundle($order_type_id)
     ->setTargetEntityTypeId('commerce_order')
+    ->setProvider('commerce_rma')
     ->setDisplayOptions('form', [
       'region' => 'hidden',
     ])
@@ -393,47 +395,6 @@ function commerce_rma_build_status_field_definition($order_type_id){
     ->setDisplayConfigurable('form', FALSE);
 
   return $field_definition;
-}
-
-/**
- * Implements HOOK_workflows_alter().
- */
-function commerce_rma_workflows_alter(&$workflows) {
-  foreach ($workflows as $workflow_id => $workflow) {
-    if ($workflow["group"] != 'commerce_order') {
-      return;
-    }
-    $workflows[$workflow_id]["states"]["returned"]["label"] = 'Returned';
-    $workflows[$workflow_id]["states"]["partial_returned"]["label"] = 'Partial returned';
-    $workflows[$workflow_id]["transitions"]["return"] = [
-      "label" => 'Return',
-      'from' => [
-        'completed'
-      ],
-      'to' => 'returned'
-    ];
-    $workflows[$workflow_id]["transitions"]["partial_return"] = [
-      "label" => 'Return',
-      'from' => [
-        'completed'
-      ],
-      'to' => 'partial_returned'
-    ];
-    $workflows[$workflow_id]["transitions"]["partial_return_returned"] = [
-      "label" => 'Return',
-      'from' => [
-        'partial_returned'
-      ],
-      'to' => 'returned'
-    ];
-    $workflows[$workflow_id]["transitions"]["partial_return_partial_return"] = [
-      "label" => 'Return',
-      'from' => [
-        'partial_returned'
-      ],
-      'to' => 'partial_returned'
-    ];
-  }
 }
 
 /**
