@@ -5,8 +5,18 @@
  * Contains install and update functions for RMA.
  */
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ */
+function commerce_payment_install() {
+  // Allow authenticated users to manage own payment methods.
+  user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['add commerce return entities']);
+  user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['use commerce_return default cancel transition']);
+}
 
 /**
  * Implements HOOK_uninstall().

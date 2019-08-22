@@ -86,18 +86,18 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function getTotalAmount() {
-    if (!$this->get('total_amount')->isEmpty()) {
-      return $this->get('total_amount')->first()->toPrice();
+  public function getTotalPrice() {
+    if (!$this->get('total_price')->isEmpty()) {
+      return $this->get('total_price')->first()->toPrice();
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getConfirmedTotalAmount() {
-    if (!$this->get('confirmed_total_amount')->isEmpty()) {
-      return $this->get('confirmed_total_amount')->first()->toPrice();
+  public function getConfirmedTotalPrice() {
+    if (!$this->get('confirmed_total_price')->isEmpty()) {
+      return $this->get('confirmed_total_price')->first()->toPrice();
     }
   }
 
@@ -111,6 +111,13 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 
   function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
+    // @todo need refactor (case with manual add  item)
+    if (empty($this->label())) {
+      $order_id = \Drupal::routeMatch()->getParameter('commerce_order');
+//      $order = \Drupal::entityTypeManager()->getStorage('commerce_order')
+      $this->set('name', 'Return for Order #' . $order_id);
+//      $this->set('order_id', $order_id);
+    }
     $this->recalculateTotals();
   }
 
@@ -170,39 +177,32 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   /**
    * {@inheritdoc}
    */
-  public function getAmount() {
-    if (!$this->get('amount')->isEmpty()) {
-      return $this->get('amount')->first()->toPrice();
+  public function getUnitPrice() {
+    if (!$this->get('unit_price')->isEmpty()) {
+      return $this->get('unit_price')->first()->toPrice();
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setAmount(Price $amount) {
-    $this->set('amount', $amount);
+  public function setUnitPrice(Price $price) {
+    $this->set('unit_price', $price);
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getState() {
-    return $this->get('state')->first();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getItem() {
-    return $this->get('item')->referencedEntities();
+    return $this->get('order_item')->referencedEntities();
   }
 
   /**
    * {@inheritdoc}
    */
   public function setItem(OrderItemInterface $item) {
-    $this->set('item', $item);
+    $this->set('order_item', $item);
 //    $this->recalculateTotalPrice();
     return $this;
   }
@@ -217,6 +217,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the RMA item entity.'))
+      ->setReadOnly(TRUE)
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
@@ -224,11 +225,11 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDefaultValue('')
       ->setDisplayOptions('view', [
         'label' => 'above',
-        'type' => 'string',
+        'type' => 'hidden',
         'weight' => -4,
       ])
       ->setDisplayOptions('form', [
-        'type' => 'string_textfield',
+        'type' => 'hidden',
         'weight' => -4,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -243,72 +244,87 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
-    $fields['amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Amount'))
-      ->setDescription(t('The amount for return.'))
+    $fields['unit_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Requested item unit price'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['confirmed_amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Confirmed Amount'))
-      ->setDescription(t('The amount for return (confirmed).'))
-      ->setReadOnly(TRUE)
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['confirmed_quantity'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('ConfirmedQuantity'))
-      ->setDescription(t('The quantity for return (confirmed).'))
-      ->setReadOnly(TRUE)
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['manager_note'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t("Manager's note"))
-      ->setDisplayOptions('form', [
-        'type' => 'string_textarea',
-        'weight' => 0,
-        'settings' => [
-          'rows' => 12,
-        ],
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'string',
-        'weight' => 0,
-        'label' => 'above',
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['quantity'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Quantity'))
+      ->setLabel(t('Requested Quantity'))
       ->setDescription(t('The quantity for return.'))
       ->setReadOnly(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_quantity',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+    $fields['total_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Requested total'))
+      ->setDescription(t('The return total price (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setReadOnly(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_list_price',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+    $fields['confirmed_quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Confirmed Quantity'))
+      ->setDescription(t('The quantity for return (confirmed).'))
+//      ->setReadOnly(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_quantity',
+        'weight' => 0,
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['state'] = BaseFieldDefinition::create('state')
-      ->setLabel(t('State'))
-      ->setDescription(t('The RMA state.'))
-      ->setRequired(TRUE)
-      ->setSetting('max_length', 255)
-      ->setDisplayOptions('view', [
-        'label' => 'hidden',
-        'type' => 'state_transition_form',
-        'weight' => 10,
+    $fields['confirmed_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Confirmed Price'))
+      ->setDescription(t('The amount of money for return (confirmed).'))
+//      ->setReadOnly(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_list_price',
+        'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE)
-      ->setSetting('workflow_callback', ['\Drupal\commerce_rma\Entity\CommerceReturnItem', 'getWorkflowId']);
+      ->setDisplayConfigurable('view', TRUE);
+
+
+
+
+
+
 
     $fields['order_item'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Order item'))
       ->setDescription(t('The order item.'))
       ->setRequired(TRUE)
+      ->setReadOnly(TRUE)
       ->setTargetEntityTypeId('commerce_return_item')
       ->setSetting('target_type', 'commerce_order_item')
       ->setSetting('handler', 'default')
+      ->setDisplayOptions('form', [
+        'type' => 'inline_entity_form_complex',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+    $fields['reason'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Reason'))
+      ->setDescription(t('The reason of item return.'))
+      ->setRequired(TRUE)
+      ->setSetting('target_type', 'commerce_return_reason')
+      ->setSetting('handler', 'default')
+      ->setCardinality(1)
+      ->setReadOnly(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -1,
@@ -322,14 +338,15 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['note'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('Note'))
+      ->setLabel(t("Client's Note"))
       ->setDisplayOptions('form', [
         'type' => 'string_textarea',
-        'weight' => 0,
+        'weight' => -1,
         'settings' => [
-          'rows' => 12,
+          'rows' => 5,
         ],
       ])
+      ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'type' => 'string',
@@ -338,35 +355,28 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ])
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['reason'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Reason'))
-      ->setDescription(t('The reason of item return.'))
-      ->setRequired(TRUE)
-      ->setSetting('target_type', 'commerce_return_reason')
-      ->setSetting('handler', 'default')
-      ->setCardinality(1)
+    $fields['manager_note'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t("Manager's note"))
       ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => -1,
+        'type' => 'string_textarea',
+        'weight' => 0,
         'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'placeholder' => '',
+          'rows' => 5,
         ],
       ])
       ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'type' => 'string',
+        'weight' => 2,
+        'label' => 'above',
+      ])
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['total_amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total return amount'))
-      ->setDescription(t('The return total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
-      ->setReadOnly(TRUE)
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
-    $fields['confirmed_total_amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total returned amount'))
-      ->setDescription(t('The returned total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+
+    $fields['confirmed_total_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total returned price'))
+      ->setDescription(t('The returned total price (Value og money which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -389,23 +399,13 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
   }
 
   public function recalculateTotals() {
-    $amount = $this->getAmount();
-    $total_amount = $amount->multiply($this->getQuantity());
-    $this->set('total_amount', $total_amount);
-  }
-
-  /**
-   * Gets the workflow ID for the state field.
-   *
-   * @param \Drupal\commerce_rma\Entity\CommerceReturnItemInterface $rma_item
-   *   The RMA Item
-   *
-   * @return string
-   *   The workflow ID.
-   */
-  public static function getWorkflowId(CommerceReturnItemInterface $rma_item) {
-    $workflow = CommerceReturnItemType::load($rma_item->bundle())->getWorkflowId();
-    return $workflow;
+    $price = $this->getUnitPrice();
+    if (empty($price)) {
+      $price = $this->getItem()[0]->getUnitPrice();
+      $this->setUnitPrice($price);
+    }
+    $total_price = $price->multiply($this->getQuantity());
+    $this->set('total_price', $total_price);
   }
 
 }

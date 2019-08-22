@@ -1,41 +1,77 @@
-commerce_order_return_default:
-  id: commerce_order_return_default
+commerce_return_default:
+  id: commerce_return_default
   group: commerce_return
   label: 'Default'
   states:
     draft:
       label: Draft
+    approved:
+      label: Approved
+    rejected:
+      label: Rejected
     completed:
       label: Completed
     canceled:
       label: Canceled
   transitions:
-    place:
-      label: 'Place Return'
+    approve:
+      label: 'Approve Return'
       from: [draft]
+      to: approved
+    reject:
+      label: 'Reject Return'
+      from: [draft]
+      to: rejected
+    complete:
+      label: 'Complete Return'
+      from: [approved]
       to: completed
     cancel:
       label: 'Cancel Return'
       from: [draft]
       to:   canceled
 
-commerce_order_return_item_default:
-  id: commerce_order_return_item_default
-  group: commerce_return_item
+commerce_order_return_default:
+  id: commerce_order_return_default
+  group: commerce_order_return
   label: 'Default'
   states:
     draft:
-      label: Draft
+      label: Return not needed
+    requested:
+      label: Return requested
+    partial_returned:
+      label: Partial returned
+    rejected:
+      label: Return rejected
+    returned:
+      label: Returned
     completed:
       label: Completed
     canceled:
-      label: Canceled
+      label: Return canceled
   transitions:
     place:
-      label: 'Place RMA item'
-      from: [draft]
+      label: 'Requested return'
+      from: [draft, partial_returned]
+      to: requested
+    return:
+      label: 'Approve Return'
+      from: [requested]
+      to: returned
+    partial_return:
+      label: 'Approve Partial Return'
+      from: [requested]
+      to: partial_returned
+    reject:
+      label: 'Reject Return'
+      from: [requested]
+      to: rejected
+    complete:
+      label: 'Reject Return'
+      from: [returned, partial_returned]
       to: completed
     cancel:
-      label: 'Cancel RMA Item'
-      from: [draft]
+      label: 'Cancel Return'
+      from: [requested]
       to:   canceled

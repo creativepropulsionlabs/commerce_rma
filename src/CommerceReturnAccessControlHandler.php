@@ -41,7 +41,7 @@ class CommerceReturnAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add rma entities');
+    return AccessResult::allowedIfHasPermission($account, 'add commerce return entities');
   }
 
 }

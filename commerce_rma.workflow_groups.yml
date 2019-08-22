@@ -1,6 +1,10 @@
 commerce_return:
-  label: Commerce Rerurn
+  label: Commerce Return
   entity_type: commerce_return
+
+commerce_order_return:
+  label: Commerce Order Return
+  entity_type: commerce_order
 
 commerce_return_item:
   label: Commerce Rerurn item

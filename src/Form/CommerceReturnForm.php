@@ -90,7 +90,10 @@ class CommerceReturnForm extends ContentEntityForm {
           '%label' => $entity->label(),
         ]));
     }
-    $form_state->setRedirect('entity.commerce_return.collection', ['commerce_return' => $entity->id()]);
+    $form_state->setRedirect('entity.commerce_return.collection', [
+      'commerce_return' => $entity->id(),
+      'commerce_order' => $entity->getOrder()->id(),
+    ]);
   }
 
 }

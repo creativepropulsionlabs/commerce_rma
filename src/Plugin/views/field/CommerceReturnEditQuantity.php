@@ -2,9 +2,11 @@
 
 namespace Drupal\commerce_rma\Plugin\views\field;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Url;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
@@ -183,6 +185,8 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     // Replace the form submit button label.
     $form['actions']['submit']['#value'] = $this->t('Return');
     $form['actions']['submit']['#weight'] = 1;
+    $destination = \Drupal::request()->server->get('HTTP_REFERER');
+    $form_state->set('destination', $destination);
   }
 
   /**
@@ -243,13 +247,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
-        'amount' => $order_item->getUnitPrice(),
+        'unit_price' => $order_item->getUnitPrice(),
+        'confirmed_price' => $order_item->getUnitPrice(),
         'quantity' => $form_state->getValue($this->options['id'])[$row_index],
+        'confirmed_quantity' => $form_state->getValue($this->options['id'])[$row_index],
         'order_item' => $order_item->id(),
         'note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
       ]);
       if ($reason) {
-        $commerce_return_item->reason->target_id = $reason;
         $commerce_return_item->reason = $reason;
       }
       $commerce_return_item->save();
@@ -278,10 +283,16 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'return_items' => $items_to_return,
         'billing_profile' => $billing_profile,
         'order_id' => $order->id(),
+        'user_id' => $order->getCustomerId(),
       ]);
-      $commerce_return->set('total_amount', $order->getTotalPaid());
+      $commerce_return->set('total_price', $order->getTotalPaid());
       $commerce_return->save();
-
+      $destination = $form_state->get('destination');
+      parse_url($destination);
+      $destination = UrlHelper::parse($destination)['query']['destination'];
+      if (!empty($destination)) {
+        $form_state->setRedirectUrl(Url::fromUserInput($destination));
+      }
       if (!empty($triggering_element['#show_update_message'])) {
         $this->messenger->addStatus($this->t('Order @label is returning.', [
           '@label' => $order->label(),

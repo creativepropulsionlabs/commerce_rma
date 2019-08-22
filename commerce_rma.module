@@ -5,8 +5,11 @@
  * Contains commerce_rma.module.
  */
 
+use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderTypeInterface;
+use Drupal\commerce_rma\Entity\CommerceReturn;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -145,6 +148,7 @@ function commerce_rma_entity_operation(EntityInterface $entity) {
       $collection_url = Url::fromRoute('entity.commerce_return.collection',[
         'commerce_order' => $entity->getOrderId(),
       ])->toString();
+      $destination = \Drupal::destination()->get();
       foreach ($transitions as $transition) {
         $operations[$transition->getId()] = [
           'title' => $transition->getLabel(),
@@ -153,8 +157,8 @@ function commerce_rma_entity_operation(EntityInterface $entity) {
             'workflow' => $workflow_id,
             'workflow_transition' => $transition->getId()
           ], [
-            'query' => ['destination' => $collection_url],
-            'absolute' => TRUE,
+            'query' => ['destination' => $destination],
+//            'absolute' => TRUE,
           ]),
           'weight' => -1,
         ];
@@ -274,12 +278,26 @@ function commerce_rma_form_commerce_order_type_form_alter(array &$form, FormStat
   /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
   $order_type = $form_state->getFormObject()->getEntity();
   $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+  $return_order_workflow_id = $order_type->getThirdPartySetting('commerce_rma', 'return_workflow');
   $return_type_storage = \Drupal::entityTypeManager()->getStorage('commerce_return_type');
   $return_types = $return_type_storage->loadMultiple();
   $return_types = array_map(function ($return_type) {
     return $return_type->label();
   }, $return_types);
   $return_type_ids = array_keys($return_types);
+
+  /** @var \Drupal\state_machine\WorkflowManagerInterface $workflow_manager */
+  $workflow_manager = \Drupal::service('plugin.manager.workflow');
+
+  $return_order_workflows = $workflow_manager->getDefinitions();
+//  $return_order_workflows = $workflow_manager->getGroupedLabels('commerce_order');
+
+  $return_order_workflows = array_map(function ($return_order_workflow) {
+    if ($return_order_workflow["group"] == 'commerce_order_return') {
+      return $return_order_workflow['label'];
+    }
+  }, $return_order_workflows);
+  $return_order_workflows = array_filter($return_order_workflows);
 
   $form['commerce_rma'] = [
     '#type' => 'container',
@@ -296,6 +314,18 @@ function commerce_rma_form_commerce_order_type_form_alter(array &$form, FormStat
     '#title' => t('Return type'),
     '#options' => $return_types,
     '#default_value' => $return_type_id ?: reset($return_type_ids),
+    '#required' => TRUE,
+    '#states' => [
+      'visible' => [
+        ':input[name="commerce_rma[enable_return]"]' => ['checked' => TRUE],
+      ],
+    ],
+  ];
+  $form['commerce_rma']['return_workflow'] = [
+    '#type' => 'select',
+    '#title' => t('Return Workflow applied to Order'),
+    '#options' => $return_order_workflows,
+    '#default_value' => $return_order_workflow_id ?: reset($return_order_workflows),
     '#required' => TRUE,
     '#states' => [
       'visible' => [
@@ -345,7 +375,7 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
     $configurable_field_manager->deleteField($field_definition);
   }
 
-  $state_field_definition = commerce_rma_build_status_field_definition($order_type->id());
+  $state_field_definition = commerce_rma_build_order_state_field_definition($order_type->id());
   if (!$previous_value && $settings['enable_return']) {
     $configurable_field_manager->createField($state_field_definition);
   }
@@ -354,7 +384,9 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
   }
 
   $return_type_id = $settings['enable_return'] ? $settings['return_type'] : '';
+  $return_workflow_id = $settings['return_workflow'] ? $settings['return_workflow'] : '';
   $order_type->setThirdPartySetting('commerce_rma', 'return_type', $return_type_id);
+  $order_type->setThirdPartySetting('commerce_rma', 'return_workflow', $return_workflow_id);
   $order_type->save();
 }
 
@@ -381,20 +413,34 @@ function commerce_rma_build_return_field_definition($order_type_id) {
   return $field_definition;
 }
 
-function commerce_rma_build_status_field_definition($order_type_id){
-  $field_definition = BundleFieldDefinition::create('string')
-    ->setName('return_status')
-    ->setLabel(t('Return status'))
+function commerce_rma_build_order_state_field_definition($order_type_id){
+  $field_definition = BundleFieldDefinition::create('state')
+    ->setLabel(t('Return State'))
+    ->setName('return_state')
+    ->setDescription(t('The order return state.'))
+    ->setRequired(FALSE)
     ->setTargetBundle($order_type_id)
+    ->setSetting('max_length', 255)
     ->setTargetEntityTypeId('commerce_order')
-    ->setProvider('commerce_rma')
-    ->setDisplayOptions('form', [
-      'region' => 'hidden',
+    ->setDisplayOptions('view', [
+      'label' => 'hidden',
+      'type' => 'list_default',
+      'weight' => 10,
     ])
-    ->setDisplayConfigurable('view', FALSE)
-    ->setDisplayConfigurable('form', FALSE);
+    ->setProvider('commerce_rma')
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE)
+    ->setSetting('workflow_callback', 'commerce_rma_order_workflow_id');
 
   return $field_definition;
+}
+
+function commerce_rma_order_workflow_id(OrderInterface $entity) {
+  /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+  $order_type = \Drupal::entityTypeManager()->getStorage('commerce_order_type')->load($entity->bundle());
+  $workflow_id = $order_type->getThirdPartySetting('commerce_rma', 'return_workflow');
+
+  return $workflow_id;
 }
 
 /**
@@ -402,9 +448,9 @@ function commerce_rma_build_status_field_definition($order_type_id){
  */
 function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) {
   if ($context['entity_type'] == 'commerce_return_item') {
-    $fields['amount'] = [
+    $fields['unit_price'] = [
       'type' => 'field',
-      'label' => t('Amount'),
+      'label' => t('Unit Price'),
       'weight' => 101,
     ];
     $fields['quantity'] = [
@@ -419,13 +465,17 @@ function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) 
     ];
     $fields['note'] = [
       'type' => 'field',
-      'label' => t('Note'),
+      'label' => t("Client's Note"),
       'weight' => 101,
     ];
-
-    $fields['confirmed_amount'] = [
+    $fields['manager_note'] = [
       'type' => 'field',
-      'label' => t('Confirmed Amount'),
+      'label' => t("Manager's Note"),
+      'weight' => 101,
+    ];
+    $fields['confirmed_price'] = [
+      'type' => 'field',
+      'label' => t('Confirmed Price'),
       'weight' => 101,
     ];
     $fields['confirmed_quantity'] = [
@@ -434,5 +484,33 @@ function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) 
       'weight' => 101,
     ];
 
+  }
+}
+
+function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+  $field_definition = $context['items']->getFieldDefinition();
+  $entity_type_id = $context['items']->getParent()->getEntity()->getEntityTypeId();
+  if ($entity_type_id == 'commerce_return_item' && $field_definition->isReadOnly()) {
+    if ($context["form"]["#op"] == 'edit') {
+      $element['#disabled'] = TRUE;
+    }
+  }
+}
+
+function commerce_rma_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  if ($entity_form['#entity_type'] == 'commerce_return_item') {
+    if ($entity_form["#op"] == 'edit') {
+      /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+      $order = $form_state->getFormObject()->getEntity()->getOrder();
+      $entity_form['order_item']['#access'] = FALSE;
+      $entity_form['order_item_view'] = [
+        '#type' => 'view',
+        // @todo Allow the view to be configurable.
+        '#name' => 'commerce_order_item_table',
+        '#arguments' => [$order->id()],
+        '#embed' => TRUE,
+        '#weight' => -100,
+      ];
+    }
   }
 }

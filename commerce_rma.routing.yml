@@ -4,7 +4,7 @@ commerce_rma.confirm_transition:
     _form: '\Drupal\commerce_rma\Form\ConfirmTransitionForm'
     _title: 'Confirm Transition'
   requirements:
-    _permission: 'administer site configuration'
+    _trasition_access: 'TRUE'
 
 entity.commerce_return.user_view:
   path: '/user/{user}/orders/{commerce_order}/returns'

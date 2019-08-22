@@ -30,18 +30,18 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
   public function getConfirmedTotalQuantity();
 
   /**
-   * Gets Total Amount.
+   * Gets Total Price.
    *
    * @return \Drupal\commerce_price\Price
    */
-  public function getTotalAmount();
+  public function getTotalPrice();
 
   /**
-   * Gets Confirmed Total Amount.
+   * Gets Confirmed Total Price.
    *
    * @return \Drupal\commerce_price\Price
    */
-  public function getConfirmedTotalAmount();
+  public function getConfirmedTotalPrice();
 
 
 
@@ -98,32 +98,6 @@ interface CommerceReturnItemInterface extends ContentEntityInterface, EntityChan
    * @return $this
    */
   public function setCreatedTime($timestamp);
-
-  /**
-   * Gets the RMA item  amount.
-   *
-   * @return \Drupal\commerce_price\Price|null
-   *   The shipment amount, or NULL if unknown.
-   */
-  public function getAmount();
-
-  /**
-   * Sets the RMA item amount.
-   *
-   * @param \Drupal\commerce_price\Price $amount
-   *   The RMA item amount.
-   *
-   * @return $this
-   */
-  public function setAmount(Price $amount);
-
-  /**
-   * Gets the RMA item state.
-   *
-   * @return \Drupal\state_machine\Plugin\Field\FieldType\StateItemInterface
-   *   The RMA item state.
-   */
-  public function getState();
 
   /**
    * Gets the order item.

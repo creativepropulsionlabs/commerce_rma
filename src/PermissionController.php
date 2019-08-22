@@ -92,7 +92,7 @@ class PermissionController implements ContainerInjectionInterface {
       $workflow = $workflow_manager->createInstance($workflow_id);
       $transitions = $workflow->getTransitions();
       foreach ($transitions as $transition) {
-        $permissions['access ' . $return_type_id . ' ' . $transition->getId() . ' returns'] = [
+        $permissions['use commerce_return ' . $return_type_id . ' ' . $transition->getId() . ' transition'] = [
           'title' => $this->t('%return_type_label: Access returns transition %transition_label [%transition_id]', [
             '%return_type_label' => $return_type->label(),
             '%transition_label' => $transition->getLabel(),

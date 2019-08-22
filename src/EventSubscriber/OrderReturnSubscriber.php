@@ -47,9 +47,46 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events = [
-      'commerce_return.place.post_transition' => ['returnOrder', -100],
+//      'commerce_return.place.post_transition' => ['returnOrder', -100],
+      'commerce_return.reject.post_transition' => ['mapReturnStateToOrder', -100],
+      'commerce_return.complete.post_transition' => ['mapReturnStateToOrder', -100],
+      'commerce_return.cancel.post_transition' => ['mapReturnStateToOrder', -100],
     ];
     return $events;
+  }
+
+  /**
+   * Return an order.
+   *
+   * @param \Drupal\state_machine\Event\WorkflowTransitionEvent $event
+   *   The event we subscribed to.
+   */
+  public function mapReturnStateToOrder(WorkflowTransitionEvent $event) {
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $return */
+    $return = $event->getEntity();
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+    $order = $return->getOrder();
+    $return_state = $return->getState();
+    $order_transition_id = $this->getOrderStateId($return_state);
+    $order_type_storage = $this->entityTypeManager->getStorage('commerce_order_type');
+    /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+    $order_type = $order_type_storage->load($order->bundle());
+    $order_return_workflow_id = $order_type->getThirdPartySetting('commerce_rma', 'return_workflow');
+    /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_workflow */
+    $order_return_workflow = $this->workflowManager->createInstance($order_return_workflow_id);
+    $transition = $order_return_workflow->getTransition($order_transition_id);
+    $order->get('return_state')->first()->applyTransition($transition);
+    $order->save();
+  }
+
+
+  protected function getOrderStateId($return_sate) {
+    $map = [
+      'rejected' => 'reject',
+      'completed' => 'complete',
+      'canceled' => 'cancel',
+    ];
+    return $map[$return_sate->getId()];
   }
 
   /**
@@ -96,7 +133,8 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_workflow */
     $order_workflow = $this->workflowManager->createInstance($order_workflow_id);
     $transition = $order_workflow->getTransition($transition_id);
-    $order->getState()->applyTransition($transition);
+    $order->get('return_state')->first()->applyTransition($transition);
+
     $order->save();
   }
 

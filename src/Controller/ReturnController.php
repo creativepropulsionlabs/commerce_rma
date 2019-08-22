@@ -28,13 +28,14 @@ class ReturnController extends EntityController {
     $collection_url = Url::fromRoute('entity.commerce_return.collection',[
       'commerce_order' => $commerce_order->id(),
     ])->toString();
+    $destination = parse_url(\Drupal::request()->server->get('HTTP_REFERER'));
 
     return $this->redirect('entity.commerce_return.add_form', [
       'commerce_order' => $commerce_order->id(),
       'commerce_return_type' => $return_type,
     ],[
-      'query' => ['destination' => $collection_url],
-      'absolute' => TRUE,
+      'query' => ['destination' => $destination["path"]],
+//      'absolute' => TRUE,
     ]);
   }
 

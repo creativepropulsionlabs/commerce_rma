@@ -145,6 +145,22 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
         'target_id' => $this->id()
       ]);
       $order->save();
+      // Force to place return to check it by manager.
+      $workflow_manager = \Drupal::service('plugin.manager.workflow');
+      $order_bundle = $order->bundle();
+      /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+      $order_type = $this->entityTypeManager()->getStorage('commerce_order_type')->load($order_bundle);
+      $order_return_workflow_id = $order_type->getThirdPartySetting('commerce_rma', 'return_workflow');
+      /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_return_workflow */
+      $order_return_workflow = $workflow_manager->createInstance($order_return_workflow_id);
+      $transition_id = 'place';
+      $transition = $order_return_workflow->getTransition($transition_id);
+      $order->get('return_state')->first()->applyTransition($transition);
+      $order->save();
+
+    }
+    else {
+
     }
   }
 
@@ -154,9 +170,32 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('User ID'))
+      ->setDescription(t('The ID of the associated user.'))
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'hidden',
+        'weight' => -4,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
-      ->setDescription(t('The name of the RMA entity.'))
+      ->setDescription(t('The name of the Return.'))
+      ->setReadOnly(TRUE)
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
@@ -164,7 +203,7 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDefaultValue('')
       ->setDisplayOptions('view', [
         'label' => 'above',
-        'type' => 'string',
+        'type' => 'hidden',
         'weight' => -4,
       ])
       ->setDisplayOptions('form', [
@@ -229,12 +268,18 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setRequired(TRUE)
       ->setReadOnly(TRUE);
 
-    $fields['total_amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total return amount'))
-      ->setDescription(t('The return total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+
+
+    $fields['total_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total return price'))
+      ->setDescription(t('The return total price (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+      ->setDisplayConfigurable('view', TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'commerce_unit_price',
+        'weight' => -4,
+      ]);
 
     $fields['total_quantity'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Total Quantity'))
@@ -243,9 +288,10 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['confirmed_total_amount'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total returned amount (Confirmed)'))
-      ->setDescription(t('The returned total amount (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+
+    $fields['confirmed_total_price'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Total returned price (Confirmed)'))
+      ->setDescription(t('The returned total price (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -261,22 +307,22 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
   }
 
   public function recalculateTotals() {
-    $total_amount = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
+    $total_price = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
     $total_quantity = '0';
-    $confirmed_total_amount = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
+    $confirmed_total_price = new Price('0', $this->getOrder()->getTotalPrice()->getCurrencyCode());
     $confirmed_total_quantity = '0';
     foreach ($this->getItems() as $item) {
-      $total_amount = $total_amount->add($item->getTotalAmount());
-      if ($item->getConfirmedTotalAmount()) {
-        $confirmed_total_amount = $confirmed_total_amount->add($item->getConfirmedTotalAmount());
+      $total_price = $total_price->add($item->getTotalPrice());
+      if ($item->getConfirmedTotalPrice()) {
+        $confirmed_total_price = $confirmed_total_price->add($item->getConfirmedTotalPrice());
       }
       $total_quantity = Calculator::add($total_quantity, $item->getQuantity());
       if ($item->getConfirmedTotalQuantity()) {
         $confirmed_total_quantity = Calculator::add($confirmed_total_quantity, $item->getConfirmedTotalQuantity());
       }
     }
-    $this->set('total_amount', $total_amount);
-    $this->set('confirmed_total_amount', $confirmed_total_amount);
+    $this->set('total_price', $total_price);
+    $this->set('confirmed_total_price', $confirmed_total_price);
     $this->set('total_quantity', $total_quantity);
     $this->set('confirmed_total_quantity', $confirmed_total_quantity);
   }
@@ -298,6 +344,20 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
    *   The workflow ID.
    */
   public static function getWorkflowId(CommerceReturnInterface $rma_order) {
+    $workflow = CommerceReturnType::load($rma_order->bundle())->getWorkflowId();
+    return $workflow;
+  }
+
+  /**
+   * Gets the workflow ID for the state field.
+   *
+   * @param \Drupal\commerce_rma\Entity\CommerceReturnInterface $rma_order
+   *   The RMA.
+   *
+   * @return string
+   *   The workflow ID.
+   */
+  public static function getOrderWorkflowId($rma_order) {
     $workflow = CommerceReturnType::load($rma_order->bundle())->getWorkflowId();
     return $workflow;
   }

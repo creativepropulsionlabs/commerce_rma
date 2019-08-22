@@ -64,4 +64,12 @@ interface CommerceReturnInterface extends ContentEntityInterface, EntityChangedI
    */
   public function setCreatedTime($timestamp);
 
+  /**
+   * Gets the return state.
+   *
+   * @return \Drupal\state_machine\Plugin\Field\FieldType\StateItemInterface
+   *   The return state.
+   */
+  public function getState();
+
 }

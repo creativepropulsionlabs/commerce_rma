@@ -45,7 +45,8 @@ class CommerceReturnGuard implements GuardInterface {
    */
   public function allowed(WorkflowTransition $transition, WorkflowInterface $workflow, EntityInterface $entity) {
     // Don't allow transition for users without permissions.
-    if (!$this->currentUser->hasPermission('access ' . $entity->bundle() . ' ' . $transition->getId() . ' returns')) {
+    // use commerce_return default cancel transition
+    if (!$this->currentUser->hasPermission('use commerce_return ' . $entity->bundle() . ' ' . $transition->getId() . ' transition')) {
       return FALSE;
     }
   }

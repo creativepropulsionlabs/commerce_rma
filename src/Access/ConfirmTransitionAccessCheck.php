@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Route;
 /**
  * Defines an access checker for the Return collection route.
  */
-class ReturnAddAccessCheck implements AccessInterface {
+class ConfirmTransitionAccessCheck implements AccessInterface {
 
   /**
    * The entity type manager.
@@ -46,29 +46,19 @@ class ReturnAddAccessCheck implements AccessInterface {
    */
   public function access(Route $route, RouteMatchInterface $route_match, AccountInterface $account) {
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    $order = $route_match->getParameter('commerce_order');
-    $order_type_storage = $this->entityTypeManager->getStorage('commerce_order_type');
-    /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
-    $order_type = $order_type_storage->load($order->bundle());
-    $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
-    $show_return_states = [
-      'completed',
-    ];
-    // Check if this is a cart order.
-    $order_is_completed = in_array($order->getState()->getId(), $show_return_states);
-    $order_is_not_returned_full = !in_array($order->get('return_state')->value, $show_return_states);
+    $entity_id = $route_match->getParameter('commerce_return');
+    $transition_id = $route_match->getParameter('workflow_transition');
+    $storage = $this->entityTypeManager->getStorage('commerce_return');
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $entity */
+    $entity = $storage->load($entity_id);
+
 
     // Only allow access if order type has a corresponding return type.
     // @todo should we validate that the return type exists?
-    $perm = AccessResult::allowedIfHasPermission($account, 'administer commerce return')
-      ->orIf(AccessResult::allowedIfHasPermission($account, 'add commerce return entities'));
-    $res = AccessResult::allowedIf($return_type_id !== NULL)
-      ->andIf($perm)
-      ->andIf(AccessResult::allowedIf($order_is_completed))
-      ->andIf(AccessResult::allowedIf($order_is_not_returned_full))
-      ->addCacheableDependency($order_type)
-      ->addCacheableDependency($order);
-    return $res;
+    $perm = 'use commerce_return ' . $entity->bundle() . ' ' . $transition_id . ' transition';
+    return AccessResult::allowedIfHasPermission($account, $perm)
+      ->addCacheableDependency($transition_id)
+      ->addCacheableDependency($entity);
   }
 
 }

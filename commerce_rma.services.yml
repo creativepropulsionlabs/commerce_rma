@@ -11,6 +11,13 @@ services:
     tags:
       - { name: access_check, applies_to: _return_add_access }
 
+  access_check.confirm_transition:
+    class: Drupal\commerce_rma\Access\ConfirmTransitionAccessCheck
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: access_check, applies_to: _trasition_access }
+
+
 
   commerce_rma.route_subscriber:
     class: Drupal\commerce_rma\EventSubscriber\RouteSubscriber
@@ -35,6 +42,7 @@ services:
     arguments: ['@current_user', '@plugin.manager.workflow']
     tags:
       - { name: state_machine.guard, group: commerce_return }
+
   commerce_rma.order_return_subscriber:
     class: Drupal\commerce_rma\EventSubscriber\OrderReturnSubscriber
     arguments: ['@entity_type.manager', '@plugin.manager.workflow']

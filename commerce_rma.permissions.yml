@@ -64,7 +64,7 @@ delete all commerce return revisions:
 add testtest entities:
   title: 'Create new Testtest entities'
 
-administer commerce return entities:
+administer commerce return entitiedefault commerce_returns:
   title: 'Administer Commerce return entities'
   description: 'Allow to access the administration form to configure commerce return entities.'
   restrict access: true
