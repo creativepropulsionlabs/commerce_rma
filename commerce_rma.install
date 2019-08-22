@@ -16,6 +16,7 @@ function commerce_payment_install() {
   // Allow authenticated users to manage own payment methods.
   user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['add commerce return entities']);
   user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['use commerce_return default cancel transition']);
+  user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['return order']);
 }
 
 /**

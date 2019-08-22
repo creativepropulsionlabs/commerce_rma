@@ -157,6 +157,7 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       $transition = $order_return_workflow->getTransition($transition_id);
       if ($order->get('return_state')->isEmpty()) {
         $order->return_state = 'draft';
+        $order->save();
       }
       $order->get('return_state')->first()->applyTransition($transition);
       $order->save();

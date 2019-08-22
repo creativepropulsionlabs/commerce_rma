@@ -94,12 +94,12 @@ class CommerceReturnTypeForm extends CommerceBundleEntityFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $workflow */
     $workflow = $this->workflowManager->createInstance($form_state->getValue('workflow'));
-    // Verify "Place" transition.
-    if (!$workflow->getTransition('place')) {
-      $form_state->setError($form['workflow'], $this->t('The @workflow workflow does not have a "Place" transition.', [
-        '@workflow' => $workflow->getLabel(),
-      ]));
-    }
+//    // Verify "Place" transition.
+//    if (!$workflow->getTransition('place')) {
+//      $form_state->setError($form['workflow'], $this->t('The @workflow workflow does not have a "Place" transition.', [
+//        '@workflow' => $workflow->getLabel(),
+//      ]));
+//    }
     // Verify "draft" state.
     if (!$workflow->getState('draft')) {
       $form_state->setError($form['workflow'], $this->t('The @workflow workflow does not have a "Draft" state.', [

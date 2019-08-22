@@ -75,6 +75,10 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_workflow */
     $order_return_workflow = $this->workflowManager->createInstance($order_return_workflow_id);
     $transition = $order_return_workflow->getTransition($order_transition_id);
+    if ($order->get('return_state')->isEmpty()) {
+      $order->return_state = 'draft';
+      $order->save();
+    }
     $order->get('return_state')->first()->applyTransition($transition);
     $order->save();
   }
@@ -133,6 +137,10 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_workflow */
     $order_workflow = $this->workflowManager->createInstance($order_workflow_id);
     $transition = $order_workflow->getTransition($transition_id);
+    if ($order->get('return_state')->isEmpty()) {
+      $order->return_state = 'draft';
+      $order->save();
+    }
     $order->get('return_state')->first()->applyTransition($transition);
 
     $order->save();
