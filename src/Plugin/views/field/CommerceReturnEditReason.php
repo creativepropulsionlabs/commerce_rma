@@ -137,10 +137,44 @@ class CommerceReturnEditReason extends FieldPluginBase {
         '#type' => 'select',
         '#title' => $this->t('Reason'),
         '#title_display' => 'invisible',
+        '#empty_option' =>$this->t('Please select'),
         '#options' => $options,
-        '#required' => TRUE,
+//        '#required' => FALSE,
       ];
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function viewsFormValidate(&$form, FormStateInterface $form_state) {
+    $reasons = $form_state->getValue($this->options['id']);
+
+    // Find - if we connect handler for RMA quantity field.
+    $handlers = $this->view->getHandlers('field');
+
+    foreach ($handlers as $handler) {
+      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_quantity') {
+        $quantity_handler = $handler;
+        break;
+      }
+    }
+
+    foreach ($reasons as $row_index => $reason) {
+      if (empty($reason)) {
+        $quantity = isset($quantity_handler) ? $form_state->getValue($quantity_handler['id'])[$row_index] : NULL;
+        if ($quantity >= 0) {
+          $form_state->setErrorByName('', $this->emptySelectedMessage());
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function emptySelectedMessage() {
+    return $this->t('No reason selected.');
   }
 
   /**
