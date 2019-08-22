@@ -80,7 +80,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
    * {@inheritdoc}
    */
   public function getOrderItem() {
-    return $this->orderItem;
+    return $this->get('order_item')->entity;
   }
 
   /**
@@ -219,7 +219,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDescription(t('The name of the RMA item entity.'))
       ->setReadOnly(TRUE)
       ->setSettings([
-        'max_length' => 50,
+        'max_length' => 512,
         'text_processing' => 0,
       ])
       ->setDefaultValue('')

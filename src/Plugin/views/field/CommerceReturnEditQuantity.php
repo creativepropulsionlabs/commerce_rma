@@ -2,6 +2,9 @@
 
 namespace Drupal\commerce_rma\Plugin\views\field;
 
+use CommerceGuys\Intl\Calculator;
+use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\commerce_order\Entity\OrderItemInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -133,29 +136,13 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     foreach ($this->view->result as $row_index => $row) {
       /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
       $order_item = $this->getEntity($row);
-      if ($this->options['allow_decimal']) {
-        $form_display = commerce_get_entity_display('commerce_order_item', $order_item->bundle(), 'form');
-        $quantity_component = $form_display->getComponent('quantity');
-        $step = $quantity_component['settings']['step'];
-        // @todo Fix logic and document.
-        $precision = $step >= '1' ? 0 : strlen($step) - 2;
-      }
-      else {
-        $step = 1;
-        $precision = 0;
-      }
-
       $form[$this->options['id']][$row_index] = [
         '#type' => 'number',
         '#title' => $this->t('Quantity'),
         '#title_display' => 'invisible',
-        '#default_value' => round($order_item->getQuantity(), $precision),
         '#size' => 4,
-        '#min' => 0,
-        '#max' => $order_item->getQuantity(),
-        '#step' => $step,
         '#required' => TRUE,
-      ];
+      ] + $this->getMaxQuantity($order_item, $order);
     }
 
     /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
@@ -317,6 +304,52 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
    */
   public function query() {
     // Do nothing.
+  }
+
+  protected function getMaxQuantity(OrderItemInterface $order_item, OrderInterface $order) {
+    if ($this->options['allow_decimal']) {
+      $form_display = commerce_get_entity_display('commerce_order_item', $order_item->bundle(), 'form');
+      $quantity_component = $form_display->getComponent('quantity');
+      $step = $quantity_component['settings']['step'];
+      // @todo Fix logic and document.
+      $precision = $step >= '1' ? 0 : strlen($step) - 2;
+    }
+    else {
+      $step = 1;
+      $precision = 0;
+    }
+    $data = [
+      '#default_value' => round($order_item->getQuantity(), $precision),
+      '#min' => 0,
+      '#max' => $order_item->getQuantity(),
+      '#step' => $step,
+    ];
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface[] $returns */
+    $returns = $order->get('returns')->referencedEntities();
+    $count = '0';
+    $accepted_states = [
+      'approved',
+      'completed',
+    ];
+    foreach ($returns as $return) {
+      if (!in_array($return->getState()->value, $accepted_states)) {
+        continue;
+      }
+      $return_items = $return->getItems();
+      foreach ($return_items as $return_item) {
+        if ($return_item->getOrderItem()->id() == $order_item->id()){
+          $count = Calculator::add($count, $return_item->getConfirmedTotalQuantity());
+        }
+      }
+    }
+    $data['#max'] = Calculator::subtract($order_item->getQuantity(), $count);
+    if ($data['#max'] < 0) {
+      $data['#max'] = 0;
+    }
+    if ($data['#default_value'] > $data['#max']) {
+      $data['#default_value'] = $data['#max'];
+    }
+    return $data;
   }
 
 }

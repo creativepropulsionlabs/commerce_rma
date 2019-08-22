@@ -19,33 +19,3 @@ function commerce_payment_install() {
   user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['return order']);
 }
 
-/**
- * Implements HOOK_uninstall().
- */
-function commerce_rma_uninstall() {
-   /** @var \Drupal\commerce_order\Entity\OrderTypeInterface[] $order_types */
-  $order_types = \Drupal::entityTypeManager()->getStorage('commerce_order_type')->loadMultiple();
-  foreach ($order_types as $order_type) {
-    $return_type = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
-    if ($return_type) {
-      $field = FieldConfig::loadByName('commerce_order', $order_type->id(), 'returns');
-      if (!empty($field)) {
-        $field->delete();
-      }
-      $field = FieldConfig::loadByName('commerce_order', $order_type->id(), 'return_status');
-      if (!empty($field)) {
-        $field->delete();
-      }
-      $field_storage = FieldStorageConfig::loadByName('commerce_order', 'returns');
-      if (!empty($field_storage)) {
-        $field_storage->delete();
-      }
-      $field_storage = FieldStorageConfig::loadByName('commerce_order', 'return_status');
-      if (!empty($field_storage)) {
-        $field_storage->delete();
-      }
-      $order_type->unsetThirdPartySetting('commerce_rma', 'return_type');
-      $order_type->save();
-    }
-  }
-}

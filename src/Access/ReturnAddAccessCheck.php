@@ -53,6 +53,7 @@ class ReturnAddAccessCheck implements AccessInterface {
     $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
     $show_return_states = [
       'completed',
+      'returned',
     ];
     // Check if this is a cart order.
     $order_is_completed = in_array($order->getState()->getId(), $show_return_states);

@@ -47,7 +47,7 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     $events = [
-//      'commerce_return.place.post_transition' => ['returnOrder', -100],
+      'commerce_return.approve.post_transition' => ['returnOrder', -100],
       'commerce_return.reject.post_transition' => ['mapReturnStateToOrder', -100],
       'commerce_return.complete.post_transition' => ['mapReturnStateToOrder', -100],
       'commerce_return.cancel.post_transition' => ['mapReturnStateToOrder', -100],
@@ -123,17 +123,17 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     if (Calculator::compare($order_total_quantity, $order_total_quantity_confirmed) == 1 ) {
       $transition_id = 'partial_return';
     }
-    if ($order->getState()->value == 'partial_returned' && $transition_id == 'partial_return') {
-      $transition_id = 'partial_return_partial_return';
+    if ($order->getState()->value == $transition_id) {
+      return;
     }
-    elseif ($order->getState()->value == 'partial_returned') {
-      $transition_id = 'partial_return_returned';
-    }
+//    elseif ($order->getState()->value == 'partial_returned') {
+//      $transition_id = 'partial_return_returned';
+//    }
 
     $order_type_storage = $this->entityTypeManager->getStorage('commerce_order_type');
     /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
     $order_type = $order_type_storage->load($order->bundle());
-    $order_workflow_id = $order_type->getWorkflowId();
+    $order_workflow_id = $order_type->getThirdPartySetting('commerce_rma', 'return_workflow');
     /** @var \Drupal\state_machine\Plugin\Workflow\WorkflowInterface $order_workflow */
     $order_workflow = $this->workflowManager->createInstance($order_workflow_id);
     $transition = $order_workflow->getTransition($transition_id);
@@ -141,8 +141,10 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
       $order->return_state = 'draft';
       $order->save();
     }
+    if (!$transition) {
+      return;
+    }
     $order->get('return_state')->first()->applyTransition($transition);
-
     $order->save();
   }
 

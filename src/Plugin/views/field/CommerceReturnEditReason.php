@@ -6,10 +6,12 @@ use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\physical\Calculator;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Comparator\Comparator;
 
 /**
  * Defines a form element for editing the order item quantity.
@@ -163,7 +165,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
     foreach ($reasons as $row_index => $reason) {
       if (empty($reason)) {
         $quantity = isset($quantity_handler) ? $form_state->getValue($quantity_handler['id'])[$row_index] : NULL;
-        if ($quantity >= 0) {
+        if ($quantity > 0) {
           $form_state->setErrorByName('', $this->emptySelectedMessage());
         }
       }
