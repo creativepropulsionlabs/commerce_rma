@@ -84,6 +84,13 @@ class CommerceReturnFormAdd extends ContentEntityForm {
     $this->entity->set('name', 'Return of order ' .$commerce_order->id());
     /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
     $billing_profile = $commerce_order->getBillingProfile();
+    if (!$billing_profile) {
+      $profile_storage = $this->entityTypeManager->getStorage('profile');
+      $billing_profile = $profile_storage->create([
+        'type' => 'customer',
+        'uid' => $commerce_order->getCustomerId(),
+      ]);
+    }
     $this->entity->set('billing_profile', $billing_profile->id());
     $order_item_ids = [];
     foreach ($commerce_order->getItems() as $order_item) {

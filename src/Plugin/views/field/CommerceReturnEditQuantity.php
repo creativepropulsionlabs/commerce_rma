@@ -264,7 +264,17 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     if ($items_to_return) {
       $address = $form_state->getValue('billing_information');
       /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
-      $billing_profile = $order->getBillingProfile()->createDuplicate();
+      $profile = $order->getBillingProfile();
+      if (!$profile) {
+        $profile_storage = $this->entityTypeManager->getStorage('profile');
+        $billing_profile = $profile_storage->create([
+          'type' => 'customer',
+          'uid' => $order->getCustomerId(),
+        ]);
+      }
+      else  {
+        $billing_profile = $profile->createDuplicate();
+      }
       $billing_profile
         ->enforceIsNew(TRUE)
         ->set('address', $address)
