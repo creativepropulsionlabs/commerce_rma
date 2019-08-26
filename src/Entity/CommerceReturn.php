@@ -130,7 +130,6 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
     parent::preSave($storage);
 
     $this->recalculateTotals();
-
     foreach (['order_id', 'return_items'] as $field) {
       if ($this->get($field)->isEmpty()) {
         throw new EntityMalformedException(sprintf('Required return field "%s" is empty.', $field));

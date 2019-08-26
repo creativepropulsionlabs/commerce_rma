@@ -502,12 +502,18 @@ function commerce_rma_inline_entity_form_entity_form_alter(&$entity_form, &$form
     if ($entity_form["#op"] == 'edit') {
       /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
       $order = $form_state->getFormObject()->getEntity()->getOrder();
+      /** @var \Drupal\commerce_rma\Entity\CommerceReturnItemInterface[] $items */
+      $items = $form_state->getFormObject()->getEntity()->getItems();
+      $ids = [];
+      foreach ($items as $item) {
+        $ids[]= $item->getOrderItem()->id();
+      }
       $entity_form['order_item']['#access'] = FALSE;
       $entity_form['order_item_view'] = [
         '#type' => 'view',
         // @todo Allow the view to be configurable.
-        '#name' => 'commerce_order_item_table',
-        '#arguments' => [$order->id()],
+        '#name' => 'commerce_rma_order_item_table',
+        '#arguments' => [$order->id(), implode($ids, ',')],
         '#embed' => TRUE,
         '#weight' => -100,
       ];

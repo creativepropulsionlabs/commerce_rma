@@ -182,7 +182,15 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       return $this->get('unit_price')->first()->toPrice();
     }
   }
-
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfirmedPrice() {
+    if (!$this->get('confirmed_price')->isEmpty()) {
+      return $this->get('confirmed_price')->first()->toPrice();
+    }
+    return new Price('0', $this->getOrderItem()->getOrder()->getTotalPrice()->getCurrencyCode());
+  }
   /**
    * {@inheritdoc}
    */
@@ -375,8 +383,8 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 
 
     $fields['confirmed_total_price'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total returned price'))
-      ->setDescription(t('The returned total price (Value og money which should be returned to user). Manager can modify this value if manual return is in use.'))
+      ->setLabel(t('Total returned price (confirmed)'))
+      ->setDescription(t('The returned total price (Value of money which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -389,6 +397,15 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
    */
   public function getQuantity() {
     return (string) $this->get('quantity')->value;
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfirmedQuantity() {
+    if ($this->get('confirmed_quantity')->isEmpty()) {
+      return '0';
+    }
+    return (string) $this->get('confirmed_quantity')->value;
   }
 
   /**
@@ -406,6 +423,10 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
     }
     $total_price = $price->multiply($this->getQuantity());
     $this->set('total_price', $total_price);
+    $confirmed_quantity = $this->getConfirmedQuantity();
+    $confirmed_price = $this->getConfirmedPrice();
+    $confirmed_total_price = $confirmed_price->multiply($confirmed_quantity);
+    $this->set('confirmed_total_price', $confirmed_total_price);
   }
 
 }
