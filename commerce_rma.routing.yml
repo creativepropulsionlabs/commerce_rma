@@ -12,7 +12,7 @@ entity.commerce_return.user_view:
     _entity_view: 'commerce_order.user'
     _title: 'Return information'
   requirements:
-    _entity_access: 'commerce_order.view'
+    _entity_access: 'commerce_return.view'
   options:
     parameters:
       entity:
