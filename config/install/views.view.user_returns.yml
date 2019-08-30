@@ -8,8 +8,9 @@ dependencies:
     - commerce_price
     - commerce_rma
     - options
+    - user
 _core:
-  default_config_hash: ohC51HuMP9hgTnayZJvu8rhnGPHbseY9QgPQrNDFyUo
+  default_config_hash: 96uJxD7rgcI9Qfw82W7yh2h36WSMuHDFKUIjzSGIx_U
 id: user_returns
 label: 'User returns'
 module: views
@@ -26,8 +27,9 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'return order'
       cache:
         type: tag
         options: {  }
@@ -520,13 +522,12 @@ display:
           plugin_id: numeric
       display_extenders: {  }
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - url.query_args
-        - user
         - user.permissions
       tags: {  }
   page_1:
@@ -544,4 +545,5 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user.permissions
       tags: {  }

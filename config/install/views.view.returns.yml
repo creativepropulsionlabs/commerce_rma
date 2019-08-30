@@ -3,13 +3,15 @@ status: true
 dependencies:
   config:
     - system.menu.admin
+  enforced:
+    module:
+      - commerce_rma
   module:
     - commerce_rma
     - options
     - user
-  enforced:
-    module:
-      - commerce_rma
+_core:
+  default_config_hash: D7OKrileSE58X_GJ2fxMBf4F98fDZTjKYYP04jLFyvc
 id: returns
 label: Returns
 module: views
@@ -70,6 +72,57 @@ display:
             next: ››
       style:
         type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          override: true
+          sticky: false
+          caption: ''
+          summary: ''
+          description: ''
+          columns:
+            id: id
+            order_id: order_id
+            state: state
+            created: created
+            operations: operations
+          info:
+            id:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            order_id:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            state:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            created:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            operations:
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          default: '-1'
+          empty_table: true
       row:
         type: fields
       fields:
@@ -334,7 +387,18 @@ display:
       title: Returns
       header: {  }
       footer: {  }
-      empty: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          empty: true
+          tokenize: false
+          content: 'There are no returns yet.'
+          plugin_id: text_custom
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
