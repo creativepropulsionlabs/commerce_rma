@@ -7,11 +7,10 @@ dependencies:
     module:
       - commerce_rma
   module:
+    - commerce_price
     - commerce_rma
     - options
     - user
-_core:
-  default_config_hash: D7OKrileSE58X_GJ2fxMBf4F98fDZTjKYYP04jLFyvc
 id: returns
 label: Returns
 module: views
@@ -32,7 +31,7 @@ display:
         options:
           perm: 'administer commerce return entities'
       cache:
-        type: tag
+        type: none
         options: {  }
       query:
         type: views_query
@@ -84,8 +83,12 @@ display:
           columns:
             id: id
             order_id: order_id
-            state: state
             created: created
+            total_quantity: total_quantity
+            confirmed_total_quantity: confirmed_total_quantity
+            total_price__number: total_price__number
+            confirmed_total_price__number: confirmed_total_price__number
+            state: state
             operations: operations
           info:
             id:
@@ -102,14 +105,42 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            state:
+            created:
               sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
-            created:
+            total_quantity:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            confirmed_total_quantity:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            total_price__number:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            confirmed_total_price__number:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            state:
               sortable: false
               default_sort_order: asc
               align: ''
@@ -257,13 +288,6 @@ display:
           entity_type: commerce_return
           entity_field: order_id
           plugin_id: field
-        state:
-          id: state
-          table: commerce_return_field_data
-          field: state
-          entity_type: commerce_return
-          entity_field: state
-          plugin_id: field
         created:
           id: created
           table: commerce_return_field_data
@@ -330,6 +354,277 @@ display:
           field_api_classes: false
           entity_type: commerce_return
           entity_field: created
+          plugin_id: field
+        total_quantity:
+          id: total_quantity
+          table: commerce_return_field_data
+          field: total_quantity
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: 'Total Quantity'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: number_integer
+          settings:
+            thousand_separator: ''
+            prefix_suffix: true
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          entity_type: commerce_return
+          entity_field: total_quantity
+          plugin_id: field
+        confirmed_total_quantity:
+          id: confirmed_total_quantity
+          table: commerce_return_field_data
+          field: confirmed_total_quantity
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: 'Total Quantity (Confirmed)'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: number_integer
+          settings:
+            thousand_separator: ''
+            prefix_suffix: true
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          entity_type: commerce_return
+          entity_field: confirmed_total_quantity
+          plugin_id: field
+        total_price__number:
+          id: total_price__number
+          table: commerce_return_field_data
+          field: total_price__number
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: 'Total return price'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: number
+          type: commerce_price_default
+          settings:
+            strip_trailing_zeroes: false
+            currency_display: symbol
+          group_column: ''
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          entity_type: commerce_return
+          entity_field: total_price
+          plugin_id: field
+        confirmed_total_price__number:
+          id: confirmed_total_price__number
+          table: commerce_return_field_data
+          field: confirmed_total_price__number
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: 'Total returned price (Confirmed)'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: number
+          type: commerce_price_default
+          settings:
+            strip_trailing_zeroes: false
+            currency_display: symbol
+          group_column: ''
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          entity_type: commerce_return
+          entity_field: confirmed_total_price
+          plugin_id: field
+        state:
+          id: state
+          table: commerce_return_field_data
+          field: state
+          entity_type: commerce_return
+          entity_field: state
           plugin_id: field
         operations:
           id: operations
@@ -416,7 +711,8 @@ display:
     display_title: Page
     position: 1
     display_options:
-      display_extenders: {  }
+      display_extenders:
+        metatag_display_extender: {  }
       path: admin/commerce/returns
       menu:
         type: normal
