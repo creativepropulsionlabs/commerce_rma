@@ -9,7 +9,7 @@ commerce_rma.confirm_transition:
 entity.commerce_return.user_view:
   path: '/user/{user}/orders/{commerce_order}/returns'
   defaults:
-    _permission: 'return order'
+    _entity_view: 'commerce_order.user'
     _title: 'Return information'
   requirements:
     _entity_access: 'commerce_return.view'

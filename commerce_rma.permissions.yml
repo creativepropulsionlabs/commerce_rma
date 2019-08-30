@@ -33,7 +33,6 @@ delete all commerce return item revisions:
 add commerce return entities:
   title: 'Create new commerce return entities'
 
-#administer commerce return entities:
 administer commerce return:
   title: 'Administer commerce return entities'
   description: 'Allow to access the administration form to configure commerce return entities.'
@@ -61,10 +60,8 @@ revert all commerce return revisions:
 delete all commerce return revisions:
   title: 'Delete all revisions'
   description: 'Role requires permission to <em>view commerce return revisions</em> and <em>delete rights</em> for commerce return entities in question or <em>administer commerce return entities</em>.'
-add testtest entities:
-  title: 'Create new Testtest entities'
 
-administer commerce return entitiedefault commerce_returns:
+administer commerce return entities:
   title: 'Administer Commerce return entities'
   description: 'Allow to access the administration form to configure commerce return entities.'
   restrict access: true
