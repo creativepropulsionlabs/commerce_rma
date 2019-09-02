@@ -209,6 +209,12 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
     }
     foreach ($handlers as $handler) {
+      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_expected_resolution') {
+        $expected_resolution_handler = $handler;
+        break;
+      }
+    }
+    foreach ($handlers as $handler) {
       if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_note') {
         $note_handler = $handler;
         break;
@@ -231,6 +237,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
 
       $reason = isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL;
+      $expected_resolution = isset($reason_handler) ? $form_state->getValue($expected_resolution_handler['id'])[$row_index] : NULL;
       $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
@@ -243,6 +250,9 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       ]);
       if ($reason) {
         $commerce_return_item->reason = $reason;
+      }
+      if ($expected_resolution) {
+        $commerce_return_item->expected_resolution = $expected_resolution;
       }
       $commerce_return_item->save();
       $items_to_return[] = $commerce_return_item->id();

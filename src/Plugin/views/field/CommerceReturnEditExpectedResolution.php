@@ -16,9 +16,9 @@ use Symfony\Component\Finder\Comparator\Comparator;
 /**
  * Defines a form element for editing the order item quantity.
  *
- * @ViewsField("commerce_rma_order_item_edit_reason")
+ * @ViewsField("commerce_rma_order_item_edit_expected_resolution")
  */
-class CommerceReturnEditReason extends FieldPluginBase {
+class CommerceReturnEditExpectedResolution extends FieldPluginBase {
 
   use UncacheableFieldHandlerTrait;
 
@@ -88,7 +88,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritdoc}R
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
@@ -128,7 +128,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
     $options = [];
     /** @var CommerceReturnReasonInterface[] $reasons */
     $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')->loadByProperties([
-      'type' => 'reason'
+      'type' => 'expected_resolution'
     ]);
     usort($reasons,function($first,$second){
       return $first->width > $second->width;
@@ -142,7 +142,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
 
       $form[$this->options['id']][$row_index] = [
         '#type' => 'select',
-        '#title' => $this->t('Reason'),
+        '#title' => $this->t('Expected resolution'),
         '#title_display' => 'invisible',
         '#empty_option' =>$this->t('Please select'),
         '#options' => $options,
@@ -181,7 +181,7 @@ class CommerceReturnEditReason extends FieldPluginBase {
    * {@inheritdoc}
    */
   protected function emptySelectedMessage() {
-    return $this->t('No reason selected.');
+    return $this->t('No Expected resolution selected.');
   }
 
   /**

@@ -40,5 +40,11 @@ commerce_rma.commerce_return_reason.*:
     label:
       type: label
       label: 'Label'
+    description:
+      type: label
+      label: 'Description'
+    type:
+      type: string
+      label: 'Type'
     uuid:
       type: string

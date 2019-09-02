@@ -40,7 +40,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "id",
  *     "label",
  *     "description",
- *     "weight"
+ *     "weight",
+ *     "type"
  *   }
  * )
  */
@@ -75,6 +76,13 @@ class CommerceReturnReason extends ConfigEntityBase implements CommerceReturnRea
   protected $weight;
 
   /**
+   * The RMA reason type.
+   *
+   * @var string
+   */
+  protected $type;
+
+  /**
    * {@inheritdoc}
    */
   public function getDescription() {
@@ -101,6 +109,21 @@ class CommerceReturnReason extends ConfigEntityBase implements CommerceReturnRea
    */
   public function setWeight($weight) {
     $this->weight = $weight;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getType() {
+    return $this->type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setType($type) {
+    $this->type = $type;
     return $this;
   }
 

@@ -177,8 +177,13 @@ function commerce_rma_views_data_alter(array &$data) {
   ];
   $data['commerce_order_item']['edit_rma_reason']['field'] = [
     'title' => t('Reason'),
-    'help' => t('Adds a text field for editing the RMA reason.'),
+    'help' => t('Adds a dropdown field for editing the RMA Reason.'),
     'id' => 'commerce_rma_order_item_edit_reason',
+  ];
+  $data['commerce_order_item']['edit_rma_expected_resolution']['field'] = [
+    'title' => t('Expected resolution'),
+    'help' => t('Adds a dropdown field for editing the RMA Expected resolution.'),
+    'id' => 'commerce_rma_order_item_edit_expected_resolution',
   ];
   $data['commerce_order_item']['edit_rma_note']['field'] = [
     'title' => t('Note'),

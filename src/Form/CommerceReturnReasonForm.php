@@ -45,6 +45,18 @@ class CommerceReturnReasonForm extends EntityForm {
       '#required' => TRUE,
     ];
 
+    $form['type'] = [
+      '#type' => 'select',
+      '#options' => [
+        'reason' => $this->t('Request reason'),
+        'expected_resolution' => $this->t('Expected resolution'),
+      ],
+      '#title' => $this->t('Type'),
+      '#default_value' => $rma_reason->getType(),
+      '#description' => $this->t("Ty pe the CommerceReturnReason."),
+      '#required' => TRUE,
+    ];
+
     $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $rma_reason->id(),
@@ -63,30 +75,21 @@ class CommerceReturnReasonForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    /** @var CommerceReturnReason $rma_reason */
-    $rma_reason = $this->entity;
-//    $values = $form_state->getValues();
-//    $weight = $values['weight'];
-//    $description = $values['description'];
-//    $this->entity->setWeight($weight);
-//    $this->entity->setWeight($description);
-//    $this->entity->save();
-
-    $status = $rma_reason->save();
+    $status = $this->entity->save();
 
     switch ($status) {
       case SAVED_NEW:
         $this->messenger()->addStatus($this->t('Created the %label CommerceReturnReason.', [
-          '%label' => $rma_reason->label(),
+          '%label' => $this->entity->label(),
         ]));
         break;
 
       default:
         $this->messenger()->addStatus($this->t('Saved the %label CommerceReturnReason.', [
-          '%label' => $rma_reason->label(),
+          '%label' => $this->entity->label(),
         ]));
     }
-    $form_state->setRedirectUrl($rma_reason->toUrl('collection'));
+    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
   }
 
 }

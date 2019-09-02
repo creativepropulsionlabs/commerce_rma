@@ -345,6 +345,27 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['expected_resolution'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Expected resolution'))
+      ->setDescription(t('The expected resolution of item return.'))
+      ->setRequired(TRUE)
+      ->setSetting('target_type', 'commerce_return_reason')
+      ->setSetting('handler', 'default')
+      ->setCardinality(1)
+      ->setReadOnly(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+
     $fields['note'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t("Client's Note"))
       ->setDisplayOptions('form', [
