@@ -307,19 +307,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
   }
 
   protected function getMaxQuantity(OrderItemInterface $order_item, OrderInterface $order) {
+    $step = 1;
     if ($this->options['allow_decimal']) {
       $form_display = commerce_get_entity_display('commerce_order_item', $order_item->bundle(), 'form');
       $quantity_component = $form_display->getComponent('quantity');
       $step = $quantity_component['settings']['step'];
-      // @todo Fix logic and document.
-      $precision = $step >= '1' ? 0 : strlen($step) - 2;
-    }
-    else {
-      $step = 1;
-      $precision = 0;
     }
     $data = [
-      '#default_value' => round($order_item->getQuantity(), $precision),
+      '#default_value' => 0,
       '#min' => 0,
       '#max' => $order_item->getQuantity(),
       '#step' => $step,
@@ -346,9 +341,9 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     if ($data['#max'] < 0) {
       $data['#max'] = 0;
     }
-    if ($data['#default_value'] > $data['#max']) {
-      $data['#default_value'] = $data['#max'];
-    }
+//    if ($data['#default_value'] > $data['#max']) {
+//      $data['#default_value'] = $data['#max'];
+//    }
     return $data;
   }
 

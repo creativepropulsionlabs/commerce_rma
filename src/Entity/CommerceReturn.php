@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\EntityOwnerTrait;
 
 /**
  * Defines the RMA entity.
@@ -62,6 +63,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 class CommerceReturn extends CommerceContentEntityBase implements CommerceReturnInterface {
 
   use EntityChangedTrait;
+  use EntityOwnerTrait;
 
   /**
    * {@inheritdoc}

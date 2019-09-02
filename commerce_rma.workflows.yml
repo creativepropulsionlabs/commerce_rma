@@ -7,6 +7,8 @@ commerce_return_default:
       label: Draft
     approved:
       label: Approved
+    received:
+      label: Received
     rejected:
       label: Rejected
     completed:
@@ -20,11 +22,15 @@ commerce_return_default:
       to: approved
     reject:
       label: 'Reject Return'
-      from: [draft]
+      from: [draft, received]
       to: rejected
+    receive:
+      label: 'Receive Return'
+      from: [approved]
+      to: received
     complete:
       label: 'Complete Return'
-      from: [approved]
+      from: [received]
       to: completed
     cancel:
       label: 'Cancel Return'
