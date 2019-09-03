@@ -147,6 +147,20 @@ function commerce_rma_entity_operation(EntityInterface $entity) {
       $transitions = $workflow->getAllowedTransitions($entity->getState()->value, $entity);
       $destination = \Drupal::destination()->get();
       foreach ($transitions as $transition) {
+        if ($transition->getId() == 'cancel') {
+          $operations[$transition->getId()] = [
+            'title' => $transition->getLabel(),
+            'url' => Url::fromRoute('commerce_rma.confirm_transition', [
+              'commerce_return' => $entity->id(),
+              'workflow' => $workflow_id,
+              'workflow_transition' => $transition->getId()
+            ], [
+              'query' => ['destination' => $destination],
+            ]),
+            'weight' => -1,
+          ];
+          continue;
+        }
         $operations[$transition->getId()] = [
           'title' => $transition->getLabel(),
           'url' => Url::fromRoute('entity.commerce_return.edit_form', [
