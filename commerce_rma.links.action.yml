@@ -21,13 +21,13 @@ entity.commerce_return_item_type.add_form:
 
 entity.commerce_return.add_page:
   route_name: entity.commerce_return.add_page
-  title: 'Return order or position'
+  title: 'Return or replace items'
   appears_on:
     - entity.commerce_return.collection
 
 entity.commerce_return.add_user:
   route_name: entity.commerce_return.add_user_page
-  title: 'Return order or position'
+  title: 'Return or replace items'
   appears_on:
     - entity.commerce_order.user_view
     - entity.commerce_return.user_view
