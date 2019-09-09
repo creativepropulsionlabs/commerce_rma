@@ -14,6 +14,32 @@ class ReturnRouteProvider extends AdminHtmlRouteProvider {
   /**
    * {@inheritdoc}
    */
+  public function getRoutes(EntityTypeInterface $entity_type) {
+    $collection = parent::getRoutes($entity_type);
+
+    $entity_type_id = $entity_type->id();
+
+    if ($add_form_route = $this->getAddFormRoute($entity_type)) {
+      $add_form_route->setPath('/user/{user}/orders/{commerce_order}/returns/{commerce_return_type}/add');
+      $collection->add("entity.{$entity_type_id}.add_user_form", $add_form_route);
+    }
+
+    if ($add_page_route = $this->getAddPageRoute($entity_type)) {
+      $add_page_route->setPath('/user/{user}/orders/{commerce_order}/returns/add');
+      $add_page_route->setDefault('_controller',ReturnController::class . '::addReturnUserPage');
+      $parameters = $add_page_route->getOption('parameters') ?: [];
+      $parameters = ['user' => 'entity:user'] + $parameters;
+      $add_page_route->setOption('parameters', $parameters);
+
+      $collection->add("entity.{$entity_type_id}.add_user_page", $add_page_route);
+    }
+
+    return $collection;
+  }
+
+    /**
+   * {@inheritdoc}
+   */
   protected function getAddFormRoute(EntityTypeInterface $entity_type) {
     $route = parent::getAddFormRoute($entity_type);
     if ($route) {

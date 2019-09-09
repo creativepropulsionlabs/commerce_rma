@@ -24,5 +24,10 @@ entity.commerce_return.add_page:
   title: 'Return order or position'
   appears_on:
     - entity.commerce_return.collection
+
+entity.commerce_return.add_user:
+  route_name: entity.commerce_return.add_user_page
+  title: 'Return order or position'
+  appears_on:
     - entity.commerce_order.user_view
     - entity.commerce_return.user_view

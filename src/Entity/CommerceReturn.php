@@ -29,6 +29,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "form" = {
  *       "default" = "Drupal\commerce_rma\Form\CommerceReturnForm",
  *       "add" = "Drupal\commerce_rma\Form\CommerceReturnFormAdd",
+ *       "user-add" = "Drupal\commerce_rma\Form\CommerceReturnFormAdd",
  *       "edit" = "Drupal\commerce_rma\Form\CommerceReturnForm",
  *       "delete" = "Drupal\commerce_rma\Form\CommerceReturnDeleteForm",
  *     },
@@ -51,8 +52,10 @@ use Drupal\user\EntityOwnerTrait;
  *   links = {
  *     "canonical" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}",
  *     "add-page" = "/admin/commerce/orders/{commerce_order}/returns/add",
+ *     "add-user-page" = "/user/{user}/orders/{commerce_order}/returns/add",
  *     "collection" = "/admin/commerce/orders/{commerce_order}/returns",
  *     "add-form" = "/admin/commerce/orders/{commerce_order}/returns/add/{commerce_return_type}",
+ *     "add-user-form" = "/user/{user}/orders/{commerce_order}/returns/{commerce_return_type}/add",
  *     "edit-form" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}/edit",
  *     "delete-form" = "/admin/commerce/orders/{commerce_order}/returns/{commerce_return}/delete",
  *   },
