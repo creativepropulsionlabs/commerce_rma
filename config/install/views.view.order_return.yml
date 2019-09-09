@@ -9,7 +9,7 @@ dependencies:
     - commerce_price
     - commerce_rma
 _core:
-  default_config_hash: r3XDW-Xw-msxCp0WJK7vDswkCW4GYWDla-VUeThAvOo
+  default_config_hash: j_QJ6JmX7anKo53uYCaUlURcybSU9MFvykPTQV5YXxk
 id: order_return
 label: 'Order return'
 module: views
@@ -407,6 +407,57 @@ display:
           allow_decimal: 0
           entity_type: commerce_order_item
           plugin_id: commerce_rma_order_item_edit_reason
+        edit_rma_expected_resolution:
+          id: edit_rma_expected_resolution
+          table: commerce_order_item
+          field: edit_rma_expected_resolution
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: 'Expected resolution'
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          allow_decimal: 0
+          entity_type: commerce_order_item
+          plugin_id: commerce_rma_order_item_edit_expected_resolution
         edit_rma_note:
           id: edit_rma_note
           table: commerce_order_item
@@ -474,7 +525,18 @@ display:
           tokenize: false
           content: 'There are no order items yet.'
           plugin_id: text_custom
-      relationships: {  }
+      relationships:
+        order_id:
+          id: order_id
+          table: commerce_order_item
+          field: order_id
+          relationship: none
+          group_type: group
+          admin_label: Order
+          required: false
+          entity_type: commerce_order_item
+          entity_field: order_id
+          plugin_id: standard
       arguments:
         order_id:
           id: order_id
@@ -524,11 +586,105 @@ display:
   page_1:
     display_plugin: page
     id: page_1
-    display_title: Page
+    display_title: Admin
     position: 1
     display_options:
       display_extenders: {  }
       path: admin/commerce/orders/%/returns/add/%
+      display_description: ''
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+      tags: {  }
+  page_2:
+    display_plugin: page
+    id: page_2
+    display_title: User
+    position: 2
+    display_options:
+      display_extenders: {  }
+      path: user/%user/orders/%commerce_order/returns/%commerce_return_type/add
+      display_description: ''
+      arguments:
+        uid:
+          id: uid
+          table: commerce_order
+          field: uid
+          relationship: order_id
+          group_type: group
+          admin_label: ''
+          default_action: ignore
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: false
+          title: ''
+          default_argument_type: fixed
+          default_argument_options:
+            argument: ''
+          default_argument_skip_url: false
+          summary_options:
+            base_path: ''
+            count: true
+            items_per_page: 25
+            override: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: false
+          validate:
+            type: none
+            fail: 'not found'
+          validate_options: {  }
+          break_phrase: false
+          not: false
+          entity_type: commerce_order
+          entity_field: uid
+          plugin_id: numeric
+        order_id:
+          id: order_id
+          table: commerce_order_item
+          field: order_id
+          relationship: none
+          group_type: group
+          admin_label: ''
+          default_action: 'not found'
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: false
+          title: ''
+          default_argument_type: fixed
+          default_argument_options:
+            argument: ''
+          default_argument_skip_url: false
+          summary_options:
+            base_path: ''
+            count: true
+            items_per_page: 25
+            override: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: false
+          validate:
+            type: none
+            fail: 'not found'
+          validate_options: {  }
+          break_phrase: false
+          not: false
+          entity_type: commerce_order_item
+          entity_field: order_id
+          plugin_id: numeric
+      defaults:
+        arguments: false
     cache_metadata:
       max-age: -1
       contexts:

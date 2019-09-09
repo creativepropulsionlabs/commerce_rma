@@ -540,7 +540,7 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: user/%/orders/%/returns
+      path: user/%user/orders/%commerce_order/returns
     cache_metadata:
       max-age: -1
       contexts:
