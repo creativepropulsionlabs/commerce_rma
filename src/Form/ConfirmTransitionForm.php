@@ -95,6 +95,13 @@ class ConfirmTransitionForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
+  public function getCancelText() {
+    return t('Back');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCancelUrl() {
     return new Url('entity.commerce_return.collection');
   }
