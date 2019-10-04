@@ -383,7 +383,10 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
 
   $field_definition = commerce_rma_build_return_field_definition($order_type->id());
   if (!$previous_value && $settings['enable_return']) {
-    $configurable_field_manager->createField($field_definition);
+    $all_bundle_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('commerce_order', $order_type->id());
+    if (!isset($all_bundle_fields['returns'])) {
+      $configurable_field_manager->createField($field_definition);
+    }
   }
   elseif ($previous_value && !$settings['enable_return']) {
     $configurable_field_manager->deleteField($field_definition);
@@ -391,7 +394,10 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
 
   $state_field_definition = commerce_rma_build_order_state_field_definition($order_type->id());
   if (!$previous_value && $settings['enable_return']) {
-    $configurable_field_manager->createField($state_field_definition);
+    $all_bundle_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('commerce_order', $order_type->id());
+    if (!isset($all_bundle_fields['return_state'])) {
+      $configurable_field_manager->createField($state_field_definition);
+    }
   }
   elseif ($previous_value && !$settings['enable_return']) {
     $configurable_field_manager->deleteField($state_field_definition);
@@ -476,6 +482,19 @@ function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) 
       'type' => 'field',
       'label' => t('Reason'),
       'weight' => 101,
+      'display_options' => [
+        'type' => 'entity_reference_label',
+        'settings' => ['link' => FALSE],
+      ],
+    ];
+    $fields['expected_resolution'] = [
+      'type' => 'field',
+      'label' => t('Expected resolution'),
+      'weight' => 101,
+      'display_options' => [
+        'type' => 'entity_reference_label',
+        'settings' => ['link' => FALSE],
+      ],
     ];
     $fields['note'] = [
       'type' => 'field',

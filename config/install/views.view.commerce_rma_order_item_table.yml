@@ -4,6 +4,9 @@ dependencies:
   module:
     - commerce_order
     - commerce_price
+  enforced:
+    module:
+      - commerce_rma
 _core:
   default_config_hash: UE_BIm69Zww4UFa4pD5Qiu7XY-rGJGrGYDJHUSZKupw
 id: commerce_rma_order_item_table

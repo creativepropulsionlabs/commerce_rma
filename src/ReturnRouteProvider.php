@@ -19,8 +19,10 @@ class ReturnRouteProvider extends AdminHtmlRouteProvider {
 
     $entity_type_id = $entity_type->id();
 
+    // Create special routes for user zone.
     if ($add_form_route = $this->getAddFormRoute($entity_type)) {
       $add_form_route->setPath('/user/{user}/orders/{commerce_order}/returns/{commerce_return_type}/add');
+      $add_form_route->setRequirement('_return_add_access', 'TRUE');
       $collection->add("entity.{$entity_type_id}.add_user_form", $add_form_route);
     }
 
@@ -30,6 +32,7 @@ class ReturnRouteProvider extends AdminHtmlRouteProvider {
       $parameters = $add_page_route->getOption('parameters') ?: [];
       $parameters = ['user' => 'entity:user'] + $parameters;
       $add_page_route->setOption('parameters', $parameters);
+      $add_page_route->setRequirement('_return_add_access', 'TRUE');
 
       $collection->add("entity.{$entity_type_id}.add_user_page", $add_page_route);
     }

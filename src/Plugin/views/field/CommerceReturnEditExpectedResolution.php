@@ -144,7 +144,7 @@ class CommerceReturnEditExpectedResolution extends FieldPluginBase {
         '#type' => 'select',
         '#title' => $this->t('Expected resolution'),
         '#title_display' => 'invisible',
-        '#empty_option' =>$this->t('Please select'),
+        '#empty_option' =>$this->t('Select'),
         '#options' => $options,
 //        '#required' => FALSE,
       ];
