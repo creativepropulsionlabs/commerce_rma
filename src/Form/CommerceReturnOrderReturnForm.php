@@ -163,7 +163,7 @@ class CommerceReturnOrderReturnForm extends FormBase {
       ]);
     $new_rma->save();
 
-    $this->messenger()->addMessage($this->t('Order @label is returning.', [
+    $this->messenger()->addMessage($this->t('Order @label - return requested.', [
       '@label' => $order->label(),
     ]));
     }

@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_rma\Access;
 
+use Drupal\commerce_price\Calculator;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
@@ -58,6 +59,23 @@ class ReturnAddAccessCheck implements AccessInterface {
     // Check if this is a cart order.
     $order_is_completed = in_array($order->getState()->getId(), $show_return_states);
     $order_is_not_returned_full = !in_array($order->get('return_state')->value, $show_return_states);
+    if ($order_is_not_returned_full && !$order->get('returns')->isEmpty()) {
+      // Check if requested quantity count less then existing in order (except Cancelled).
+      $order_requested_quantity = "0";
+      foreach ($order->get('returns')->referencedEntities() as $return) {
+        if ($return->getState()->value != 'canceled') {
+          $return_quantity = $return->get('confirmed_total_quantity')->getValue()[0]['value'];
+          $order_requested_quantity = Calculator::add($order_requested_quantity, $return_quantity);
+        }
+      }
+      $original_order_quantity = "0";
+      foreach ($order->getItems() as $order_item) {
+        $original_order_quantity = Calculator::add($original_order_quantity, $order_item->getQuantity());
+      }
+      if (Calculator::compare($original_order_quantity, $order_requested_quantity) !== 1) {
+        $order_is_not_returned_full = FALSE;
+      }
+    }
 
     // Only allow access if order type has a corresponding return type.
     // @todo should we validate that the return type exists?

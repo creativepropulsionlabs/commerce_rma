@@ -149,9 +149,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     $billing_profile = $order->getBillingProfile();
     $address = $billing_profile->get('address')->getValue();
     $address = array_shift($address);
-
+    $form['actions']['another_location'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Check if you need to be shipped to another location'),
+      '#weight' => 0,
+    ];
     $form['actions']['billing_information'] = [
       '#type' => 'address',
+      '#title' => $this->t('Shipping information'),
       '#default_value' => [
         'given_name' => $address['given_name'],
         'family_name' => $address['family_name'],
@@ -165,6 +170,11 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'langcode' => $address['langcode'],
       ],
       '#weight' => 0,
+      '#states' => array(
+        'invisible' => array(
+          ':input[name="another_location"]' => array('checked' => FALSE),
+        ),
+      ),
     ];
 
     $form['actions']['submit']['#rma_return'] = TRUE;
@@ -301,7 +311,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         $form_state->setRedirectUrl(Url::fromUserInput($destination));
       }
       if (!empty($triggering_element['#show_update_message'])) {
-        $this->messenger->addStatus($this->t('Order @label is returning.', [
+        $this->messenger->addStatus($this->t('Order @label - return requested.', [
           '@label' => $order->label(),
         ]));
       }

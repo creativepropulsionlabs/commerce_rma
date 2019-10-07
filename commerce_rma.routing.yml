@@ -18,3 +18,16 @@ entity.commerce_return.user_view:
       entity:
         user: 'entity:user'
         commerce_order: 'entity:order'
+
+entity.commerce_return.user_detail_view:
+  path: '/user/{user}/returns/{commerce_return}'
+  defaults:
+    _entity_view: 'commerce_return.user_detail'
+    _title: 'Return information'
+  requirements:
+    _entity_access: 'commerce_return.view'
+  options:
+    parameters:
+      entity:
+        user: 'entity:user'
+        commerce_return: 'entity:commerce_return'
