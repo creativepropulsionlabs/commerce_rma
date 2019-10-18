@@ -110,9 +110,10 @@ class ConfirmTransitionForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are sure you want to proceed with order #%order_id?',
+    return t('Are sure you want to %transition for order #%order_id?',
       [
-        '%order_id' => $this->entity->getOrderId()
+        '%order_id' => $this->entity->getOrderId(),
+        '%transition' => $this->transition->getLabel()
       ]);
   }
 

@@ -58,7 +58,7 @@ commerce_order_return_default:
       label: Return canceled
   transitions:
     place:
-      label: 'Requested return'
+      label: 'Request Return'
       from: [draft, partial_returned]
       to: requested
     return:

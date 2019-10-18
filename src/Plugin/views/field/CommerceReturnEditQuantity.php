@@ -247,7 +247,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
 
       $reason = isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL;
-      $expected_resolution = isset($reason_handler) ? $form_state->getValue($expected_resolution_handler['id'])[$row_index] : NULL;
+      $expected_resolution = isset($expected_resolution_handler) ? $form_state->getValue($expected_resolution_handler['id'])[$row_index] : NULL;
       $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
