@@ -63,4 +63,21 @@ function commerce_rma_update_8716() {
     ->installFieldStorageDefinition('expected_resolution', 'commerce_return_item', 'commerce_rma', $field_storage_definition);
 }
 
+/**
+ * Recreate Total return price field.
+ */
+function commerce_rma_update_8717() {
+  $field_storage_definition = BaseFieldDefinition::create('commerce_price')
+    ->setLabel(t('Total return price'))
+    ->setDescription(t('The return total price (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
+    ->setReadOnly(TRUE)
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE)
+    ->setDisplayOptions('form', [
+      'type' => 'commerce_unit_price',
+      'weight' => -4,
+    ]);
 
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('total_price', 'commerce_return', 'commerce_rma', $field_storage_definition);
+}
