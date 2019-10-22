@@ -47,15 +47,15 @@ commerce_order_return_default:
     requested:
       label: Return requested
     partial_returned:
-      label: Partial returned
+      label: Partially returned
     rejected:
-      label: Return rejected
+      label: Rejected
     returned:
       label: Returned
     completed:
       label: Completed
     canceled:
-      label: Return canceled
+      label: Canceled
   transitions:
     place:
       label: 'Request Return'
@@ -74,7 +74,7 @@ commerce_order_return_default:
       from: [requested]
       to: rejected
     complete:
-      label: 'Reject Return'
+      label: 'Complete Return'
       from: [returned, partial_returned]
       to: completed
     cancel:
