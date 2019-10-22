@@ -5,6 +5,7 @@ namespace Drupal\commerce_rma\Plugin\views\field;
 use CommerceGuys\Intl\Calculator;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
+use Drupal\commerce_price\Price;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -252,9 +253,9 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'type' => 'default',
         'name' => $order_item->getTitle(),
         'unit_price' => $order_item->getUnitPrice(),
-        'confirmed_price' => $order_item->getUnitPrice(),
+        'confirmed_price' => new Price('0', $order_item->getUnitPrice()->getCurrencyCode()),
         'quantity' => $form_state->getValue($this->options['id'])[$row_index],
-        'confirmed_quantity' => $form_state->getValue($this->options['id'])[$row_index],
+        'confirmed_quantity' => 0,
         'order_item' => $order_item->id(),
         'note' => isset($note_handler) ? $form_state->getValue($note_handler['id'])[$row_index] : NULL,
       ]);
