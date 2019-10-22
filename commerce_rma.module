@@ -161,13 +161,22 @@ function commerce_rma_entity_operation(EntityInterface $entity) {
           ];
           continue;
         }
+        $confirm_redirect_url = Url::fromRoute('commerce_rma.confirm_transition', [
+          'commerce_return' => $entity->id(),
+          'workflow' => $workflow_id,
+          'workflow_transition' => $transition->getId()
+        ], [
+          'query' => ['destination' => $destination],
+        ]);
         $operations[$transition->getId()] = [
           'title' => $transition->getLabel(),
           'url' => Url::fromRoute('entity.commerce_return.edit_form', [
             'commerce_return' => $entity->id(),
             'commerce_order' => $entity->getOrderId(),
           ], [
-            'query' => ['destination' => $destination],
+            'query' => [
+              'destination' => $confirm_redirect_url->toString(),
+            ],
           ]),
           'weight' => -1,
         ];
@@ -527,6 +536,9 @@ function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $for
     if ($context["form"]["#op"] == 'edit') {
       $element['#disabled'] = TRUE;
     }
+  }
+  if ($entity_type_id == 'commerce_return' && $field_definition->isReadOnly()) {
+    $element['#disabled'] = TRUE;
   }
 }
 

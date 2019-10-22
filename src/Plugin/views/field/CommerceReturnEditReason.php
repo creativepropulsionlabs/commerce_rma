@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_rma\Plugin\views\field;
 
+use Drupal\commerce_rma\Entity\CommerceReturnReason;
 use Drupal\commerce_rma\Entity\CommerceReturnReasonInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -130,8 +131,8 @@ class CommerceReturnEditReason extends FieldPluginBase {
     $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')->loadByProperties([
       'type' => 'reason'
     ]);
-    usort($reasons,function($first,$second){
-      return $first->width > $second->width;
+    usort($reasons,function(CommerceReturnReasonInterface $first, CommerceReturnReasonInterface $second){
+      return $first->getWeight() > $second->getWeight();
     });
     foreach ($reasons as $reason) {
       $options[$reason->id()] = $reason->label();

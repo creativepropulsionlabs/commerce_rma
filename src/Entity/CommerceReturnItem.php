@@ -115,7 +115,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
     if (empty($this->label())) {
       $order_id = \Drupal::routeMatch()->getParameter('commerce_order');
 //      $order = \Drupal::entityTypeManager()->getStorage('commerce_order')
-      $this->set('name', 'Return for Order #' . $order_id);
+      $this->set('name', 'Return for Order # ' . $order_id);
 //      $this->set('order_id', $order_id);
     }
     $this->recalculateTotals();

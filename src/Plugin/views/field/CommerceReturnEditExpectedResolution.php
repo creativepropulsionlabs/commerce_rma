@@ -130,8 +130,8 @@ class CommerceReturnEditExpectedResolution extends FieldPluginBase {
     $reasons = $this->entityTypeManager->getStorage('commerce_return_reason')->loadByProperties([
       'type' => 'expected_resolution'
     ]);
-    usort($reasons,function($first,$second){
-      return $first->width > $second->width;
+    usort($reasons,function(CommerceReturnReasonInterface $first, CommerceReturnReasonInterface $second){
+      return $first->getWeight() > $second->getWeight();
     });
     foreach ($reasons as $reason) {
       $options[$reason->id()] = $reason->label();
