@@ -3,6 +3,7 @@
 
 namespace Drupal\commerce_rma\Form;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -103,16 +104,32 @@ class ConfirmTransitionForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.commerce_return.collection');
+    $return_id = $this->getRequest()->query->get('commerce_return');
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $return */
+    $return = $this->entityTypeManager->getStorage('commerce_rreturn')->load($return_id);
+
+    return new Url('entity.commerce_return.collection', [
+      'commerce_order' => $return->getOrder()->id(),
+    ]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are sure you want to proceed with order #%order_id?',
+    //@todo replace this if with one for regular user.
+    if ($this->transition->getId() == 'cancel') {
+      return t('Are you sure you want to %transition for order # %order_id?',
+        [
+          '%order_id' => $this->entity->getOrderId(),
+          '%transition' => $this->transition->getLabel()
+        ]);
+    }
+
+    return t('Are you sure you want to %transition # %return_id?',
       [
-        '%order_id' => $this->entity->getOrderId()
+        '%return_id' => $this->entity->id(),
+        '%transition' => $this->transition->getLabel()
       ]);
   }
 

@@ -24,13 +24,13 @@ class CommerceReturnAccessControlHandler extends EntityAccessControlHandler {
 //        if (!$entity->isPublished()) {
 //          return AccessResult::allowedIfHasPermission($account, 'view unpublished rma entities');
 //        }
-        return AccessResult::allowedIfHasPermission($account, 'view published rma entities');
+        return AccessResult::allowedIfHasPermission($account, 'view published commerce return entities');
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit rma entities');
+        return AccessResult::allowedIfHasPermission($account, 'edit commerce return entities');
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete rma entities');
+        return AccessResult::allowedIfHasPermission($account, 'delete commerce return entities');
     }
 
     // Unknown operation, no opinion.
