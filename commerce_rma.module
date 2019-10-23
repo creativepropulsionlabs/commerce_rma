@@ -8,6 +8,7 @@
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderTypeInterface;
 use Drupal\commerce_rma\Entity\CommerceReturn;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
@@ -356,6 +357,23 @@ function commerce_rma_form_commerce_order_type_form_alter(array &$form, FormStat
       ],
     ],
   ];
+
+  $max_order_age = $order_type->getThirdPartySetting('commerce_rma', 'return_max_order_age', 15);
+  $form['commerce_rma']['return_max_order_age'] = [
+    '#type' => 'number',
+    '#min' => 0,
+    '#title' => t('Max order age'),
+    '#description' => t('Max order age to allow request return for user(days). Use 0 for no limit.'),
+    '#default_value' => $max_order_age,
+    '#required' => TRUE,
+    '#states' => [
+      'visible' => [
+        ':input[name="commerce_rma[enable_return]"]' => ['checked' => TRUE],
+      ],
+    ],
+  ];
+
+
   $form['actions']['submit']['#submit'][] = 'commerce_rma_order_type_form_submit';
 }
 
@@ -414,8 +432,10 @@ function commerce_rma_order_type_form_submit(array $form, FormStateInterface $fo
 
   $return_type_id = $settings['enable_return'] ? $settings['return_type'] : '';
   $return_workflow_id = $settings['return_workflow'] ? $settings['return_workflow'] : '';
+  $return_max_order_age = is_numeric($settings['return_max_order_age']) ? $settings['return_max_order_age'] : 15;
   $order_type->setThirdPartySetting('commerce_rma', 'return_type', $return_type_id);
   $order_type->setThirdPartySetting('commerce_rma', 'return_workflow', $return_workflow_id);
+  $order_type->setThirdPartySetting('commerce_rma', 'return_max_order_age', $return_max_order_age);
   $order_type->save();
 }
 

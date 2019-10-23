@@ -52,6 +52,14 @@ class ReturnAddAccessCheck implements AccessInterface {
     /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
     $order_type = $order_type_storage->load($order->bundle());
     $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+    $return_max_order_age = $order_type->getThirdPartySetting('commerce_rma', 'return_max_order_age', 0);
+    $order_max_age_timestamp = \Drupal::time()->getRequestTime() - $return_max_order_age * 86400;
+    if ($return_max_order_age && $order->getCompletedTime() < $order_max_age_timestamp) {
+      return AccessResult::forbidden()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+
     $show_return_states = [
       'completed',
       'returned',
