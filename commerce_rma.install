@@ -102,3 +102,27 @@ function commerce_rma_update_8719() {
   $field_storage_definition->setReadOnly(TRUE);
   $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
 }
+
+/**
+ * Recreate Shipping info field.
+ */
+function commerce_rma_update_8720() {
+  $field_storage_definition = BaseFieldDefinition::create('entity_reference_revisions')
+    ->setLabel(t('Shipping information'))
+    ->setDescription(t('Shipping profile'))
+    ->setSetting('target_type', 'profile')
+    ->setSetting('handler', 'default')
+    ->setSetting('handler_settings', ['target_bundles' => ['customer']])
+    ->setTranslatable(TRUE)
+    ->setDisplayOptions('form', [
+      'type' => 'rma_commerce_billing_profile',
+      'weight' => 0,
+      'settings' => [],
+    ])
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('shipping_profile', 'commerce_return', 'commerce_rma', $field_storage_definition);
+}
+

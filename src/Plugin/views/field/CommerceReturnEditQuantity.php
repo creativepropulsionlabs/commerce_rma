@@ -148,36 +148,70 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
 
     /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
     $billing_profile = $order->getBillingProfile();
-    $address = $billing_profile->get('address')->getValue();
-    $address = array_shift($address);
-    $form['actions']['another_location'] = [
+    $billing_address = $billing_profile->get('address')->getValue();
+    $billing_address = array_shift($billing_address);
+    $form['actions']['another_location_billing'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Check if you need to be shipped to another location'),
+      '#title' => $this->t('Check if you need to be billed to another location'),
       '#weight' => 0,
     ];
     $form['actions']['billing_information'] = [
       '#type' => 'address',
-      '#title' => $this->t('Shipping information'),
+      '#title' => $this->t('Billing information'),
       '#default_value' => [
-        'given_name' => $address['given_name'],
-        'family_name' => $address['family_name'],
-        'organization' => $address['organization'],
-        'address_line1' => $address['address_line1'],
-        'address_line2' => $address['address_line2'],
-        'postal_code' => $address['postal_code'],
-        'locality' => $address['locality'],
-        'administrative_area' => $address['administrative_area'],
-        'country_code' => $address['country_code'],
-        'langcode' => $address['langcode'],
+        'given_name' => $billing_address['given_name'],
+        'family_name' => $billing_address['family_name'],
+        'organization' => $billing_address['organization'],
+        'address_line1' => $billing_address['address_line1'],
+        'address_line2' => $billing_address['address_line2'],
+        'postal_code' => $billing_address['postal_code'],
+        'locality' => $billing_address['locality'],
+        'administrative_area' => $billing_address['administrative_area'],
+        'country_code' => $billing_address['country_code'],
+        'langcode' => $billing_address['langcode'],
       ],
       '#weight' => 0,
       '#states' => array(
         'invisible' => array(
-          ':input[name="another_location"]' => array('checked' => FALSE),
+          ':input[name="another_location_billing"]' => array('checked' => FALSE),
         ),
       ),
     ];
 
+    if ($order->hasField('shipments')) {
+      /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment */
+      $shipment = $order->get('shipments')->entity;
+      $shipping_address = $shipment->getShippingProfile()->get('address')->getValue();
+      $shipping_address = array_shift($shipping_address);
+
+      $form['actions']['another_location_shipping'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Check if you need to be shipped to another location'),
+        '#weight' => 0,
+      ];
+      $form['actions']['shipping_information'] = [
+        '#type' => 'address',
+        '#title' => $this->t('Shipping information'),
+        '#default_value' => [
+          'given_name' => $shipping_address['given_name'],
+          'family_name' => $shipping_address['family_name'],
+          'organization' => $shipping_address['organization'],
+          'address_line1' => $shipping_address['address_line1'],
+          'address_line2' => $shipping_address['address_line2'],
+          'postal_code' => $shipping_address['postal_code'],
+          'locality' => $shipping_address['locality'],
+          'administrative_area' => $shipping_address['administrative_area'],
+          'country_code' => $shipping_address['country_code'],
+          'langcode' => $shipping_address['langcode'],
+        ],
+        '#weight' => 0,
+        '#states' => array(
+          'invisible' => array(
+            ':input[name="another_location_shipping"]' => array('checked' => FALSE),
+          ),
+        ),
+      ];
+    }
     $form['actions']['submit']['#rma_return'] = TRUE;
     $form['actions']['submit']['#show_update_message'] = TRUE;
     // Replace the form submit button label.
@@ -270,7 +304,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     if ($items_to_return) {
-      $address = $form_state->getValue('billing_information');
+      $billing_address = $form_state->getValue('billing_information');
       /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
       $profile = $order->getBillingProfile();
       if (!$profile) {
@@ -285,7 +319,27 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
       $billing_profile
         ->enforceIsNew(TRUE)
-        ->set('address', $address)
+        ->set('address', $billing_address)
+        ->save();
+
+      $shipping_address = $form_state->getValue('shipping_information');
+      /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment */
+      $shipment = $order->get('shipments')->entity;
+      $shipping_profile = $shipment->getShippingProfile();
+
+      if (!$shipping_profile) {
+        $profile_storage = $this->entityTypeManager->getStorage('profile');
+        $shipping_profile = $profile_storage->create([
+          'type' => 'customer',
+          'uid' => $order->getCustomerId(),
+        ]);
+      }
+      else  {
+        $shipping_profile = $shipping_profile->createDuplicate();
+      }
+      $shipping_profile
+        ->enforceIsNew(TRUE)
+        ->set('address', $shipping_address)
         ->save();
 
       $order_number = $order->getOrderNumber();
@@ -300,6 +354,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'type' => 'default',
         'return_items' => $items_to_return,
         'billing_profile' => $billing_profile,
+        'shipping_profile' => $shipping_profile,
         'order_id' => $order->id(),
         'user_id' => $order->getCustomerId(),
       ]);

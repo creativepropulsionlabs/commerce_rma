@@ -262,6 +262,21 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['shipping_profile'] = BaseFieldDefinition::create('entity_reference_revisions')
+      ->setLabel(t('Shipping information'))
+      ->setDescription(t('Shipping profile'))
+      ->setSetting('target_type', 'profile')
+      ->setSetting('handler', 'default')
+      ->setSetting('handler_settings', ['target_bundles' => ['customer']])
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'rma_commerce_billing_profile',
+        'weight' => 0,
+        'settings' => [],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['refund_gateway'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Refund gateway'))
       ->setDescription(t('The refund gateway.'))

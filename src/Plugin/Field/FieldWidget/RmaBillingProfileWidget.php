@@ -70,7 +70,7 @@ class RmaBillingProfileWidget extends BillingProfileWidget implements ContainerF
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     $entity_type = $field_definition->getTargetEntityTypeId();
     $field_name = $field_definition->getName();
-    return $entity_type == 'commerce_return' && $field_name == 'billing_profile';
+    return $entity_type == 'commerce_return' && ($field_name == 'billing_profile' || $field_name == 'shipping_profile');
   }
 
 }
