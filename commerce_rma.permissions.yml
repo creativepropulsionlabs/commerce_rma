@@ -75,6 +75,9 @@ return order:
   title: 'Return orders'
   description: 'Allow to Return completed order.'
 
+use regular user confirmation:
+  title: 'Use regular user confirmation'
+
 permission_callbacks:
   - Drupal\commerce_rma\PermissionController::StatePermissions
   - Drupal\commerce_rma\PermissionController::TransitionPermissions

@@ -280,7 +280,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
       ->setDisplayConfigurable('view', TRUE);
     $fields['confirmed_quantity'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Confirmed Quantity'))
-      ->setDescription(t('The quantity for return (confirmed).'))
+      ->setDescription(t('The confirmed quantity for return.'))
 //      ->setReadOnly(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'commerce_quantity',
@@ -291,20 +291,14 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 
     $fields['confirmed_price'] = BaseFieldDefinition::create('commerce_price')
       ->setLabel(t('Confirmed Price'))
-      ->setDescription(t('The amount of money for return (confirmed).'))
-//      ->setReadOnly(TRUE)
+      ->setDescription(t('Confirmed amount of money for return.'))
+      ->setReadOnly(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'commerce_list_price',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
-
-
-
-
-
-
 
     $fields['order_item'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Order item'))
@@ -404,7 +398,7 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 
 
     $fields['confirmed_total_price'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total returned price (confirmed)'))
+      ->setLabel(t('Total confirmed returned price'))
       ->setDescription(t('The returned total price (Value of money which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)

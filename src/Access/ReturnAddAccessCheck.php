@@ -62,8 +62,9 @@ class ReturnAddAccessCheck implements AccessInterface {
     if ($order_is_not_returned_full && !$order->get('returns')->isEmpty()) {
       // Check if requested quantity count less then existing in order (except Cancelled).
       $order_requested_quantity = "0";
+      $skip_return_states = ['canceled', 'rejected'];
       foreach ($order->get('returns')->referencedEntities() as $return) {
-        if ($return->getState()->value != 'canceled') {
+        if (!in_array($return->getState()->value, $skip_return_states)) {
           $return_quantity = $return->get('confirmed_total_quantity')->getValue()[0]['value'];
           $order_requested_quantity = Calculator::add($order_requested_quantity, $return_quantity);
         }

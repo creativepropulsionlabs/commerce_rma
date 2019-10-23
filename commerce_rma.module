@@ -530,11 +530,20 @@ function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) 
 }
 
 function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+
   $field_definition = $context['items']->getFieldDefinition();
   $entity_type_id = $context['items']->getParent()->getEntity()->getEntityTypeId();
   if ($entity_type_id == 'commerce_return_item' && $field_definition->isReadOnly()) {
     if ($context["form"]["#op"] == 'edit') {
       $element['#disabled'] = TRUE;
+    }
+  }
+  if ($entity_type_id == 'commerce_return_item' && $field_definition->getName() == 'confirmed_quantity') {
+    if ($context["form"]["#op"] == 'edit') {
+      /** @var \Drupal\commerce_rma\Entity\CommerceReturnItemInterface $return_item */
+      $return_item = $context["form"]["#default_value"];
+      $element["value"]["#min"] = 0;
+      $element["value"]["#max"] = $return_item->getQuantity();
     }
   }
   if ($entity_type_id == 'commerce_return' && $field_definition->isReadOnly()) {

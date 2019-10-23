@@ -81,3 +81,24 @@ function commerce_rma_update_8717() {
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('total_price', 'commerce_return', 'commerce_rma', $field_storage_definition);
 }
+
+
+/**
+ * set correct Label for confirmed total price field.
+ */
+function commerce_rma_update_8718() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition('confirmed_total_price', 'commerce_return');
+  $field_storage_definition->setLabel(t('Total confirmed returned price'));
+  $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
+}
+
+/**
+ * Set confirmed_price field readonly.
+ */
+function commerce_rma_update_8719() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition('confirmed_price', 'commerce_return_item');
+  $field_storage_definition->setReadOnly(TRUE);
+  $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
+}

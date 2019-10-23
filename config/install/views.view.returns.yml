@@ -428,7 +428,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Total Quantity (Confirmed)'
+          label: 'Total confirmed quantity'
           exclude: false
           alter:
             alter_text: false
@@ -560,7 +560,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Total returned price (Confirmed)'
+          label: 'Total confirmed returned price'
           exclude: false
           alter:
             alter_text: false

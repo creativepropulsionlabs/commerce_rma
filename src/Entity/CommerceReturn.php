@@ -298,15 +298,15 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
 
 
     $fields['confirmed_total_price'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Total returned price (Confirmed)'))
+      ->setLabel(t('Total confirmed returned price'))
       ->setDescription(t('The returned total price (Value which should be returned to user). Manager can modify this value if manual return is in use.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['confirmed_total_quantity'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Total Quantity (Confirmed)'))
-      ->setDescription(t('The quantity for return (confirmed).'))
+      ->setLabel(t('Total confirmed quantity'))
+      ->setDescription(t('The confirmed quantity for return.'))
       ->setReadOnly(TRUE)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);

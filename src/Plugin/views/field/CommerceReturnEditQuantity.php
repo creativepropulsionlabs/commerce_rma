@@ -253,7 +253,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         'type' => 'default',
         'name' => $order_item->getTitle(),
         'unit_price' => $order_item->getUnitPrice(),
-        'confirmed_price' => new Price('0', $order_item->getUnitPrice()->getCurrencyCode()),
+        'confirmed_price' => $order_item->getUnitPrice(),
         'quantity' => $form_state->getValue($this->options['id'])[$row_index],
         'confirmed_quantity' => 0,
         'order_item' => $order_item->id(),
