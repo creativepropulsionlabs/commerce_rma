@@ -118,17 +118,17 @@ class ConfirmTransitionForm extends ConfirmFormBase {
    */
   public function getQuestion() {
     if ($this->currentUser()->id() == 1 || !$this->currentUser()->hasPermission('use regular user confirmation')) {
-      return t('Are you sure you want to %transition # %return_id?',
+      return t('Are you sure you want to :transition # :return_id?',
         [
-          '%return_id' => $this->entity->id(),
-          '%transition' => $this->transition->getLabel()
+          ':return_id' => $this->entity->id(),
+          ':transition' => $this->transition->getLabel()
         ]);
     }
 
-    return t('Are you sure you want to %transition for order # %order_id?',
+    return t('Are you sure you want to :transition for order # :order_id?',
       [
-        '%order_id' => $this->entity->getOrderId(),
-        '%transition' => $this->transition->getLabel()
+        ':order_id' => $this->entity->getOrderId(),
+        ':transition' => $this->transition->getLabel()
       ]);
   }
 

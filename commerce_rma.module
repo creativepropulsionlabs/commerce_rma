@@ -266,9 +266,6 @@ function commerce_order_add_return_items_field(CommerceReturnTypeInterface $retu
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_commerce_return(array &$variables) {
-  // Fetch RMA Entity Object.
-  $rma = $variables['elements']['#rma'];
-
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
