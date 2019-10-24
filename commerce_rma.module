@@ -214,6 +214,11 @@ function commerce_rma_views_data_alter(array &$data) {
     'help' => t('Adds a text field for editing the RMA note.'),
     'id' => 'commerce_rma_order_item_edit_note',
   ];
+  $data['commerce_order_item']['edit_rma_files']['field'] = [
+    'title' => t('Attachments'),
+    'help' => t('Adds a file field for editing the RMA attachments.'),
+    'id' => 'commerce_rma_order_item_edit_files',
+  ];
   $data['commerce_order']['rma_allow_return_status']['field'] = [
     'title' => t('Return Allow Status'),
     'help' => t('Is return eligible or not.'),
@@ -582,6 +587,11 @@ function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $for
   if ($entity_type_id == 'commerce_return' && $field_definition->getName() == 'shipping_profile') {
     $disabled_states = ['received', 'rejected', 'completed', 'canceled'];
     if (in_array($entity->get('state')->value, $disabled_states)) {
+      $element['#disabled'] = TRUE;
+    }
+  }
+  if ($entity_type_id == 'commerce_return_item' && $field_definition->getName() == 'field_attachments') {
+    if ($context["form"]["#op"] == 'edit') {
       $element['#disabled'] = TRUE;
     }
   }
