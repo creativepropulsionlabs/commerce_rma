@@ -214,6 +214,11 @@ function commerce_rma_views_data_alter(array &$data) {
     'help' => t('Adds a text field for editing the RMA note.'),
     'id' => 'commerce_rma_order_item_edit_note',
   ];
+  $data['commerce_order']['rma_allow_return_status']['field'] = [
+    'title' => t('Return Allow Status'),
+    'help' => t('Is return eligible or not.'),
+    'id' => 'commerce_rma_order_item_allow_return_status',
+  ];
 }
 
 /**
@@ -266,6 +271,8 @@ function commerce_order_add_return_items_field(CommerceReturnTypeInterface $retu
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_commerce_return(array &$variables) {
+  $commerce_return = $variables['elements']['#commerce_return'];
+
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
@@ -284,7 +291,7 @@ function template_preprocess_commerce_return(array &$variables) {
  */
 function template_preprocess_commerce_return_item(array &$variables) {
   // Fetch RMAItem Entity Object.
-  $commerce_return_item = $variables['elements']['#rma_item'];
+  $commerce_return_item = $variables['elements']['#commerce_return_item'];
 
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
@@ -549,7 +556,8 @@ function commerce_rma_inline_entity_form_table_fields_alter(&$fields, $context) 
 function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
 
   $field_definition = $context['items']->getFieldDefinition();
-  $entity_type_id = $context['items']->getParent()->getEntity()->getEntityTypeId();
+  $entity = $context['items']->getParent()->getEntity();
+  $entity_type_id = $entity->getEntityTypeId();
   if ($entity_type_id == 'commerce_return_item' && $field_definition->isReadOnly()) {
     if ($context["form"]["#op"] == 'edit') {
       $element['#disabled'] = TRUE;
@@ -561,10 +569,21 @@ function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $for
       $return_item = $context["form"]["#default_value"];
       $element["value"]["#min"] = 0;
       $element["value"]["#max"] = $return_item->getQuantity();
+      $return = $form_state->getFormObject()->getEntity();
+      $confirmed_states = ['received', 'rejected', 'completed', 'canceled'];
+      if (in_array($return->get('state')->value, $confirmed_states)) {
+        $element["value"]["#max"] = $return_item->getConfirmedQuantity();
+      }
     }
   }
   if ($entity_type_id == 'commerce_return' && $field_definition->isReadOnly()) {
     $element['#disabled'] = TRUE;
+  }
+  if ($entity_type_id == 'commerce_return' && $field_definition->getName() == 'shipping_profile') {
+    $disabled_states = ['received', 'rejected', 'completed', 'canceled'];
+    if (in_array($entity->get('state')->value, $disabled_states)) {
+      $element['#disabled'] = TRUE;
+    }
   }
 }
 

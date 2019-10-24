@@ -254,6 +254,7 @@ class CommerceReturn extends CommerceContentEntityBase implements CommerceReturn
       ->setSetting('handler', 'default')
       ->setSetting('handler_settings', ['target_bundles' => ['customer']])
       ->setTranslatable(TRUE)
+      ->setReadOnly(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'rma_commerce_billing_profile',
         'weight' => 0,

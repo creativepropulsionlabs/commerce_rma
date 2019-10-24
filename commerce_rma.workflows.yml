@@ -34,7 +34,7 @@ commerce_return_default:
       to: completed
     cancel:
       label: 'Cancel Return'
-      from: [draft]
+      from: [draft, approved]
       to:   canceled
 
 commerce_order_return_default:

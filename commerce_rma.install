@@ -126,3 +126,12 @@ function commerce_rma_update_8720() {
     ->installFieldStorageDefinition('shipping_profile', 'commerce_return', 'commerce_rma', $field_storage_definition);
 }
 
+/**
+ * Set billing profile field readonly.
+ */
+function commerce_rma_update_8721() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition('billing_profile', 'commerce_return');
+  $field_storage_definition->setReadOnly(TRUE);
+  $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
+}
