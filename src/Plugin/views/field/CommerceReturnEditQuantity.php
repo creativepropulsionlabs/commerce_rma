@@ -422,14 +422,21 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       'approved',
       'completed',
     ];
-    foreach ($returns as $return) {
-      if (!in_array($return->getState()->value, $accepted_states)) {
-        continue;
+    $skip_return_states = ['canceled', 'rejected'];
+
+    foreach ($returns as $return_id => $return) {
+      if (in_array($return->getState()->value, $skip_return_states)) {
+        unset($returns[$return_id]);
       }
+    }
+
+    foreach ($returns as $return) {
       $return_items = $return->getItems();
+      $count = '0';
       foreach ($return_items as $return_item) {
         if ($return_item->getOrderItem()->id() == $order_item->id()){
-          $count = Calculator::add($count, $return_item->getConfirmedTotalQuantity());
+          $item_quantity = $return->getState()->value =='draft' ? $return_item->getQuantity() : $return_item->getConfirmedTotalQuantity();
+          $count = Calculator::add($count, $item_quantity);
         }
       }
     }

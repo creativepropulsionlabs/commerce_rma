@@ -99,7 +99,8 @@ class ReturnAddAccessCheck implements AccessInterface {
 
     $order_requested_quantity = "0";
     foreach ($returns as $return_id => $return) {
-      $return_quantity = $return->get('confirmed_total_quantity')->getValue()[0]['value'];
+      $field_name = $return->getState()->value == 'draft' ? 'total_quantity' : 'confirmed_total_quantity';
+      $return_quantity = $return->get($field_name)->getValue()[0]['value'];
       $order_requested_quantity = Calculator::add($order_requested_quantity, $return_quantity);
     }
 
@@ -108,7 +109,7 @@ class ReturnAddAccessCheck implements AccessInterface {
       $original_order_quantity = Calculator::add($original_order_quantity, $order_item->getQuantity());
     }
 
-    if (Calculator::compare($original_order_quantity, $order_requested_quantity) !== 1) {
+    if (Calculator::compare($original_order_quantity, $order_requested_quantity) === 1) {
       return AccessResult::allowed()
         ->addCacheableDependency($order_type)
         ->addCacheableDependency($order);
