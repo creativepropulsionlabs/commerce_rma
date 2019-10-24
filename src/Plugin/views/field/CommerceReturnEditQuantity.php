@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
+use Drupal\file\Entity\File;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
@@ -237,6 +238,8 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     $order_storage = $this->entityTypeManager->getStorage('commerce_order');
+    /** @var \Drupal\file\FileUsage\FileUsageInterface $file_usage */
+    $file_usage = \Drupal::service('file.usage');
     $return_item_storage = $this->entityTypeManager->getStorage('commerce_return_item');
     $commerce_return_storage = $this->entityTypeManager->getStorage('commerce_return');
 
@@ -250,6 +253,12 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     foreach ($handlers as $handler) {
       if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_reason') {
         $reason_handler = $handler;
+        break;
+      }
+    }
+    foreach ($handlers as $handler) {
+      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_files') {
+        $attachments_handler = $handler;
         break;
       }
     }
@@ -283,6 +292,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
 
       $reason = isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL;
       $expected_resolution = isset($expected_resolution_handler) ? $form_state->getValue($expected_resolution_handler['id'])[$row_index] : NULL;
+      $attachments = isset($attachments_handler) ? $form_state->getValue($attachments_handler['id'])[$row_index] : NULL;
       $commerce_return_item = $return_item_storage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
@@ -300,6 +310,16 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         $commerce_return_item->expected_resolution = $expected_resolution;
       }
       $commerce_return_item->save();
+      if ($attachments) {
+        foreach ($attachments as $attachment) {
+          $file = File::load( $attachment );
+          $file->setPermanent();
+          $file->save();
+          $file_usage->add($file, 'commerce_rma', 'commerce_return_item', $commerce_return_item->id());
+        }
+        $commerce_return_item->field_attachments = $attachments;
+        $commerce_return_item->save();
+      }
       $items_to_return[] = $commerce_return_item->id();
     }
 
