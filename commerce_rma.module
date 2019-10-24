@@ -583,6 +583,10 @@ function commerce_rma_field_widget_form_alter(&$element, FormStateInterface $for
   }
   if ($entity_type_id == 'commerce_return' && $field_definition->isReadOnly()) {
     $element['#disabled'] = TRUE;
+    //@todo BUG State chenged on shipping edit.
+    if ($field_definition->getName() == 'billing_profile') {
+      unset($element['#disabled']);
+    }
   }
   if ($entity_type_id == 'commerce_return' && $field_definition->getName() == 'shipping_profile') {
     $disabled_states = ['received', 'rejected', 'completed', 'canceled'];

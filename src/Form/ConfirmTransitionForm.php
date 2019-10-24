@@ -4,6 +4,7 @@
 namespace Drupal\commerce_rma\Form;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -30,7 +31,7 @@ class ConfirmTransitionForm extends ConfirmFormBase {
   /**
    * Transition Entity applied to.
    *
-   * @var \Drupal\commerce\Plugin\Commerce\InlineForm\ContentEntity
+   * @var \Drupal\commerce_rma\Entity\CommerceReturnInterface
    */
   protected $entity;
 
@@ -83,6 +84,7 @@ class ConfirmTransitionForm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->getState()->applyTransition($this->transition);
+    Cache::invalidateTags($this->entity->getOrder()->getCacheTagsToInvalidate());
     $this->entity->save();
   }
 
