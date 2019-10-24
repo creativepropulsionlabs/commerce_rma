@@ -51,7 +51,22 @@ class ReturnAddAccessCheck implements AccessInterface {
     $order_type_storage = $this->entityTypeManager->getStorage('commerce_order_type');
     /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
     $order_type = $order_type_storage->load($order->bundle());
-    $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+
+    $perm = AccessResult::allowedIfHasPermission($account, 'administer commerce return')
+      ->orIf(AccessResult::allowedIfHasPermission($account, 'add commerce return entities'));
+    if (!$perm->isAllowed()) {
+      return AccessResult::forbidden()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+
+    // Check if this is a cart order.
+    if ($order->getState()->getId() != 'completed') {
+      return AccessResult::forbidden()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+
     $return_max_order_age = $order_type->getThirdPartySetting('commerce_rma', 'return_max_order_age', 0);
     $order_max_age_timestamp = \Drupal::time()->getRequestTime() - $return_max_order_age * 86400;
     if ($return_max_order_age && $order->getCompletedTime() < $order_max_age_timestamp) {
@@ -60,43 +75,48 @@ class ReturnAddAccessCheck implements AccessInterface {
         ->addCacheableDependency($order);
     }
 
-    $show_return_states = [
-      'completed',
-      'returned',
-    ];
-    // Check if this is a cart order.
-    $order_is_completed = in_array($order->getState()->getId(), $show_return_states);
-    $order_is_not_returned_full = !in_array($order->get('return_state')->value, $show_return_states);
-    if ($order_is_not_returned_full && !$order->get('returns')->isEmpty()) {
-      // Check if requested quantity count less then existing in order (except Cancelled).
-      $order_requested_quantity = "0";
-      $skip_return_states = ['canceled', 'rejected'];
-      foreach ($order->get('returns')->referencedEntities() as $return) {
-        if (!in_array($return->getState()->value, $skip_return_states)) {
-          $return_quantity = $return->get('confirmed_total_quantity')->getValue()[0]['value'];
-          $order_requested_quantity = Calculator::add($order_requested_quantity, $return_quantity);
-        }
-      }
-      $original_order_quantity = "0";
-      foreach ($order->getItems() as $order_item) {
-        $original_order_quantity = Calculator::add($original_order_quantity, $order_item->getQuantity());
-      }
-      if (Calculator::compare($original_order_quantity, $order_requested_quantity) !== 1) {
-        $order_is_not_returned_full = FALSE;
+    $return_type_id = $order_type->getThirdPartySetting('commerce_rma', 'return_type');
+    if (is_null($return_type_id)) {
+      return AccessResult::forbidden()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+
+    if ($order->get('returns')->isEmpty()) {
+      return AccessResult::allowed()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+    /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface[] $returns */
+    $returns = $order->get('returns')->referencedEntities();
+    $skip_return_states = ['canceled', 'rejected'];
+
+    foreach ($returns as $return_id => $return) {
+      if (in_array($return->getState()->value, $skip_return_states)) {
+        unset($returns[$return_id]);
       }
     }
 
-    // Only allow access if order type has a corresponding return type.
-    // @todo should we validate that the return type exists?
-    $perm = AccessResult::allowedIfHasPermission($account, 'administer commerce return')
-      ->orIf(AccessResult::allowedIfHasPermission($account, 'add commerce return entities'));
-    $res = AccessResult::allowedIf($return_type_id !== NULL)
-      ->andIf($perm)
-      ->andIf(AccessResult::allowedIf($order_is_completed))
-      ->andIf(AccessResult::allowedIf($order_is_not_returned_full))
+    $order_requested_quantity = "0";
+    foreach ($returns as $return_id => $return) {
+      $return_quantity = $return->get('confirmed_total_quantity')->getValue()[0]['value'];
+      $order_requested_quantity = Calculator::add($order_requested_quantity, $return_quantity);
+    }
+
+    $original_order_quantity = "0";
+    foreach ($order->getItems() as $order_item) {
+      $original_order_quantity = Calculator::add($original_order_quantity, $order_item->getQuantity());
+    }
+
+    if (Calculator::compare($original_order_quantity, $order_requested_quantity) !== 1) {
+      return AccessResult::allowed()
+        ->addCacheableDependency($order_type)
+        ->addCacheableDependency($order);
+    }
+
+    return AccessResult::forbidden()
       ->addCacheableDependency($order_type)
       ->addCacheableDependency($order);
-    return $res;
   }
 
 }
