@@ -22,7 +22,7 @@ commerce_return_default:
       to: approved
     reject:
       label: 'Reject Return'
-      from: [draft, received]
+      from: [draft, received, approved]
       to: rejected
     receive:
       label: 'Receive Return'
