@@ -98,6 +98,18 @@ function commerce_rma_theme_suggestions_commerce_return(array $variables) {
 }
 
 /**
+ * Implements hook_entity_operation_alter().
+ */
+function commerce_rma_entity_operation_alter(array &$operations, EntityInterface $entity) {
+  if ($entity->getEntityTypeId() == 'commerce_return') {
+    // Place the edit operation before any others.
+    if (isset($operations['edit'])) {
+      $operations['edit']['weight'] = -100;
+    }
+  }
+}
+
+/**
  * Implements hook_entity_operation().
  */
 function commerce_rma_entity_operation(EntityInterface $entity) {
