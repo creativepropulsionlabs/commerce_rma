@@ -636,3 +636,19 @@ function commerce_rma_inline_entity_form_entity_form_alter(&$entity_form, &$form
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_commerce_return().
+ */
+function commerce_rma_preprocess_commerce_return(&$variables) {
+  /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
+  $commerce_return = $variables['elements']['#commerce_return'];
+  $variables['activity'] = [
+    '#type' => 'view',
+    '#name' => 'return_activity',
+    '#display_id' => 'default',
+    '#arguments' => [$commerce_return->id(), 'commerce_return'],
+    '#embed' => TRUE,
+    '#title' => t('Return activity'),
+  ];
+}
