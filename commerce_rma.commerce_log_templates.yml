@@ -26,7 +26,7 @@ return_canceled:
 order_return_added:
   category: commerce_return_order
   label: 'Return Added'
-  template: '<p><em>Return {{ return_id }}</em> added by {{ user }} with comment {{ comment }}.</p>'
+  template: '<p><em>Return {{ return_id }}</em> added by {{ user }}.</p>'
 order_return_approved:
   category: commerce_return_order
   label: 'Return approved'
