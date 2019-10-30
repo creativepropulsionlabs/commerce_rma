@@ -85,6 +85,17 @@ class ConfirmTransitionForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->getState()->applyTransition($this->transition);
     Cache::invalidateTags($this->entity->getOrder()->getCacheTagsToInvalidate());
+    $logStorage = $this->entityTypeManager->getStorage('commerce_log');
+    $order = $this->entity->getOrder();
+
+    $logStorage->generate($order, "order_return_{$this->transition->getId()}", [
+      'return_id' => $this->entity->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
+    $logStorage->generate($this->entity, "return_{$this->transition->getId()}", [
+      'return_id' => $this->entity->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
     $this->entity->save();
   }
 

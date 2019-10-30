@@ -393,6 +393,16 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       }
 
     }
+    $logStorage = $this->entityTypeManager->getStorage('commerce_log');
+
+    $logStorage->generate($order, 'order_return_added', [
+      'return_id' => $commerce_return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
+    $logStorage->generate($commerce_return, 'return_added', [
+      'return_id' => $commerce_return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
   }
 
   /**
