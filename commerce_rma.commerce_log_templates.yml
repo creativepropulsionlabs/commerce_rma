@@ -6,23 +6,23 @@ return_item_added:
   category: commerce_return
   label: 'Manager add comment'
   template: '<p><em>{{ product_title }} {{ quantity }} {{ comment }}.</p>'
-return_approved:
+return_approve:
   category: commerce_return
   label: 'Return approved'
   template: '<p><em>Return {{ return_id }}</em> approved.</p>'
-return_received:
+return_receive:
   category: commerce_return
   label: 'Return received'
   template: '<p><em>Return {{ return_id }}</em> received.</p>'
-return_rejected:
+return_reject:
   category: commerce_return
   label: 'Return rejected'
   template: '<p><em>Return {{ return_id }}</em> rejected.</p>'
-return_completed:
+return_complete:
   category: commerce_return
   label: 'Return completed'
   template: '<p><em>Return {{ return_id }}</em> completed.</p>'
-return_canceled:
+return_cancel:
   category: commerce_return
   label: 'Return canceled'
   template: '<p><em>Return {{ return_id }}</em> canceled.</p>'
