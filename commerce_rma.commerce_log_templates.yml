@@ -1,0 +1,49 @@
+return_added:
+  category: commerce_return
+  label: 'Return Added'
+  template: '<p><em>Return {{ return_id }}</em> added for order.</p>'
+return_approved:
+  category: commerce_return
+  label: 'Return approved'
+  template: '<p><em>Return {{ return_id }}</em> approved by {{ user }} with comment {{ comment }}.</p>'
+return_received:
+  category: commerce_return
+  label: 'Return received'
+  template: '<p><em>Return {{ return_id }}</em> received by {{ user }} with comment {{ comment }}.</p>'
+return_rejected:
+  category: commerce_return
+  label: 'Return rejected'
+  template: '<p><em>Return {{ return_id }}</em> rejected by {{ user }} with comment {{ comment }}.</p>'
+return_completed:
+  category: commerce_return
+  label: 'Return completed'
+  template: '<p><em>Return {{ return_id }}</em> completed by {{ user }} with comment {{ comment }}.</p>'
+return_canceled:
+  category: commerce_return
+  label: 'Return canceled'
+  template: '<p><em>Return {{ return_id }}</em> canceled by {{ user }} with comment {{ comment }}.</p>'
+
+order_return_added:
+  category: commerce_return_order
+  label: 'Return Added'
+  template: '<p><em>Return {{ return_id }}</em> added by {{ user }} with comment {{ comment }}.</p>'
+order_return_approved:
+  category: commerce_return_order
+  label: 'Return approved'
+  template: '<p><em>Return {{ return_id }}</em> approved by {{ user }} with comment {{ comment }}.</p>'
+order_return_received:
+  category: commerce_return_order
+  label: 'Return received'
+  template: '<p><em>Return {{ return_id }}</em> received by {{ user }} with comment {{ comment }}.</p>'
+order_return_rejected:
+  category: commerce_return_order
+  label: 'Return rejected'
+  template: '<p><em>Return {{ return_id }}</em> rejected by {{ user }} with comment {{ comment }}.</p>'
+order_return_completed:
+  category: commerce_return_order
+  label: 'Return completed'
+  template: '<p><em>Return {{ return_id }}</em> completed by {{ user }} with comment {{ comment }}.</p>'
+order_return_canceled:
+  category: commerce_return_order
+  label: 'Return canceled'
+  template: '<p><em>Return {{ return_id }}</em> canceled by {{ user }} with comment {{ comment }}.</p>'

@@ -1,0 +1,7 @@
+commerce_return_order:
+  label: Order return
+  entity_type: commerce_order
+
+commerce_return:
+  label: Return
+  entity_type: commerce_return

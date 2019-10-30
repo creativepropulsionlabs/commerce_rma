@@ -78,6 +78,12 @@ return order:
 use regular user confirmation:
   title: 'Use regular user confirmation'
 
+access commerce return reasons:
+  title: 'Access commerce return reasons'
+
+administer return reasons:
+  title: 'Administer return reasons'
+
 permission_callbacks:
   - Drupal\commerce_rma\PermissionController::StatePermissions
   - Drupal\commerce_rma\PermissionController::TransitionPermissions

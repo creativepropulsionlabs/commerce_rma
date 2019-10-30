@@ -17,6 +17,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class OrderReturnSubscriber implements EventSubscriberInterface {
 
   /**
+   * The log storage.
+   *
+   * @var \Drupal\commerce_log\LogStorageInterface
+   */
+  protected $logStorage;
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -41,6 +48,7 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
   public function __construct(EntityTypeManagerInterface $entity_type_manager, WorkflowManagerInterface $workflow_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->workflowManager = $workflow_manager;
+    $this->logStorage = $entity_type_manager->getStorage('commerce_log');
   }
 
   /**
@@ -95,6 +103,14 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     $return = $event->getEntity();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
+    $this->logStorage->generate($order, 'order_return_completed', [
+      'return_id' => $return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
+    $this->logStorage->generate($return, 'return_completed', [
+      'return_id' => $return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
     $return_state = $return->getState();
     $order_transition_id = $this->isOrderFullReturned($order);
 
@@ -135,6 +151,16 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     $return = $event->getEntity();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
+
+    $this->logStorage->generate($order, 'order_return_added', [
+      'return_id' => $return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
+    $this->logStorage->generate($return, 'return_added', [
+      'return_id' => $return->id(),
+      'user' => \Drupal::currentUser()->getDisplayName(),
+    ])->save();
+
     $transition_id = 'return';
     $order_total_quantity = '0';
     foreach ($order->getItems() as $order_item) {

@@ -13,6 +13,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\commerce_rma\CommerceReturnReasonListBuilder",
+ *     "access" = "Drupal\commerce_rma\CommerceReturnReasonAccessControlHandler",
  *     "form" = {
  *       "add" = "Drupal\commerce_rma\Form\CommerceReturnReasonForm",
  *       "edit" = "Drupal\commerce_rma\Form\CommerceReturnReasonForm",
@@ -23,7 +24,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     },
  *   },
  *   config_prefix = "commerce_return_reason",
- *   admin_permission = "administer rma reason",
+ *   admin_permission = "administer return reasons",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
