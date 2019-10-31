@@ -103,14 +103,7 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     $return = $event->getEntity();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
-    $this->logStorage->generate($order, 'order_return_completed', [
-      'return_id' => $return->id(),
-      'user' => \Drupal::currentUser()->getDisplayName(),
-    ])->save();
-    $this->logStorage->generate($return, 'return_completed', [
-      'return_id' => $return->id(),
-      'user' => \Drupal::currentUser()->getDisplayName(),
-    ])->save();
+
     $return_state = $return->getState();
     $order_transition_id = $this->isOrderFullReturned($order);
 
@@ -151,15 +144,6 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     $return = $event->getEntity();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
-
-    $this->logStorage->generate($order, 'order_return_added', [
-      'return_id' => $return->id(),
-      'user' => \Drupal::currentUser()->getDisplayName(),
-    ])->save();
-    $this->logStorage->generate($return, 'return_added', [
-      'return_id' => $return->id(),
-      'user' => \Drupal::currentUser()->getDisplayName(),
-    ])->save();
 
     $transition_id = 'return';
     $order_total_quantity = '0';
