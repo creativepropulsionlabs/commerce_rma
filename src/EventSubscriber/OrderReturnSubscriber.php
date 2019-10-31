@@ -103,11 +103,11 @@ class OrderReturnSubscriber implements EventSubscriberInterface {
     $return = $event->getEntity();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $return->getOrder();
-    $this->logStorage->generate($order, 'order_return_completed', [
+    $this->logStorage->generate($order, 'order_return_complete', [
       'return_id' => $return->id(),
       'user' => \Drupal::currentUser()->getDisplayName(),
     ])->save();
-    $this->logStorage->generate($return, 'return_completed', [
+    $this->logStorage->generate($return, 'return_complete', [
       'return_id' => $return->id(),
       'user' => \Drupal::currentUser()->getDisplayName(),
     ])->save();
