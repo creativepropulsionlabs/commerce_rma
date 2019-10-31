@@ -119,6 +119,34 @@ class CommerceReturnItem extends CommerceContentEntityBase implements CommerceRe
 //      $this->set('order_id', $order_id);
     }
     $this->recalculateTotals();
+
+    if (!$this->isNew()) {
+      $logStorage = $this->entityTypeManager()->getStorage('commerce_log');
+      $query = \Drupal::entityQuery('commerce_return')
+        ->condition('return_items', $this->id());
+      $ids = $query->execute();
+      /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface[] $returns */
+      $returns = CommerceReturn::loadMultiple($ids);
+      $return = reset($returns);
+      $dst_split = explode('/', $destination = \Drupal::destination()->get());
+      $confirm = in_array('confirm?destination=', $dst_split);
+      $quantity = $this->getQuantity();
+      $comment = $this->get('note')->value;
+      if ($confirm) {
+        $quantity = $this->getConfirmedQuantity();
+        $comment = $this->get('manager_note')->value;
+      }
+      $order = $return->getOrder();
+      $logStorage->generate($return, "return_item_changed", [
+        'product_title' => $this->label(),
+        'quantity' => $quantity,
+        'comment' => $comment,
+      ])->save();
+      $logStorage->generate($order, "order_return_item_changed", [
+        'product_title' => $this->label(),
+        'quantity' => $quantity,
+      ])->save();
+    }
   }
 
   /**

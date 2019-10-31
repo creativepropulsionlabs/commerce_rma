@@ -1,49 +1,66 @@
 return_added:
   category: commerce_return
-  label: 'Return Added'
-  template: '<p><em>Return {{ return_id }}</em> added for order.</p>'
-return_approved:
+  label: 'Return created'
+  template: '<p><em>Return {{ return_id }}</em> created.</p>'
+return_approve:
   category: commerce_return
   label: 'Return approved'
-  template: '<p><em>Return {{ return_id }}</em> approved by {{ user }} with comment {{ comment }}.</p>'
-return_received:
+  template: '<p><em>Return {{ return_id }}</em> approved.</p>'
+return_receive:
   category: commerce_return
   label: 'Return received'
-  template: '<p><em>Return {{ return_id }}</em> received by {{ user }} with comment {{ comment }}.</p>'
-return_rejected:
+  template: '<p><em>Return {{ return_id }}</em> received.</p>'
+return_reject:
   category: commerce_return
   label: 'Return rejected'
-  template: '<p><em>Return {{ return_id }}</em> rejected by {{ user }} with comment {{ comment }}.</p>'
-return_completed:
+  template: '<p><em>Return {{ return_id }}</em> rejected.</p>'
+return_complete:
   category: commerce_return
   label: 'Return completed'
-  template: '<p><em>Return {{ return_id }}</em> completed by {{ user }} with comment {{ comment }}.</p>'
-return_canceled:
+  template: '<p><em>Return {{ return_id }}</em> completed.</p>'
+return_cancel:
   category: commerce_return
   label: 'Return canceled'
-  template: '<p><em>Return {{ return_id }}</em> canceled by {{ user }} with comment {{ comment }}.</p>'
+  template: '<p><em>Return {{ return_id }}</em> canceled.</p>'
 
 order_return_added:
   category: commerce_return_order
-  label: 'Return Added'
-  template: '<p><em>Return {{ return_id }}</em> added by {{ user }} with comment {{ comment }}.</p>'
-order_return_approved:
+  label: 'Return created'
+  template: '<p><em>Return {{ return_id }}</em> created.</p>'
+order_return_approve:
   category: commerce_return_order
   label: 'Return approved'
-  template: '<p><em>Return {{ return_id }}</em> approved by {{ user }} with comment {{ comment }}.</p>'
-order_return_received:
+  template: '<p><em>Return {{ return_id }}</em> approved.</p>'
+order_return_receive:
   category: commerce_return_order
   label: 'Return received'
-  template: '<p><em>Return {{ return_id }}</em> received by {{ user }} with comment {{ comment }}.</p>'
-order_return_rejected:
+  template: '<p><em>Return {{ return_id }}</em> received.</p>'
+order_return_reject:
   category: commerce_return_order
   label: 'Return rejected'
-  template: '<p><em>Return {{ return_id }}</em> rejected by {{ user }} with comment {{ comment }}.</p>'
-order_return_completed:
+  template: '<p><em>Return {{ return_id }}</em> rejected.</p>'
+order_return_complete:
   category: commerce_return_order
   label: 'Return completed'
-  template: '<p><em>Return {{ return_id }}</em> completed by {{ user }} with comment {{ comment }}.</p>'
-order_return_canceled:
+  template: '<p><em>Return {{ return_id }}</em> completed.</p>'
+order_return_cancel:
   category: commerce_return_order
   label: 'Return canceled'
-  template: '<p><em>Return {{ return_id }}</em> canceled by {{ user }} with comment {{ comment }}.</p>'
+  template: '<p><em>Return {{ return_id }}</em> canceled.</p>'
+
+return_item_added:
+  category: commerce_return
+  label: 'Return item changed'
+  template: '<p><em>{{ product_title }} added, quantity:{{ quantity }}, comment:{{ comment }}.</p>'
+return_item_changed:
+  category: commerce_return
+  label: 'Return item changed'
+  template: '<p><em>{{ product_title }} changed, quantity:{{ quantity }}, comment:{{ comment }}.</p>'
+order_return_item_added:
+  category: commerce_return_order
+  label: 'Return item changed'
+  template: '<p><em>{{ product_title }} quantity:{{ quantity }} comment:{{ comment }}.</p>'
+order_return_item_changed:
+  category: commerce_return_order
+  label: 'Return item changed'
+  template: '<p><em>Return: {{ product_title }} quantity:{{ quantity }}.</p>'

@@ -392,7 +392,27 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         ]));
       }
 
+      $logStorage = $this->entityTypeManager->getStorage('commerce_log');
+      foreach ($commerce_return->getItems() as $item_to_return) {
+        $logStorage->generate($commerce_return, "return_item_added", [
+          'product_title' => $item_to_return->label(),
+          'quantity' => $item_to_return->getQuantity(),
+          'comment' => $item_to_return->get('note')->value,
+        ])->save();
+        $logStorage->generate($order, "order_return_item_added", [
+          'product_title' => $item_to_return->label(),
+          'quantity' => $item_to_return->getQuantity(),
+        ])->save();
+      }
     }
+    $logStorage = $this->entityTypeManager->getStorage('commerce_log');
+
+    $logStorage->generate($order, 'order_return_added', [
+      'return_id' => $commerce_return->id(),
+    ])->save();
+    $logStorage->generate($commerce_return, 'return_added', [
+      'return_id' => $commerce_return->id(),
+    ])->save();
   }
 
   /**
