@@ -3,15 +3,16 @@
 namespace Drupal\commerce_rma\Plugin\views\field;
 
 use CommerceGuys\Intl\Calculator;
+use Drupal\commerce\InlineFormManager;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Entity\OrderItemInterface;
-use Drupal\commerce_price\Price;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
+use Drupal\file\FileUsage\FileUsageInterface;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
@@ -41,6 +42,49 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
   protected $messenger;
 
   /**
+   * The inline form manager.
+   *
+   * @var \Drupal\commerce\InlineFormManager
+   */
+  protected $inlineFormManager;
+
+  /**
+   * File usage manager.
+   *
+   * @var \Drupal\file\FileUsage\FileUsageInterface
+   */
+  protected $fileUsage;
+
+
+  /**
+   * The order storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $orderStorage;
+
+  /**
+   * The return item storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $returnItemStorage;
+
+  /**
+   * The return storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $returnStorage;
+
+  /**
+   * Log storage.
+   *
+   * @var \Drupal\commerce_log\LogStorageInterface
+   */
+  protected $logStorage;
+
+  /**
    * Constructs a new EditQuantity object.
    *
    * @param array $configuration
@@ -53,12 +97,20 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
    *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
+   * @param \Drupal\commerce\InlineFormManager $inline_form_manager
+   *   The inline form manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, InlineFormManager $inline_form_manager, FileUsageInterface $file_usage) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
+    $this->inlineFormManager = $inline_form_manager;
+    $this->fileUsage = $file_usage;
+    $this->orderStorage = $this->entityTypeManager->getStorage('commerce_order');
+    $this->returnItemStorage = $this->entityTypeManager->getStorage('commerce_return_item');
+    $this->returnStorage = $this->entityTypeManager->getStorage('commerce_return');
+    $this->logStorage = $this->entityTypeManager->getStorage('commerce_log');
   }
 
   /**
@@ -70,7 +122,9 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('messenger')
+      $container->get('messenger'),
+      $container->get('plugin.manager.commerce_inline_form'),
+      $container->get('file.usage')
     );
   }
 
@@ -112,12 +166,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
   }
 
   /**
-   * Form constructor for the views form.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
    */
   public function viewsForm(array &$form, FormStateInterface $form_state) {
     // Make sure we do not accidentally cache this form.
@@ -127,13 +176,10 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       unset($form['actions']);
       return;
     }
-    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    $order = $this->entityTypeManager->getStorage('commerce_order')
-      ->load($this->view->argument['order_id']->getValue());
 
-    //    $form['#attached'] = [
-    //      'library' => ['commerce_cart/cart_form'],
-    //    ];
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+    $order = $this->orderStorage->load($this->view->argument['order_id']->getValue());
+
     $form[$this->options['id']]['#tree'] = TRUE;
     foreach ($this->view->result as $row_index => $row) {
       /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
@@ -148,70 +194,54 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
-    $billing_profile = $order->getBillingProfile();
-    $billing_address = $billing_profile->get('address')->getValue();
-    $billing_address = array_shift($billing_address);
+    $billing_profile = $order->getBillingProfile()->createDuplicate();
+    $billing_inline_form = $this->inlineFormManager->createInstance('customer_profile', [
+      'available_countries' => $order->getStore()->getBillingCountries(),
+    ], $billing_profile);
+
     $form['actions']['another_location_billing'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Check if you need to be billed to another location'),
       '#weight' => 0,
     ];
-    $form['actions']['billing_information'] = [
-      '#type' => 'address',
-      '#title' => $this->t('Billing information'),
-      '#default_value' => [
-        'given_name' => $billing_address['given_name'],
-        'family_name' => $billing_address['family_name'],
-        'organization' => $billing_address['organization'],
-        'address_line1' => $billing_address['address_line1'],
-        'address_line2' => $billing_address['address_line2'],
-        'postal_code' => $billing_address['postal_code'],
-        'locality' => $billing_address['locality'],
-        'administrative_area' => $billing_address['administrative_area'],
-        'country_code' => $billing_address['country_code'],
-        'langcode' => $billing_address['langcode'],
-      ],
-      '#weight' => 0,
-      '#states' => array(
-        'invisible' => array(
-          ':input[name="another_location_billing"]' => array('checked' => FALSE),
-        ),
-      ),
-    ];
 
-    if ($order->hasField('shipments')) {
+    $form['actions']['billing_profile'] = [
+      '#parents' => ['actions', 'billing_profile'],
+      '#inline_form' => $billing_inline_form,
+      '#weight' => 0,
+      '#states' => [
+        'invisible' => [
+          ':input[name="another_location_billing"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
+    $form['actions']['billing_profile'] = $billing_inline_form->buildInlineForm($form['actions']['billing_profile'], $form_state);
+
+    if ($order->hasField('shipments') && !$order->get('shipments')->isEmpty()) {
       /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment */
       $shipment = $order->get('shipments')->entity;
-      $shipping_address = $shipment->getShippingProfile()->get('address')->getValue();
-      $shipping_address = array_shift($shipping_address);
+      $shipping_profile = $shipment->getShippingProfile()->createDuplicate();
+
+      $shipping_inline_form = $this->inlineFormManager->createInstance('customer_profile', [
+        'available_countries' => $order->getStore()->getBillingCountries(),
+      ], $shipping_profile);
 
       $form['actions']['another_location_shipping'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Check if you need to be shipped to another location'),
         '#weight' => 0,
       ];
-      $form['actions']['shipping_information'] = [
-        '#type' => 'address',
-        '#title' => $this->t('Shipping information'),
-        '#default_value' => [
-          'given_name' => $shipping_address['given_name'],
-          'family_name' => $shipping_address['family_name'],
-          'organization' => $shipping_address['organization'],
-          'address_line1' => $shipping_address['address_line1'],
-          'address_line2' => $shipping_address['address_line2'],
-          'postal_code' => $shipping_address['postal_code'],
-          'locality' => $shipping_address['locality'],
-          'administrative_area' => $shipping_address['administrative_area'],
-          'country_code' => $shipping_address['country_code'],
-          'langcode' => $shipping_address['langcode'],
-        ],
+      $form['actions']['shipping_profile'] = [
+        '#parents' => ['actions', 'shipping_profile'],
+        '#inline_form' => $shipping_inline_form,
         '#weight' => 0,
-        '#states' => array(
-          'invisible' => array(
-            ':input[name="another_location_shipping"]' => array('checked' => FALSE),
-          ),
-        ),
+        '#states' => [
+          'invisible' => [
+            ':input[name="another_location_shipping"]' => ['checked' => FALSE],
+          ],
+        ],
       ];
+      $form['actions']['shipping_profile'] = $shipping_inline_form->buildInlineForm($form['actions']['shipping_profile'], $form_state);
     }
     $form['actions']['submit']['#rma_return'] = TRUE;
     $form['actions']['submit']['#show_update_message'] = TRUE;
@@ -223,12 +253,28 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
   }
 
   /**
-   * Submit handler for the views form.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
+   */
+  public function viewsFormValidate(&$form, FormStateInterface $form_state) {
+    $quantities = $form_state->getValue($this->options['id'], []);
+    $total_quantities = 0;
+    foreach ($quantities as $row_index => $quantity) {
+      $total_quantities += $quantity;
+    }
+    if ($total_quantities == 0) {
+      $form_state->setErrorByName('', $this->emptySelectedMessage());
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function emptySelectedMessage() {
+    return $this->t('No Quantity selected.');
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function viewsFormSubmit(array &$form, FormStateInterface $form_state) {
     $triggering_element = $form_state->getTriggeringElement();
@@ -237,43 +283,14 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       return;
     }
 
-    $order_storage = $this->entityTypeManager->getStorage('commerce_order');
-    /** @var \Drupal\file\FileUsage\FileUsageInterface $file_usage */
-    $file_usage = \Drupal::service('file.usage');
-    $return_item_storage = $this->entityTypeManager->getStorage('commerce_return_item');
-    $commerce_return_storage = $this->entityTypeManager->getStorage('commerce_return');
-
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    $order = $order_storage->load($this->view->argument['order_id']->getValue());
+    $order = $this->orderStorage->load($this->view->argument['order_id']->getValue());
     $quantities = $form_state->getValue($this->options['id'], []);
 
-    // Find - if we connect handler for RMA reason field.
-    $handlers = $this->view->getHandlers('field');
-
-    foreach ($handlers as $handler) {
-      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_reason') {
-        $reason_handler = $handler;
-        break;
-      }
-    }
-    foreach ($handlers as $handler) {
-      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_files') {
-        $attachments_handler = $handler;
-        break;
-      }
-    }
-    foreach ($handlers as $handler) {
-      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_expected_resolution') {
-        $expected_resolution_handler = $handler;
-        break;
-      }
-    }
-    foreach ($handlers as $handler) {
-      if ($handler['plugin_id'] == 'commerce_rma_order_item_edit_note') {
-        $note_handler = $handler;
-        break;
-      }
-    }
+    $reason_handler = $this->getHandlerById('reason');
+    $attachments_handler = $this->getHandlerById('files');
+    $expected_resolution_handler = $this->getHandlerById('expected_resolution');
+    $note_handler = $this->getHandlerById('note');
 
     // Create list of new return item objects.
     $items_to_return = [];
@@ -293,7 +310,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
       $reason = isset($reason_handler) ? $form_state->getValue($reason_handler['id'])[$row_index] : NULL;
       $expected_resolution = isset($expected_resolution_handler) ? $form_state->getValue($expected_resolution_handler['id'])[$row_index] : NULL;
       $attachments = isset($attachments_handler) ? $form_state->getValue($attachments_handler['id'])[$row_index] : NULL;
-      $commerce_return_item = $return_item_storage->create([
+      $commerce_return_item = $this->returnItemStorage->create([
         'type' => 'default',
         'name' => $order_item->getTitle(),
         'unit_price' => $order_item->getUnitPrice(),
@@ -315,7 +332,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
           $file = File::load( $attachment );
           $file->setPermanent();
           $file->save();
-          $file_usage->add($file, 'commerce_rma', 'commerce_return_item', $commerce_return_item->id());
+          $this->fileUsage->add($file, 'commerce_rma', 'commerce_return_item', $commerce_return_item->id());
         }
         $commerce_return_item->field_attachments = $attachments;
         $commerce_return_item->save();
@@ -324,43 +341,15 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     }
 
     if ($items_to_return) {
-      $billing_address = $form_state->getValue('billing_information');
-      /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
-      $profile = $order->getBillingProfile();
-      if (!$profile) {
-        $profile_storage = $this->entityTypeManager->getStorage('profile');
-        $billing_profile = $profile_storage->create([
-          'type' => 'customer',
-          'uid' => $order->getCustomerId(),
-        ]);
-      }
-      else  {
-        $billing_profile = $profile->createDuplicate();
-      }
-      $billing_profile
-        ->enforceIsNew(TRUE)
-        ->set('address', $billing_address)
-        ->save();
+      /** @var \Drupal\commerce\Plugin\Commerce\InlineForm\EntityInlineFormInterface $billing_inline_form */
+      $billing_inline_form = $form['actions']['billing_profile']['#inline_form'];
+      /** @var \Drupal\profile\Entity\ProfileInterface $shipping_profile */
+      $billing_profile = $billing_inline_form->getEntity();
 
-      $shipping_address = $form_state->getValue('shipping_information');
-      /** @var \Drupal\commerce_shipping\Entity\ShipmentInterface $shipment */
-      $shipment = $order->get('shipments')->entity;
-      $shipping_profile = $shipment->getShippingProfile();
-
-      if (!$shipping_profile) {
-        $profile_storage = $this->entityTypeManager->getStorage('profile');
-        $shipping_profile = $profile_storage->create([
-          'type' => 'customer',
-          'uid' => $order->getCustomerId(),
-        ]);
-      }
-      else  {
-        $shipping_profile = $shipping_profile->createDuplicate();
-      }
-      $shipping_profile
-        ->enforceIsNew(TRUE)
-        ->set('address', $shipping_address)
-        ->save();
+      /** @var \Drupal\commerce\Plugin\Commerce\InlineForm\EntityInlineFormInterface $shipping_inline_form */
+      $shipping_inline_form = $form['actions']['shipping_profile']['#inline_form'];
+      /** @var \Drupal\profile\Entity\ProfileInterface $shipping_profile */
+      $shipping_profile = $shipping_inline_form->getEntity();
 
       $order_number = $order->getOrderNumber();
       if (empty($order_number)) {
@@ -369,7 +358,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
 
       // Create new Return object.
       /** @var \Drupal\commerce_rma\Entity\CommerceReturnInterface $commerce_return */
-      $commerce_return = $commerce_return_storage->create([
+      $commerce_return = $this->returnStorage->create([
         'name' => $this->t('Return for order :order', [':order' => $order_number]),
         'type' => 'default',
         'return_items' => $items_to_return,
@@ -392,7 +381,45 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
         ]));
       }
 
+      foreach ($commerce_return->getItems() as $item_to_return) {
+        $this->logStorage->generate($commerce_return, "return_item_added", [
+          'product_title' => $item_to_return->label(),
+          'quantity' => $item_to_return->getQuantity(),
+          'comment' => $item_to_return->get('note')->value,
+        ])->save();
+        $this->logStorage->generate($order, "order_return_item_added", [
+          'product_title' => $item_to_return->label(),
+          'quantity' => $item_to_return->getQuantity(),
+        ])->save();
+      }
     }
+
+    $this->logStorage->generate($order, 'order_return_added', [
+      'return_id' => $commerce_return->id(),
+    ])->save();
+    $this->logStorage->generate($commerce_return, 'return_added', [
+      'return_id' => $commerce_return->id(),
+    ])->save();
+  }
+
+  /**
+   * Helper to find if RMA handler is available.
+   *
+   * @param string $id
+   *   Handler id.
+   *
+   * @return bool
+   */
+  protected function getHandlerById($id) {
+    $handlers = $this->view->getHandlers('field');
+
+    foreach ($handlers as $handler) {
+      if ($handler['plugin_id'] == "commerce_rma_order_item_edit_{$id}") {
+        return $handler;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

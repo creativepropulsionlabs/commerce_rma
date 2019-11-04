@@ -50,17 +50,17 @@ order_return_cancel:
 
 return_item_added:
   category: commerce_return
-  label: 'Return item changed'
-  template: '<p><em>{{ product_title }} added, Quantity: {{ quantity }},<br /> Comment: {{ comment }}.</p>'
+  label: 'Return item added'
+  template: '<p><em>{{ product_title }}</em> added, Quantity: {{ quantity }},<br /> Comment: {{ comment }}.</p>'
 return_item_changed:
   category: commerce_return
   label: 'Return item changed'
-  template: '<p><em>{{ product_title }} changed, Quantity: {{ quantity }},<br /> Comment: {{ comment }}.</p>'
+  template: '<p><em>{{ product_title }}</em> changed, Quantity: {{ quantity }},<br /> Comment: {{ comment }}.</p>'
 order_return_item_added:
   category: commerce_return_order
-  label: 'Return item changed'
-  template: '<p><em>{{ product_title }} quantity: {{ quantity }}.</p>'
+  label: 'Return item added'
+  template: '<p><em>{{ product_title }}</em> quantity: {{ quantity }}.</p>'
 order_return_item_changed:
   category: commerce_return_order
   label: 'Return item changed'
-  template: '<p><em>Return: {{ product_title }} quantity: {{ quantity }}.</p>'
+  template: '<p><em>Return: {{ product_title }}</em> quantity: {{ quantity }}.</p>'
