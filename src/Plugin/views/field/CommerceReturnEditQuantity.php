@@ -196,6 +196,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
     /** @var \Drupal\profile\Entity\ProfileInterface $billing_profile */
     $billing_profile = $order->getBillingProfile()->createDuplicate();
     $billing_inline_form = $this->inlineFormManager->createInstance('customer_profile', [
+      'profile_scope' => 'billing',
       'available_countries' => $order->getStore()->getBillingCountries(),
     ], $billing_profile);
 
@@ -224,6 +225,7 @@ class CommerceReturnEditQuantity extends FieldPluginBase {
 
       $shipping_inline_form = $this->inlineFormManager->createInstance('customer_profile', [
         'available_countries' => $order->getStore()->getBillingCountries(),
+        'profile_scope' => 'shipping',
       ], $shipping_profile);
 
       $form['actions']['another_location_shipping'] = [
